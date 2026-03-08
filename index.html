@@ -373,49 +373,53 @@
   .btn-trailer{background:rgba(230,57,70,0.15); color:var(--accent); border:1px solid var(--accent); border-radius:var(--radius); padding:11px; font-family:'DM Sans',sans-serif; font-weight:600; cursor:pointer; font-size:0.82rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:12px; width:100%;}
   .btn-trailer:hover{background:var(--accent); color:#fff;}
 
-  /* REPARTO - VERSIÓN FORZADA */
+  /* --- REPARTO PREMIUM --- */
   .modal-cast { 
-    margin-top: 24px; 
-    padding: 16px 0; 
+    margin-top: 28px; 
+    padding-top: 20px; 
     border-top: 1px solid var(--border); 
-    display: block !important; /* Forzamos visibilidad */
-    width: 100%;
+    display: block !important;
     clear: both;
   }
   .cast-title { 
     font-size: 0.75rem; 
     color: var(--gold); 
     text-transform: uppercase; 
-    letter-spacing: 0.12em; 
-    margin-bottom: 15px; 
-    font-weight: 700; 
+    letter-spacing: 0.15em; 
+    margin-bottom: 16px; 
+    font-weight: 800; 
   }
   .cast-list { 
     display: flex; 
-    gap: 16px; 
+    gap: 20px; 
     overflow-x: auto; 
-    padding: 15px 5px; 
-    scrollbar-width: thin;
-    min-height: 150px; /* Espacio garantizado */
+    padding: 20px 5px; 
+    scrollbar-width: none;
+    min-height: 140px;
   }
+  .cast-list::-webkit-scrollbar { display: none; }
+  
   .cast-item { 
-    flex: 0 0 90px; 
+    flex: 0 0 85px; 
     text-align: center; 
-    transition: transform 0.2s ease;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
     position: relative;
-    z-index: 5;
   }
-  .cast-item:hover { transform: scale(1.1); z-index: 10; }
+  .cast-item:hover { transform: scale(1.15); z-index: 10; }
+  
   .cast-img { 
-    width: 60px; height: 60px; 
+    width: 68px; height: 68px; 
     border-radius: 50%; 
     object-fit: cover; 
-    border: 2px solid var(--border);
-    background: var(--bg4);
+    background: var(--bg4); 
+    margin-bottom: 10px; 
+    border: 2px solid var(--bg3); 
+    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
   }
-  .cast-name { font-size: 0.72rem; font-weight: 600; color: var(--text); line-height: 1.2; margin-top: 8px; }
-  .cast-char { font-size: 0.62rem; color: var(--text3); font-style: italic; }
+  .cast-item:hover .cast-img { border-color: var(--gold); }
+  .cast-name { font-size: 0.72rem; font-weight: 600; color: var(--text); line-height: 1.2; }
+  .cast-char { font-size: 0.62rem; color: var(--text3); margin-top: 2px; font-style: italic; }
 
 </style>
 </head>
@@ -891,22 +895,20 @@ async function doSearch(q){
 }
 
 /* ── MODAL ── */
-async function openDetail(id,type){
+async function openDetail(id, type) {
   document.getElementById('search-results').classList.remove('open');
-  document.getElementById('search-input').value='';
+  document.getElementById('search-input').value = '';
   showModal('<div class="loading-row"><div class="spinner"></div></div>');
-  
+
   try {
     const [details, credits, watchRes, videosRes] = await Promise.all([
-      fetch(`${API_BASE}/${type}/${id}?api_key=${API_KEY}&language=es-419`).then(r=>r.json()),
-      fetch(`${API_BASE}/${type}/${id}/credits?api_key=${API_KEY}`).then(r=>r.json()),
-      fetch(`${API_BASE}/${type}/${id}/watch/providers?api_key=${API_KEY}`).then(r=>r.json()).catch(()=>({results:{}})),
-      fetch(`${API_BASE}/${type}/${id}/videos?api_key=${API_KEY}&language=es-419`).then(r=>r.json()).catch(()=>({results:[]}))
+      fetch(`${API_BASE}/${type}/${id}?api_key=${API_KEY}&language=es-419`).then(r => r.json()),
+      fetch(`${API_BASE}/${type}/${id}/credits?api_key=${API_KEY}`).then(r => r.json()),
+      fetch(`${API_BASE}/${type}/${id}/watch/providers?api_key=${API_KEY}`).then(r => r.json()).catch(() => ({ results: {} })),
+      fetch(`${API_BASE}/${type}/${id}/videos?api_key=${API_KEY}&language=es-419`).then(r => r.json()).catch(() => ({ results: [] }))
     ]);
 
-    // DEBUG: Revisa esto en tu consola (F12)
-    console.log("Datos de Reparto recibidos:", credits.cast);
-
+    // --- DEFINICIÓN DE VARIABLES ---
     const isM = type === 'movie';
     const title = isM ? details.title : details.name;
     const year = (isM ? details.release_date : details.first_air_date || '').slice(0, 4);
@@ -916,24 +918,15 @@ async function openDetail(id,type){
     const currentRating = existing ? existing.rating : 5;
     const isSaved = !!saved[id];
 
-    // --- LÓGICA DE SAGA ---
-    let sagaHtml = '';
-    if (isM && collectionId) {
-      try {
-        const colRes = await fetch(`${API_BASE}/collection/${collectionId}?api_key=${API_KEY}&language=es-419`).then(r=>r.json());
-        const otherMovies = (colRes.parts || []).filter(p => p.id !== id).sort((a,b) => (a.release_date||'').localeCompare(b.release_date||''));
-        if (otherMovies.length > 0) {
-          sagaHtml = `<div class="modal-saga"><div class="saga-title">Colección: ${esc(colRes.name)}</div><div class="saga-list">
-            ${otherMovies.map(m => `<div class="saga-item" onclick="openDetail(${m.id},'movie')"><img src="${m.poster_path ? IMG_BASE+'w154'+m.poster_path : ''}"><div class="saga-item-title">${esc(m.title)}</div></div>`).join('')}
-          </div></div>`;
-        }
-      } catch(e) {}
-    }
+    // Imágenes (Solución al ReferenceError)
+    const backdrop = details.backdrop_path ? `${IMG_BASE}w780${details.backdrop_path}` : '';
+    const poster = details.poster_path ? `${IMG_BASE}w342${details.poster_path}` : '';
 
-    // (Lógica de providersHtml y trailerBtn se mantiene igual...)
+    // Tráiler
     const trailer = (videosRes.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube') || (videosRes.results || [])[0];
-    const trailerBtn = trailer ? `<button class="btn-trailer" onclick="window.open('https://youtube.com/watch?v=${trailer.key}', '_blank')">▶ Ver Tráiler</button>` : '';
-    
+    const trailerBtn = trailer ? `<button class="btn-trailer" onclick="window.open('https://youtube.com/watch?v=${trailer.key}', '_blank')">▶ Ver Tráiler Oficial</button>` : '';
+
+    // Proveedores
     const watchData = (watchRes.results || {})[userCountry] || {};
     const allWatch = [...(watchData.flatrate || []), ...(watchData.rent || [])].slice(0, 8);
     let providersHtml = '';
@@ -943,12 +936,24 @@ async function openDetail(id,type){
       </div></div>`;
     }
 
-// --- 4. LÓGICA DE REPARTO (Aseguramos que se cree el HTML) ---
+    // Saga
+    let sagaHtml = '';
+    if (isM && collectionId) {
+      try {
+        const colRes = await fetch(`${API_BASE}/collection/${collectionId}?api_key=${API_KEY}&language=es-419`).then(r => r.json());
+        const otherMovies = (colRes.parts || []).filter(p => p.id !== id).sort((a, b) => (a.release_date || '').localeCompare(b.release_date || ''));
+        if (otherMovies.length > 0) {
+          sagaHtml = `<div class="modal-saga"><div class="saga-title">Saga: ${esc(colRes.name)}</div><div class="saga-list">
+            ${otherMovies.map(m => `<div class="saga-item" onclick="openDetail(${m.id},'movie')"><img src="${m.poster_path ? IMG_BASE+'w154'+m.poster_path : ''}"><div class="saga-item-title">${esc(m.title)}</div></div>`).join('')}
+          </div></div>`;
+        }
+      } catch (e) { }
+    }
+
+    // Reparto (Cast)
     const castData = (credits.cast || []).slice(0, 10);
     let castHtml = '';
-    
     if (castData.length > 0) {
-      console.log("Generando HTML para", castData.length, "actores");
       castHtml = `
         <div class="modal-cast">
           <div class="cast-title">Reparto Principal</div>
@@ -963,7 +968,8 @@ async function openDetail(id,type){
         </div>`;
     }
 
-    // --- RENDERIZADO FINAL ---
+    currentModal = { id, type, title, genre_ids: genres.map(g => g.id), poster_path: details.poster_path || '', backdrop_path: details.backdrop_path || '', release_date: (isM ? details.release_date : details.first_air_date) || '', collectionId };
+
     showModal(`
       ${backdrop ? `<img src="${backdrop}" class="modal-backdrop">` : `<div class="modal-backdrop-gradient"></div>`}
       <div class="modal-body">
@@ -971,35 +977,36 @@ async function openDetail(id,type){
           ${poster ? `<img src="${poster}" class="modal-poster">` : `<div class="modal-poster"></div>`}
           <div class="modal-title-block">
             <div class="modal-title">${esc(title)}</div>
-            <div class="modal-meta"><span>📅 ${year}</span> <span class="result-type ${isM?'type-movie':'type-tv'}">${isM?'Peli':'Serie'}</span></div>
+            <div class="modal-meta"><span>📅 ${year}</span> <span class="result-type ${isM ? 'type-movie' : 'type-tv'}">${isM ? 'Peli' : 'Serie'}</span></div>
           </div>
         </div>
 
-        ${genres.length ? `<div class="modal-genres">${genres.map(g=>`<span class="modal-genre-tag">${g.name}</span>`).join('')}</div>` : ''}
+        ${genres.length ? `<div class="modal-genres">${genres.map(g => `<span class="modal-genre-tag">${g.name}</span>`).join('')}</div>` : ''}
 
         <div class="rating-widget" style="background: var(--bg4); border: 1px solid var(--gold); margin: 15px 0;">
           <div class="rating-label">Tu calificación</div>
           <div class="rating-display">
             <div class="rating-number" id="modal-rating-display">${currentRating}<span>/10</span></div>
-            <input type="range" class="rating-slider" min="0" max="10" step="0.5" value="${currentRating}" id="modal-rating-slider" style="--pct:${currentRating*10}%" oninput="updateRatingDisplay(this)">
+            <input type="range" class="rating-slider" min="0" max="10" step="0.5" value="${currentRating}" id="modal-rating-slider" style="--pct:${currentRating * 10}%" oninput="updateRatingDisplay(this)">
           </div>
           <button class="btn-rate" onclick="rateItem()" style="margin-top:10px; width:100%;">${existing ? '✏️ Actualizar' : '⭐ Guardar'}</button>
         </div>
 
         ${trailerBtn}
         ${providersHtml}
-        <p class="modal-overview" style="margin-top:15px; font-style: italic; opacity:0.9;">${esc(details.overview||'Sin descripción.')}</p>
+        <p class="modal-overview" style="margin-top:15px; font-style: italic; opacity:0.9;">${esc(details.overview || 'Sin descripción.')}</p>
         
         ${sagaHtml} 
-        ${castHtml} <div class="modal-action-row" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
-          <button class="btn-save-toggle ${isSaved?'saved':''}" id="btn-save-toggle" onclick="toggleSave()" style="flex:1;">${isSaved?'🔖 Guardado':'🔖 Guardar'}</button>
+        ${castHtml} 
+
+        <div class="modal-action-row" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+          <button class="btn-save-toggle ${isSaved ? 'saved' : ''}" id="btn-save-toggle" onclick="toggleSave()" style="flex:1;">${isSaved ? '🔖 Guardado' : '🔖 Guardar'}</button>
           ${existing ? `<button class="btn-delete" onclick="deleteRating(${id})">🗑</button>` : ''}
         </div>
       </div>`);
-
-  } catch (e) { 
-    console.error(e);
-    showModal('<div style="padding:40px;text-align:center;">Error al cargar</div>'); 
+  } catch (e) {
+    console.error("Error en el modal:", e);
+    showModal('<div style="padding:40px;text-align:center;">Error al cargar detalles.</div>');
   }
 }
 
