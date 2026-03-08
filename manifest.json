@@ -1,6 +1,6 @@
 {
-    "name": "Cinemateca Personal",
-    "short_name": "Cinemateca",
+    "name": "Cinematecaz Personal",
+    "short_name": "Cinematecaz",
     "description": "Tu diario personal de cine y series",
     "start_url": "./",
     "display": "standalone",
