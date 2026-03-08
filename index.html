@@ -348,13 +348,35 @@
   .btn-trailer{background:rgba(230,57,70,0.15); color:var(--accent); border:1px solid var(--accent); border-radius:var(--radius); padding:11px; font-family:'DM Sans',sans-serif; font-weight:600; cursor:pointer; font-size:0.82rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:12px; width:100%;}
   .btn-trailer:hover{background:var(--accent); color:#fff;}
 
-  .modal-cast{margin-top:20px;}
-  .cast-title{font-size:0.72rem; color:var(--text2); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:12px; font-weight:600;}
-  .cast-list{display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; scrollbar-width: thin;}
-  .cast-item{flex:0 0 80px; text-align:center;}
-  .cast-img{width:60px; height:60px; border-radius:50%; object-fit:cover; background:var(--bg4); margin-bottom:6px; border:1px solid var(--border);}
-  .cast-name{font-size:0.7rem; font-weight:600; color:var(--text); line-height:1.2; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
-  .cast-char{font-size:0.6rem; color:var(--text3); margin-top:2px;}
+  .modal-cast { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .cast-title { font-size: 0.72rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 16px; font-weight: 700; opacity: 0.9; }
+  
+  /* Slider mejorado */
+  .cast-list { 
+    display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; 
+    scrollbar-width: thin; scrollbar-color: var(--gold) transparent;
+  }
+  
+  /* Ocultamos el scrollbar feo en Chrome/Safari pero que funcione */
+  .cast-list::-webkit-scrollbar { height: 4px; }
+  .cast-list::-webkit-scrollbar-track { background: transparent; }
+  .cast-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+  .cast-list:hover::-webkit-scrollbar-thumb { background: var(--gold); }
+
+  .cast-item { flex: 0 0 85px; text-align: center; transition: transform 0.2s ease; }
+  .cast-item:hover { transform: scale(1.05); }
+  
+  .cast-img { 
+    width: 64px; height: 64px; border-radius: 50%; object-fit: cover; 
+    background: var(--bg4); margin-bottom: 8px; 
+    border: 2px solid var(--bg3); box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: border-color 0.2s;
+  }
+  .cast-item:hover .cast-img { border-color: var(--gold); }
+  
+  .cast-name { font-size: 0.72rem; font-weight: 500; color: var(--text); line-height: 1.2; }
+  .cast-char { font-size: 0.62rem; color: var(--text3); margin-top: 2px; font-style: italic; }
+
 </style>
 </head>
 <body>
@@ -908,30 +930,34 @@ async function openDetail(id,type){
             </div>
           </div>
         </div>
+
         ${genres.length?`<div class="modal-genres">${genres.map(g=>`<span class="modal-genre-tag">${g.name}</span>`).join('')}</div>`:''}
-        ${trailerBtn}
-        ${providersHtml}
-        <p class="modal-overview">${esc(details.overview||'Sin descripción.')}</p>
-        
-        ${sagaHtml} 
-        
-        ${castHtml} 
-        
-        ${progressHtml}
-        
-        <div class="rating-widget">
+
+        <div class="rating-widget" style="margin-bottom: 20px; background: var(--bg2); border: 1px solid var(--border);">
           <div class="rating-label">Tu calificación</div>
           <div class="rating-display">
             <div class="rating-number" id="modal-rating-display">${currentRating}<span>/10</span></div>
             <input type="range" class="rating-slider" min="0" max="10" step="0.5" value="${currentRating}" id="modal-rating-slider" style="--pct:${currentRating*10}%" oninput="updateRatingDisplay(this)">
           </div>
+          <div class="modal-action-row" style="margin-top: 12px;">
+            <button class="btn-rate" onclick="rateItem()">${existing?'✏️ Actualizar':'⭐ Guardar Nota'}</button>
+          </div>
         </div>
-        <div class="modal-action-row">
-          <button class="btn-rate" onclick="rateItem()">${existing?'✏️ Actualizar':'⭐ Guardar'}</button>
-          <button class="btn-save-toggle ${isSaved?'saved':''}" id="btn-save-toggle" onclick="toggleSave()">${isSaved?'🔖 Guardado':'🔖 Guardar'}</button>
-          ${existing?`<button class="btn-delete" onclick="deleteRating(${id})">🗑</button>`:''}
+
+        ${trailerBtn}
+        ${providersHtml}
+        
+        <p class="modal-overview" style="margin-top: 16px;">${esc(details.overview||'Sin descripción.')}</p>
+        
+        ${sagaHtml} 
+        ${castHtml} 
+
+        <div class="modal-action-row" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+          <button class="btn-save-toggle ${isSaved?'saved':''}" id="btn-save-toggle" onclick="toggleSave()" style="flex:1;">${isSaved?'🔖 Guardado':'🔖 Guardar para después'}</button>
+          ${existing?`<button class="btn-delete" onclick="deleteRating(${id})" title="Eliminar de mi lista">🗑</button>`:''}
         </div>
       </div>`);
+
   }catch(e){ showModal(`<div style="padding:40px;text-align:center;color:var(--accent)">${e.message}</div>`); }
 }
 
