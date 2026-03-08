@@ -887,85 +887,81 @@ async function openDetail(id,type){
   document.getElementById('search-results').classList.remove('open');
   document.getElementById('search-input').value='';
   showModal('<div class="loading-row"><div class="spinner"></div></div>');
-  try{
-    const [details,credits,watchRes,videosRes]=await Promise.all([
+  
+  try {
+    const [details, credits, watchRes, videosRes] = await Promise.all([
       fetch(`${API_BASE}/${type}/${id}?api_key=${API_KEY}&language=es-419`).then(r=>r.json()),
       fetch(`${API_BASE}/${type}/${id}/credits?api_key=${API_KEY}`).then(r=>r.json()),
       fetch(`${API_BASE}/${type}/${id}/watch/providers?api_key=${API_KEY}`).then(r=>r.json()).catch(()=>({results:{}})),
       fetch(`${API_BASE}/${type}/${id}/videos?api_key=${API_KEY}&language=es-419`).then(r=>r.json()).catch(()=>({results:[]}))
     ]);
 
-    const isM=type==='movie';
-    const title=isM?details.title:details.name;
-    const year=(isM?details.release_date:details.first_air_date||'').slice(0,4);
-    const genres=details.genres||[];
+    const isM = type === 'movie';
+    const title = isM ? details.title : details.name;
+    const year = (isM ? details.release_date : details.first_air_date || '').slice(0, 4);
+    const genres = details.genres || [];
     const collectionId = details.belongs_to_collection ? details.belongs_to_collection.id : null;
+    const existing = rated[id];
+    const currentRating = existing ? existing.rating : 5;
+    const isSaved = !!saved[id];
 
-    // --- LÓGICA DE SAGA ---
+    // --- 1. LÓGICA DE TRÁILER ---
+    const trailer = (videosRes.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube') || (videosRes.results || [])[0];
+    const trailerBtn = trailer ? `<button class="btn-trailer" onclick="window.open('https://youtube.com/watch?v=${trailer.key}', '_blank')">▶ Ver Tráiler Oficial</button>` : '';
+
+    // --- 2. LÓGICA DE PROVEEDORES (Streaming) ---
+    const watchData = (watchRes.results || {})[userCountry] || {};
+    const flatrate = (watchData.flatrate || []);
+    const rent = (watchData.rent || []);
+    const allWatch = [...flatrate, ...rent.filter(r => !flatrate.find(f => f.provider_id === r.provider_id))].slice(0, 8);
+    const jwLink = watchData.link || `https://www.justwatch.com/ar/buscar?q=${encodeURIComponent(title)}`;
+    let providersHtml = '';
+    if (allWatch.length) {
+      providersHtml = `<div class="providers-section"><div class="providers-label">🌍 Dónde ver en ${userCountry}</div><div class="providers-row">
+        ${allWatch.map(p => `<a href="${jwLink}" target="_blank" class="provider-pill ${userProviders.has(p.provider_id)?'mine':''}"><img src="${IMG_BASE}original${p.logo_path}" alt="${esc(p.provider_name)}"><span>${esc(p.provider_name)}</span></a>`).join('')}
+      </div></div>`;
+    }
+
+    // --- 3. LÓGICA DE SAGA ---
     let sagaHtml = '';
-    if(isM && collectionId) {
+    if (isM && collectionId) {
       try {
         const colRes = await fetch(`${API_BASE}/collection/${collectionId}?api_key=${API_KEY}&language=es-419`).then(r=>r.json());
         const otherMovies = (colRes.parts || []).filter(p => p.id !== id).sort((a,b) => (a.release_date||'').localeCompare(b.release_date||''));
-        if(otherMovies.length > 0) {
-          sagaHtml = `<div class="modal-saga">
-            <div class="saga-title">Colección: ${esc(colRes.name)}</div>
-            <div class="saga-list">${otherMovies.map(m => `
-                <div class="saga-item" onclick="openDetail(${m.id},'movie')">
-                  <img src="${m.poster_path ? IMG_BASE+'w154'+m.poster_path : ''}" alt="${esc(m.title)}">
-                  <div class="saga-item-title">${esc(m.title)}</div>
-                </div>`).join('')}
-            </div>
-          </div>`;
+        if (otherMovies.length > 0) {
+          sagaHtml = `<div class="modal-saga"><div class="saga-title">Colección: ${esc(colRes.name)}</div><div class="saga-list">
+            ${otherMovies.map(m => `<div class="saga-item" onclick="openDetail(${m.id},'movie')"><img src="${m.poster_path ? IMG_BASE+'w154'+m.poster_path : ''}" alt="${esc(m.title)}"><div class="saga-item-title">${esc(m.title)}</div></div>`).join('')}
+          </div></div>`;
         }
       } catch(e) {}
     }
 
-    // --- LÓGICA DE REPARTO (CAST) ---
-    const cast = (credits.cast || []).slice(0, 10); 
+    // --- 4. LÓGICA DE REPARTO (CAST) ---
+    const cast = (credits.cast || []).slice(0, 10);
     let castHtml = '';
-    if(cast.length > 0) {
-      castHtml = `
-        <div class="modal-cast">
-          <div class="cast-title">Reparto Principal (tocá para buscar)</div>
-          <div class="cast-list">
-            ${cast.map(actor => `
-              <div class="cast-item" onclick="searchByActor('${esc(actor.name)}')">
-                <img src="${actor.profile_path ? IMG_BASE+'w185'+actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img" loading="lazy">
-                <div class="cast-name">${esc(actor.name)}</div>
-                <div class="cast-char">${esc(actor.character)}</div>
-              </div>`).join('')}
-          </div>
-        </div>`;
+    if (cast.length > 0) {
+      castHtml = `<div class="modal-cast"><div class="cast-title">Reparto Principal (tocá para buscar)</div><div class="cast-list">
+        ${cast.map(actor => `<div class="cast-item" onclick="searchByActor('${esc(actor.name)}')"><img src="${actor.profile_path ? IMG_BASE+'w185'+actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img" loading="lazy"><div class="cast-name">${esc(actor.name)}</div><div class="cast-char">${esc(actor.character)}</div></div>`).join('')}
+      </div></div>`;
     }
 
-    const trailer = (videosRes.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube') || (videosRes.results || [])[0];
-    const trailerBtn = trailer ? `<button class="btn-trailer" onclick="window.open('https://youtube.com/watch?v=${trailer.key}', '_blank')">▶ Ver Tráiler Oficial</button>` : '';
+    currentModal = { id, type, title, genre_ids: genres.map(g=>g.id), poster_path: details.poster_path||'', backdrop_path: details.backdrop_path||'', release_date: (isM ? details.release_date : details.first_air_date) || '', collectionId };
 
-    const existing=rated[id];
-    const currentRating=existing?existing.rating:5;
-    const isSaved=!!saved[id];
-    
-    currentModal={id,type,title,genre_ids:genres.map(g=>g.id),poster_path:details.poster_path||'',backdrop_path:details.backdrop_path||'',release_date:(isM?details.release_date:details.first_air_date)||'',overview:details.overview||'', collectionId};
-
-    const backdrop=details.backdrop_path?`${IMG_BASE}w780${details.backdrop_path}`:'';
-    const poster=details.poster_path?`${IMG_BASE}w342${details.poster_path}`:'';
-
-    // (Aquí va tu lógica de providersHtml...)
-    let providersHtml = ''; // Asegurate de que esta variable esté bien generada antes de showModal
+    const backdrop = details.backdrop_path ? `${IMG_BASE}w780${details.backdrop_path}` : '';
+    const poster = details.poster_path ? `${IMG_BASE}w342${details.poster_path}` : '';
 
     showModal(`
-      ${backdrop?`<img src="${backdrop}" class="modal-backdrop">`:`<div class="modal-backdrop-gradient"></div>`}
+      ${backdrop ? `<img src="${backdrop}" class="modal-backdrop">` : `<div class="modal-backdrop-gradient"></div>`}
       <div class="modal-body">
         <div class="modal-header">
-          ${poster?`<img src="${poster}" class="modal-poster">`:`<div class="modal-poster"></div>`}
+          ${poster ? `<img src="${poster}" class="modal-poster">` : `<div class="modal-poster"></div>`}
           <div class="modal-title-block">
             <div class="modal-title">${esc(title)}</div>
-            <div class="modal-meta"><span>📅 ${year}</span> <span class="result-type ${isM?'type-movie':'type-tv'}">${isM?'Película':'Serie'}</span></div>
+            <div class="modal-meta"><span>📅 ${year}</span> <span class="result-type ${isM?'type-movie':'type-tv'}">${isM?'Peli':'Serie'}</span></div>
           </div>
         </div>
 
-        ${genres.length?`<div class="modal-genres">${genres.map(g=>`<span class="modal-genre-tag">${g.name}</span>`).join('')}</div>`:''}
+        ${genres.length ? `<div class="modal-genres">${genres.map(g=>`<span class="modal-genre-tag">${g.name}</span>`).join('')}</div>` : ''}
 
         <div class="rating-widget" style="background: var(--bg4); border: 1px solid var(--gold); margin: 15px 0;">
           <div class="rating-label">Tu calificación</div>
@@ -978,15 +974,20 @@ async function openDetail(id,type){
 
         ${trailerBtn}
         ${providersHtml}
-        <p class="modal-overview" style="margin-top:15px; font-style: italic;">${esc(details.overview||'Sin descripción.')}</p>
+        <p class="modal-overview" style="margin-top:15px; font-style: italic; opacity:0.9;">${esc(details.overview||'Sin descripción.')}</p>
         
         ${sagaHtml} 
-        ${castHtml} <div class="modal-action-row" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+        ${castHtml} 
+
+        <div class="modal-action-row" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
           <button class="btn-save-toggle ${isSaved?'saved':''}" id="btn-save-toggle" onclick="toggleSave()" style="flex:1;">${isSaved?'🔖 Guardado':'🔖 Guardar'}</button>
-          ${existing?`<button class="btn-delete" onclick="deleteRating(${id})">🗑</button>`:''}
+          ${existing ? `<button class="btn-delete" onclick="deleteRating(${id})">🗑</button>` : ''}
         </div>
       </div>`);
-  }catch(e){ showModal('<div style="padding:40px;text-align:center;">Error al cargar</div>'); }
+  } catch (e) { 
+    console.error(e);
+    showModal('<div style="padding:40px;text-align:center;color:var(--accent);">Error al cargar los detalles.</div>'); 
+  }
 }
 
 function setStatus(status){
