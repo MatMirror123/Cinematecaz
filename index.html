@@ -373,13 +373,13 @@
   .btn-trailer{background:rgba(230,57,70,0.15); color:var(--accent); border:1px solid var(--accent); border-radius:var(--radius); padding:11px; font-family:'DM Sans',sans-serif; font-weight:600; cursor:pointer; font-size:0.82rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:12px; width:100%;}
   .btn-trailer:hover{background:var(--accent); color:#fff;}
 
-  /* --- REPARTO PREMIUM --- */
+/* ----------------------------------------------------------  CAST DISPLAY ---------------------------------------------------------- */
   .modal-cast { 
-    margin-top: 28px; 
+    margin-top: 24px; 
     padding-top: 20px; 
     border-top: 1px solid var(--border); 
-    display: block !important;
-    clear: both;
+    display: block;
+    width: 100%;
   }
   .cast-title { 
     font-size: 0.75rem; 
@@ -389,24 +389,38 @@
     margin-bottom: 16px; 
     font-weight: 800; 
   }
+  
   .cast-list { 
     display: flex; 
-    gap: 20px; 
+    gap: 16px; 
     overflow-x: auto; 
-    padding: 20px 5px; 
-    scrollbar-width: none;
-    min-height: 140px;
+    /* Padding inferior generoso para que el hover no se corte */
+    padding: 10px 4px 24px 4px; 
+    
+    /* Scroll elegante para PC */
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold) transparent;
   }
-  .cast-list::-webkit-scrollbar { display: none; }
+  
+  /* Detalles de la barra de scroll (Webkit) */
+  .cast-list::-webkit-scrollbar { height: 6px; }
+  .cast-list::-webkit-scrollbar-track { background: transparent; }
+  .cast-list::-webkit-scrollbar-thumb { background: rgba(201, 168, 76, 0.4); border-radius: 10px; }
+  .cast-list::-webkit-scrollbar-thumb:hover { background: var(--gold); }
   
   .cast-item { 
-    flex: 0 0 85px; 
+    flex: 0 0 82px; 
     text-align: center; 
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
     position: relative;
   }
-  .cast-item:hover { transform: scale(1.15); z-index: 10; }
+  
+  /* Efecto de "levantarse" al pasar el mouse */
+  .cast-item:hover { 
+    transform: scale(1.15) translateY(-4px); 
+    z-index: 10; 
+  }
   
   .cast-img { 
     width: 68px; height: 68px; 
@@ -415,11 +429,82 @@
     background: var(--bg4); 
     margin-bottom: 10px; 
     border: 2px solid var(--bg3); 
-    box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    transition: border-color 0.3s, box-shadow 0.3s;
   }
-  .cast-item:hover .cast-img { border-color: var(--gold); }
+  .cast-item:hover .cast-img { 
+    border-color: var(--gold); 
+    box-shadow: 0 0 16px rgba(201, 168, 76, 0.6);
+  }
+  
   .cast-name { font-size: 0.72rem; font-weight: 600; color: var(--text); line-height: 1.2; }
-  .cast-char { font-size: 0.62rem; color: var(--text3); margin-top: 2px; font-style: italic; }
+  .cast-char { font-size: 0.62rem; color: var(--text3); margin-top: 4px; font-style: italic; }
+
+/* ----------------------------------------------------- RULETA / DADOS (INICIO) ------------------------------------------------------ */
+  .dice-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px; 
+    margin-bottom: 36px; 
+  }
+  .dice-card { 
+    background: var(--bg3); 
+    border: 1px solid var(--border); 
+    border-radius: 14px; 
+    position: relative; 
+    overflow: hidden; 
+    min-height: 180px; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: flex-end; 
+    padding: 20px; 
+    cursor: pointer; 
+    transition: transform 0.2s, box-shadow 0.2s; 
+  }
+  .dice-card:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 12px 24px rgba(0,0,0,0.6); 
+    border-color: var(--gold); 
+  }
+  .dice-bg { 
+    position: absolute; inset: 0; width: 100%; height: 100%; 
+    object-fit: cover; opacity: 0.35; 
+    transition: opacity 0.3s, transform 3s ease-out; z-index: 0; 
+  }
+  .dice-card:hover .dice-bg { opacity: 0.55; transform: scale(1.05); }
+  .dice-overlay { 
+    position: absolute; inset: 0; 
+    background: linear-gradient(to top, var(--bg) 5%, rgba(10,10,12,0.6) 60%, transparent 100%); 
+    z-index: 1; 
+  }
+  .dice-badge { 
+    display: inline-flex; align-items: center; gap: 6px; 
+    background: rgba(0,0,0,0.7); border: 1px solid var(--gold); color: var(--gold); 
+    padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; 
+    margin-bottom: 10px; width: fit-content; text-transform: uppercase; 
+    letter-spacing: 0.08em; position: relative; z-index: 2; backdrop-filter: blur(4px); 
+  }
+  .dice-discovery-badge { border-color: var(--blue); color: var(--blue); }
+  .dice-title { 
+    position: relative; z-index: 2; font-family: 'Playfair Display', serif; 
+    font-size: 1.4rem; font-weight: 700; line-height: 1.15; margin-bottom: 6px; 
+    text-shadow: 0 2px 6px rgba(0,0,0,0.8); 
+  }
+  .dice-meta { 
+    position: relative; z-index: 2; font-size: 0.75rem; color: var(--text2); line-height: 1.4; 
+  }
+  .dice-reroll { 
+    position: absolute; top: 16px; right: 16px; 
+    background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); 
+    border-radius: 50%; width: 40px; height: 40px; display: flex; 
+    align-items: center; justify-content: center; font-size: 1.3rem; 
+    z-index: 10; cursor: pointer; transition: all 0.3s; backdrop-filter: blur(4px); 
+  }
+  .dice-reroll:hover { 
+    background: var(--gold); color: #000; border-color: var(--gold); transform: rotate(180deg); 
+  }
+  @media (max-width: 768px) { .dice-grid { grid-template-columns: 1fr; } }
+
 
 </style>
 </head>
@@ -483,6 +568,13 @@
       <div class="profile-stat"><div class="stat-number" id="stat-top">—</div><div class="stat-label">Nota más alta</div></div>
       <div class="profile-stat"><div class="stat-number" id="stat-genres">—</div><div class="stat-label">Género favorito</div></div>
       <div class="profile-genres" id="profile-genres"></div>
+    </div>
+
+    <div class="section-block" id="dice-block" style="display:none">
+      <div class="dice-grid">
+        <div class="dice-card" id="dice-safe"></div>
+        <div class="dice-card" id="dice-discovery"></div>
+      </div>
     </div>
 
     <div class="section-block" id="cw-block" style="display:none">
@@ -908,7 +1000,6 @@ async function openDetail(id, type) {
       fetch(`${API_BASE}/${type}/${id}/videos?api_key=${API_KEY}&language=es-419`).then(r => r.json()).catch(() => ({ results: [] }))
     ]);
 
-    // --- DEFINICIÓN DE VARIABLES ---
     const isM = type === 'movie';
     const title = isM ? details.title : details.name;
     const year = (isM ? details.release_date : details.first_air_date || '').slice(0, 4);
@@ -917,16 +1008,16 @@ async function openDetail(id, type) {
     const existing = rated[id];
     const currentRating = existing ? existing.rating : 5;
     const isSaved = !!saved[id];
+    
+    // Obtenemos el total de temporadas para las series
+    const totalSeasons = details.number_of_seasons || 1;
 
-    // Imágenes (Solución al ReferenceError)
     const backdrop = details.backdrop_path ? `${IMG_BASE}w780${details.backdrop_path}` : '';
     const poster = details.poster_path ? `${IMG_BASE}w342${details.poster_path}` : '';
 
-    // Tráiler
     const trailer = (videosRes.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube') || (videosRes.results || [])[0];
     const trailerBtn = trailer ? `<button class="btn-trailer" onclick="window.open('https://youtube.com/watch?v=${trailer.key}', '_blank')">▶ Ver Tráiler Oficial</button>` : '';
 
-    // Proveedores
     const watchData = (watchRes.results || {})[userCountry] || {};
     const allWatch = [...(watchData.flatrate || []), ...(watchData.rent || [])].slice(0, 8);
     let providersHtml = '';
@@ -936,21 +1027,19 @@ async function openDetail(id, type) {
       </div></div>`;
     }
 
-    // Saga
     let sagaHtml = '';
     if (isM && collectionId) {
       try {
         const colRes = await fetch(`${API_BASE}/collection/${collectionId}?api_key=${API_KEY}&language=es-419`).then(r => r.json());
         const otherMovies = (colRes.parts || []).filter(p => p.id !== id).sort((a, b) => (a.release_date || '').localeCompare(b.release_date || ''));
         if (otherMovies.length > 0) {
-          sagaHtml = `<div class="modal-saga"><div class="saga-title">Saga: ${esc(colRes.name)}</div><div class="saga-list">
-            ${otherMovies.map(m => `<div class="saga-item" onclick="openDetail(${m.id},'movie')"><img src="${m.poster_path ? IMG_BASE+'w154'+m.poster_path : ''}"><div class="saga-item-title">${esc(m.title)}</div></div>`).join('')}
+          sagaHtml = `<div class="modal-saga"><div class="saga-title">Colección: ${esc(colRes.name)}</div><div class="saga-list">
+            ${otherMovies.map(m => `<div class="saga-item" onclick="openDetail(${m.id},'movie')"><img src="${m.poster_path ? IMG_BASE + 'w154' + m.poster_path : ''}"><div class="saga-item-title">${esc(m.title)}</div></div>`).join('')}
           </div></div>`;
         }
       } catch (e) { }
     }
 
-    // Reparto (Cast)
     const castData = (credits.cast || []).slice(0, 10);
     let castHtml = '';
     if (castData.length > 0) {
@@ -960,7 +1049,7 @@ async function openDetail(id, type) {
           <div class="cast-list">
             ${castData.map(actor => `
               <div class="cast-item" onclick="searchByActor('${esc(actor.name)}')">
-                <img src="${actor.profile_path ? IMG_BASE+'w185'+actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img" loading="lazy">
+                <img src="${actor.profile_path ? IMG_BASE + 'w185' + actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img" loading="lazy">
                 <div class="cast-name">${esc(actor.name)}</div>
                 <div class="cast-char">${esc(actor.character || 'Actor')}</div>
               </div>`).join('')}
@@ -968,7 +1057,41 @@ async function openDetail(id, type) {
         </div>`;
     }
 
-    currentModal = { id, type, title, genre_ids: genres.map(g => g.id), poster_path: details.poster_path || '', backdrop_path: details.backdrop_path || '', release_date: (isM ? details.release_date : details.first_air_date) || '', collectionId };
+    // --- LÓGICA DE PROGRESO (SOLO PARA SERIES) ---
+    let progressHtml = '';
+    if (!isM) {
+      const prog = progress[id] || {};
+      const currentStatus = prog.status || '';
+      const currentSeason = prog.season || 1;
+      const currentEpisode = prog.episode || 1;
+      
+      let seasonOptions = '';
+      for(let i=1; i<=totalSeasons; i++){
+        seasonOptions += `<option value="${i}" ${i===currentSeason?'selected':''}>Temporada ${i}</option>`;
+      }
+
+      progressHtml = `
+        <div class="progress-widget" style="margin-top: 15px;">
+          <div class="pw-title">Seguimiento de Serie</div>
+          <div class="progress-selectors">
+            <select id="prog-season" onchange="loadSeasonEpisodes(${id}, this.value); saveProgress()">
+              ${seasonOptions}
+            </select>
+            <select id="prog-ep" onchange="saveProgress()">
+              <option value="${currentEpisode}">Ep. ${currentEpisode}</option>
+            </select>
+            <span id="prog-ep-loading" style="display:none;" class="spinner"></span>
+          </div>
+          <div class="progress-status">
+            <button class="status-btn watching ${currentStatus==='watching'?'active':''}" onclick="setStatus('watching')">▶ Viendo</button>
+            <button class="status-btn done ${currentStatus==='completed'?'active':''}" onclick="setStatus('completed')">✓ Terminada</button>
+            <button class="status-btn paused ${currentStatus==='paused'?'active':''}" onclick="setStatus('paused')">⏸ Pausada</button>
+            <button class="status-btn none ${currentStatus===''?'active':''}" onclick="setStatus('')">✕ Nada</button>
+          </div>
+        </div>`;
+    }
+
+    currentModal = { id, type, title, genre_ids: genres.map(g => g.id), poster_path: details.poster_path || '', backdrop_path: details.backdrop_path || '', release_date: (isM ? details.release_date : details.first_air_date) || '', collectionId, seasons_total: totalSeasons };
 
     showModal(`
       ${backdrop ? `<img src="${backdrop}" class="modal-backdrop">` : `<div class="modal-backdrop-gradient"></div>`}
@@ -977,13 +1100,13 @@ async function openDetail(id, type) {
           ${poster ? `<img src="${poster}" class="modal-poster">` : `<div class="modal-poster"></div>`}
           <div class="modal-title-block">
             <div class="modal-title">${esc(title)}</div>
-            <div class="modal-meta"><span>📅 ${year}</span> <span class="result-type ${isM ? 'type-movie' : 'type-tv'}">${isM ? 'Peli' : 'Serie'}</span></div>
+            <div class="modal-meta"><span>📅 ${year}</span> <span class="result-type ${isM ? 'type-movie' : 'type-tv'}">${isM ? 'Película' : 'Serie'}</span></div>
           </div>
         </div>
 
         ${genres.length ? `<div class="modal-genres">${genres.map(g => `<span class="modal-genre-tag">${g.name}</span>`).join('')}</div>` : ''}
 
-        <div class="rating-widget" style="background: var(--bg4); border: 1px solid var(--gold); margin: 15px 0;">
+        ${progressHtml} <div class="rating-widget" style="background: var(--bg4); border: 1px solid var(--gold); margin: 15px 0;">
           <div class="rating-label">Tu calificación</div>
           <div class="rating-display">
             <div class="rating-number" id="modal-rating-display">${currentRating}<span>/10</span></div>
@@ -1004,43 +1127,65 @@ async function openDetail(id, type) {
           ${existing ? `<button class="btn-delete" onclick="deleteRating(${id})">🗑</button>` : ''}
         </div>
       </div>`);
+
+    // Disparamos la carga de episodios si es una serie para que no quede vacío el selector
+    if (!isM) {
+      const prog = progress[id] || {};
+      loadSeasonEpisodes(id, prog.season || 1, prog.episode || 1);
+    }
+
   } catch (e) {
     console.error("Error en el modal:", e);
     showModal('<div style="padding:40px;text-align:center;">Error al cargar detalles.</div>');
   }
 }
 
-function setStatus(status){
-  if(!currentModal) return;
-  document.querySelectorAll('.status-btn').forEach(b=>b.classList.remove('active'));
-  const classes={'watching':'watching','completed':'done','paused':'paused','':'none'};
-  const target=document.querySelector(`.status-btn.${classes[status]||'none'}`);
-  if(target) target.classList.add('active');
-  const prog=progress[currentModal.id]||{};
-  prog.status=status;
-  if(currentModal.seasons_total) prog.seasons_total=currentModal.seasons_total;
-  progress[currentModal.id]=prog;
-  saveAll(); renderCW(); renderMySeries();
+async function loadSeasonEpisodes(showId, seasonNum, targetEpisode = null) {
+  const epSelect = document.getElementById('prog-ep');
+  const loading = document.getElementById('prog-ep-loading');
+  if (!epSelect) return;
+  if (loading) loading.style.display = 'inline-block';
+  epSelect.disabled = true;
+  
+  const prevVal = targetEpisode || parseInt(epSelect.value) || 1;
+  
+  try {
+    const sd = await fetch(`${API_BASE}/tv/${showId}/season/${seasonNum}?api_key=${API_KEY}`).then(r => r.json());
+    const count = Math.max((sd.episodes || []).length, 1);
+    epSelect.innerHTML = Array.from({ length: count }, (_, i) => `<option value="${i + 1}">Ep. ${i + 1}</option>`).join('');
+    epSelect.value = prevVal <= count ? prevVal : 1;
+  } catch (e) {
+    epSelect.innerHTML = '<option value="1">Ep. 1</option>';
+  }
+  
+  epSelect.disabled = false;
+  if (loading) loading.style.display = 'none';
+  saveProgress();
 }
 
-async function loadSeasonEpisodes(showId, seasonNum){
-  const epSelect=document.getElementById('prog-ep');
-  const loading=document.getElementById('prog-ep-loading');
-  if(!epSelect) return;
-  if(loading) loading.style.display='inline';
-  epSelect.disabled=true;
-  const prevVal=parseInt(epSelect.value)||1;
-  try{
-    const sd=await fetch(`${API_BASE}/tv/${showId}/season/${seasonNum}?api_key=${API_KEY}`).then(r=>r.json());
-    const count=Math.max((sd.episodes||[]).length,1);
-    epSelect.innerHTML=Array.from({length:count},(_,i)=>`<option value="${i+1}">Ep. ${i+1}</option>`).join('');
-    // Keep same episode if still valid, otherwise reset to 1
-    epSelect.value=prevVal<=count?prevVal:1;
-  }catch(e){
-    epSelect.innerHTML='<option value="1">Ep. 1</option>';
-  }
-  epSelect.disabled=false;
-  if(loading) loading.style.display='none';
+function saveProgress() {
+  if (!currentModal || currentModal.type !== 'tv') return;
+  const prog = progress[currentModal.id] || { status: '' };
+  prog.season = parseInt(document.getElementById('prog-season')?.value) || 1;
+  prog.episode = parseInt(document.getElementById('prog-ep')?.value) || 1;
+  prog.seasons_total = currentModal.seasons_total;
+  progress[currentModal.id] = prog;
+  saveAll();
+  renderCW(); 
+  renderMySeries();
+}
+
+function setStatus(status) {
+  if (!currentModal || currentModal.type !== 'tv') return;
+  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+  const classes = { 'watching': 'watching', 'completed': 'done', 'paused': 'paused', '': 'none' };
+  const target = document.querySelector(`.status-btn.${classes[status] || 'none'}`);
+  if (target) target.classList.add('active');
+  
+  const prog = progress[currentModal.id] || {};
+  prog.status = status;
+  progress[currentModal.id] = prog;
+  saveProgress(); // Guarda temporada/episodio y refresca tu sección de "Continuar Viendo"
 }
 
 function updateRatingDisplay(slider){
@@ -1852,6 +1997,98 @@ async function syncFromCloud() {
   } catch(e) {
     showToast('Error al bajar: ' + e.message, 'error');
   }
+}
+
+async function loadDice(target = 'both') {
+  const profile = buildProfile();
+  const diceBlock = document.getElementById('dice-block');
+  
+  // Si no calificaste al menos 3 películas, ocultamos los dados
+  if (!profile || profile.count < 3) {
+    if (diceBlock) diceBlock.style.display = 'none';
+    return;
+  }
+  diceBlock.style.display = 'block';
+
+  const seenIds = new Set([...Object.keys(rated), ...Object.keys(saved)].map(Number));
+  const providerParam = userProviders.size > 0 ? `&with_watch_providers=${[...userProviders].join('|')}&watch_region=${userCountry}` : '';
+
+  // 🎲 1. APUESTA SEGURA (Basada en una película que le pusiste nota alta)
+  if (target === 'both' || target === 'safe') {
+    const safeCard = document.getElementById('dice-safe');
+    safeCard.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;z-index:2;position:relative;"><div class="spinner"></div></div>';
+    safeCard.onclick = null;
+    
+    // Agarramos tus favoritas (>= 7)
+    let favs = profile.items.filter(i => i.rating >= 7);
+    if (!favs.length) favs = profile.items;
+    
+    // Elegimos una "semilla" al azar
+    const seed = favs[Math.floor(Math.random() * favs.length)];
+    
+    try {
+      const r = await fetch(`${API_BASE}/movie/${seed.id}/recommendations?api_key=${API_KEY}&language=es-419`);
+      const d = await r.json();
+      const recs = (d.results || []).filter(i => !seenIds.has(i.id)); // Filtramos las que ya viste
+      if (!recs.length) throw new Error('No hay recs');
+      
+      // Elegimos una al azar de las top 10 recomendadas
+      const pick = recs[Math.floor(Math.random() * Math.min(10, recs.length))];
+      renderDiceCard('safe', pick, '🎲 Apuesta Segura', `Porque te gustó "${seed.title || seed.name}"`, 'movie');
+    } catch (e) {
+      renderDiceCard('safe', null, '🎲 Apuesta Segura', 'Tirá el dado otra vez', '');
+    }
+  }
+
+  // 🌌 2. DESCUBRIR (Género que casi no ves)
+  if (target === 'both' || target === 'discovery') {
+    const discCard = document.getElementById('dice-discovery');
+    discCard.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;z-index:2;position:relative;"><div class="spinner"></div></div>';
+    discCard.onclick = null;
+    
+    // Identificamos tus 3 géneros más vistos y los EXCLUIMOS
+    const top3Ids = profile.sortedGenres.slice(0, 3).map(g => Number(g[0]));
+    const availableGenres = SF_GENRES.filter(g => !top3Ids.includes(g.id));
+    
+    // Elegimos un género al azar de los que "ignoras"
+    const exploreGenre = availableGenres[Math.floor(Math.random() * availableGenres.length)];
+    
+    try {
+      // Buscamos películas bien puntuadas de ese género (página al azar para más variedad)
+      const randomPage = Math.floor(Math.random() * 3) + 1;
+      const r = await fetch(`${API_BASE}/discover/movie?api_key=${API_KEY}&language=es-419&with_genres=${exploreGenre.id}&sort_by=vote_average.desc&vote_count.gte=300&page=${randomPage}${providerParam}`);
+      const d = await r.json();
+      const recs = (d.results || []).filter(i => !seenIds.has(i.id));
+      if (!recs.length) throw new Error('No hay recs');
+      
+      const pick = recs[Math.floor(Math.random() * Math.min(10, recs.length))];
+      renderDiceCard('discovery', pick, '🌌 Descubrir', `Explorar género: ${exploreGenre.name}`, 'movie');
+    } catch (e) {
+      renderDiceCard('discovery', null, '🌌 Descubrir', 'Tirá el dado otra vez', '');
+    }
+  }
+}
+
+function renderDiceCard(type, item, badgeText, subtitle, mediaType) {
+  const container = document.getElementById(`dice-${type}`);
+  if (!item) {
+    container.innerHTML = `<div class="dice-badge">${badgeText}</div><div class="dice-title" style="color:var(--text3)">Intenta de nuevo</div><div class="dice-meta">${subtitle}</div><button class="dice-reroll" onclick="event.stopPropagation(); loadDice('${type}')">🎲</button>`;
+    return;
+  }
+  
+  const bg = item.backdrop_path ? `${IMG_BASE}w780${item.backdrop_path}` : (item.poster_path ? `${IMG_BASE}w342${item.poster_path}` : '');
+  const year = (item.release_date || item.first_air_date || '').slice(0, 4);
+  const badgeClass = type === 'discovery' ? 'dice-discovery-badge' : '';
+  
+  container.innerHTML = `
+    ${bg ? `<img src="${bg}" class="dice-bg">` : ''}
+    <div class="dice-overlay"></div>
+    <button class="dice-reroll" onclick="event.stopPropagation(); loadDice('${type}')" title="Tirar de nuevo">🎲</button>
+    <div class="dice-badge ${badgeClass}">${badgeText}</div>
+    <div class="dice-title">${esc(item.title || item.name)}</div>
+    <div class="dice-meta">${year} · ⭐ ${item.vote_average?.toFixed(1)} TMDB<br>${esc(subtitle)}</div>
+  `;
+  container.onclick = () => openDetail(item.id, mediaType);
 }
 
 </script>
