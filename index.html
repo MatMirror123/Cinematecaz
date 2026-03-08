@@ -944,8 +944,12 @@ function rateItem(){
     progress[id]={...ep,season,episode,seasons_total};
     if(!ep.status) progress[id].status='watching';
   }
-  // Buscá esta línea en rateItem() y reemplazala:
-  rated[id]={id,type,title,rating,genre_ids,poster_path,release_date, ratedAt: Date.now(), collectionId: currentModal.collectionId};
+  // Buscá esta línea y asegúrate de que incluya collectionId:
+  rated[id] = {
+    id, type, title, rating, genre_ids, poster_path, release_date, 
+    ratedAt: Date.now(), 
+    collectionId: currentModal.collectionId // <--- Esto es clave
+  };
   saveAll(); closeModal();
   showToast(`"${title}" → ${rating}/10 ✓`,'success');
   renderAll();
@@ -1215,11 +1219,11 @@ async function loadTrending(){
 /* ── RECS ── */
 function calcMatch(c,p){
   if(!p?.genreAvg) return 0;
-  const genres=c.genre_ids||[];
+  const genres = c.genre_ids || [];
   if(!genres.length) return 50;
-  let score=0, weight=0;
+  let score = 0, weight = 0;
   
-  genres.forEach(g=>{
+  genres.forEach(g => {
     if(p.genreAvg[g]){
       score += p.genreAvg[g] * 10; 
       weight += 1;                 
@@ -1228,35 +1232,30 @@ function calcMatch(c,p){
   
   let base = weight ? Math.round(score/weight) : 45;
 
-  // --- SISTEMA DE BOOST CORREGIDO ---
+  // --- SISTEMA DE BOOST SEGURO ---
   if (c.sourceItem) {
-    // Bono suavizado: solo suma un +2% o +6% extra (no un 15%)
+    // Pequeño bono si la peli que originó la recomendación te gustó mucho
     base += Math.max(0, (c.sourceItem.rating - 7) * 2); 
 
-  // Reemplazá el bloque de // Chequeo de Saga por este:
-    const isSameCollection = c.belongs_to_collection && c.belongs_to_collection.id === c.sourceItem.collectionId;
+    // Chequeo de Saga usando IDs oficiales (con protección para nulos)
+    const isSameCollection = c.belongs_to_collection?.id && 
+                            c.sourceItem.collectionId && 
+                            c.belongs_to_collection.id === c.sourceItem.collectionId;
 
     if(isSameCollection) {
       base = 99; 
       c.isSaga = true;
     }
-
-    // Si la primera parte del título es idéntica y tiene más de 4 letras
-    if(prefijo1 && prefijo2 && (prefijo1 === prefijo2) && prefijo1.length > 4) {
-      base = 99; 
-      c.isSaga = true;
-    }
   }
   
-  // Tope general: Solo las Sagas pueden llegar a 99%. Las pelis normales topean en 95%.
+  // Tope general: Solo las Sagas llegan a 99%. Las normales a 95%.
   if(base >= 99 && !c.isSaga) base = 95; 
 
   return Math.min(99, Math.max(30, base));
 }
 
 function matchReasons(c,p){
-  // --- NUEVO: Razones personalizadas para el match ---
-  if (c.isSaga) return '🎯 Secuela / Saga de ' + esc(c.sourceItem.title||c.sourceItem.name);
+  if (c.isSaga && c.sourceItem) return '🎯 Secuela / Saga de ' + esc(c.sourceItem.title||c.sourceItem.name);
   if (c.sourceItem) return '🎯 Porque te gustó ' + esc(c.sourceItem.title||c.sourceItem.name);
   
   const top=(c.genre_ids||[]).filter(g=>p.genreAvg[g]&&p.genreAvg[g]>=7).map(g=>GENRE_NAMES[g]||g).slice(0,3);
