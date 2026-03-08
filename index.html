@@ -933,22 +933,16 @@ function updateRatingDisplay(slider){
   slider.style.setProperty('--pct',(v*10)+'%');
 }
 
-function rateItem(){
-  if(!currentModal) return;
-  const{id,type,title,genre_ids,poster_path,backdrop_path,release_date,overview,seasons_total}=currentModal;
-  const rating=parseFloat(document.getElementById('modal-rating-slider').value);
-  if(type==='tv'){
-    const season=parseInt(document.getElementById('prog-season')?.value||1);
-    const episode=parseInt(document.getElementById('prog-ep')?.value||1);
-    const ep=progress[id]||{};
-    progress[id]={...ep,season,episode,seasons_total};
-    if(!ep.status) progress[id].status='watching';
-  }
-  // Buscá esta línea y asegúrate de que incluya collectionId:
+function rateItem() {
+  if (!currentModal) return;
+  const {id, type, title, genre_ids, poster_path, release_date, collectionId} = currentModal;
+  const rating = parseFloat(document.getElementById('modal-rating-slider').value);
+
+  // IMPORTANTE: Asegurate de que collectionId esté aquí abajo
   rated[id] = {
     id, type, title, rating, genre_ids, poster_path, release_date, 
     ratedAt: Date.now(), 
-    collectionId: currentModal.collectionId // <--- Esto es clave
+    collectionId: collectionId // <--- Sin esto, el 99% no sabe con qué comparar
   };
   saveAll(); closeModal();
   showToast(`"${title}" → ${rating}/10 ✓`,'success');
@@ -1217,39 +1211,50 @@ async function loadTrending(){
 }
 
 /* ── RECS ── */
-function calcMatch(c,p){
-  if(!p?.genreAvg) return 0;
+function calcMatch(c, p) {
+  if (!p?.genreAvg) return 0;
   const genres = c.genre_ids || [];
-  if(!genres.length) return 50;
-  let score = 0, weight = 0;
+  if (!genres.length) return 50;
   
+  let score = 0, weight = 0;
   genres.forEach(g => {
-    if(p.genreAvg[g]){
-      score += p.genreAvg[g] * 10; 
-      weight += 1;                 
+    if (p.genreAvg[g]) {
+      score += p.genreAvg[g] * 10;
+      weight += 1;
     }
   });
-  
-  let base = weight ? Math.round(score/weight) : 45;
 
-  // --- SISTEMA DE BOOST SEGURO ---
+  let base = weight ? Math.round(score / weight) : 45;
+
+  // --- LÓGICA DE BOOST DE SAGA ---
   if (c.sourceItem) {
-    // Pequeño bono si la peli que originó la recomendación te gustó mucho
-    base += Math.max(0, (c.sourceItem.rating - 7) * 2); 
+    // 1. Bono por gusto (máximo +6%)
+    base += Math.max(0, (c.sourceItem.rating - 7) * 2);
 
-    // Chequeo de Saga usando IDs oficiales (con protección para nulos)
+    // 2. Detección de Saga por ID de TMDB
     const isSameCollection = c.belongs_to_collection?.id && 
                             c.sourceItem.collectionId && 
                             c.belongs_to_collection.id === c.sourceItem.collectionId;
 
-    if(isSameCollection) {
+    // 3. Detección de Saga por Título (Fallback por si la API no trae el ID en la lista)
+    const t1 = (c.title || c.name || '').toLowerCase();
+    const t2 = (c.sourceItem.title || c.sourceItem.name || '').toLowerCase();
+    const prefijo1 = t1.split(/[:\-]/)[0].trim();
+    const prefijo2 = t2.split(/[:\-]/)[0].trim();
+    const isSameTitle = prefijo1.length > 4 && prefijo1 === prefijo2;
+
+    if (isSameCollection || isSameTitle) {
       base = 99; 
-      c.isSaga = true;
+      c.isSaga = true; // <--- Este es el "Escudo"
     }
   }
-  
-  // Tope general: Solo las Sagas llegan a 99%. Las normales a 95%.
-  if(base >= 99 && !c.isSaga) base = 95; 
+
+  // --- EL FILTRO DEL TOPE ---
+  // Si la peli llegó a 99 pero NO es una saga (es decir, llegó por géneros),
+  // la bajamos a 95 para que las sagas siempre resalten arriba.
+  if (base >= 99 && !c.isSaga) {
+    base = 95;
+  }
 
   return Math.min(99, Math.max(30, base));
 }
