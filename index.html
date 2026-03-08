@@ -373,41 +373,53 @@
   .btn-trailer{background:rgba(230,57,70,0.15); color:var(--accent); border:1px solid var(--accent); border-radius:var(--radius); padding:11px; font-family:'DM Sans',sans-serif; font-weight:600; cursor:pointer; font-size:0.82rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:12px; width:100%;}
   .btn-trailer:hover{background:var(--accent); color:#fff;}
 
-  .modal-cast { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
-  .cast-title { font-size: 0.72rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 16px; font-weight: 700; opacity: 0.9; }
+.modal-cast { 
+    margin-top: 24px; 
+    padding-top: 16px; 
+    border-top: 1px solid var(--border); 
+    clear: both; /* Asegura que no se solape con nada */
+  }
+  .cast-title { 
+    font-size: 0.72rem; 
+    color: var(--gold); 
+    text-transform: uppercase; 
+    letter-spacing: 0.12em; 
+    margin-bottom: 12px; 
+    font-weight: 700; 
+  }
   
-  /* Slider mejorado */
   .cast-list { 
     display: flex; 
     gap: 16px; 
     overflow-x: auto; 
-    /* Aumentamos el padding vertical para que el scale no corte la imagen */
-    padding: 22px 5px; 
+    padding: 20px 5px; 
     scrollbar-width: none;
-    cursor: grab;
+    min-height: 120px; /* Espacio garantizado */
   }
-  .cast-list:active { cursor: grabbing; }
   .cast-list::-webkit-scrollbar { display: none; }
   
   .cast-item { 
-    flex: 0 0 80px; 
+    flex: 0 0 85px; 
     text-align: center; 
     transition: transform 0.2s ease;
     cursor: pointer;
+    position: relative; /* CRÍTICO: para que el z-index funcione */
   }
-  /* El scale ahora tiene espacio de sobra arriba y abajo */
-  .cast-item:hover { transform: scale(1.1); z-index: 5; }
+  .cast-item:hover { transform: scale(1.1); z-index: 10; }
   
   .cast-img { 
-    width: 64px; height: 64px; border-radius: 50%; object-fit: cover; 
-    background: var(--bg4); margin-bottom: 8px; 
-    border: 2px solid var(--bg3); box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    transition: border-color 0.2s;
+    width: 60px; 
+    height: 60px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    background: var(--bg4); 
+    margin-bottom: 8px; 
+    border: 2px solid var(--border);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
   }
   .cast-item:hover .cast-img { border-color: var(--gold); }
-  
-  .cast-name { font-size: 0.72rem; font-weight: 500; color: var(--text); line-height: 1.2; }
-  .cast-char { font-size: 0.62rem; color: var(--text3); margin-top: 2px; font-style: italic; }
+  .cast-name { font-size: 0.7rem; font-weight: 600; color: var(--text); line-height: 1.2; }
+  .cast-char { font-size: 0.6rem; color: var(--text3); font-style: italic; }
 
 </style>
 </head>
@@ -905,43 +917,45 @@ async function openDetail(id,type){
     const currentRating = existing ? existing.rating : 5;
     const isSaved = !!saved[id];
 
-    // --- 1. LÓGICA DE TRÁILER ---
+    // --- TRÁILER Y PROVEEDORES ---
     const trailer = (videosRes.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube') || (videosRes.results || [])[0];
     const trailerBtn = trailer ? `<button class="btn-trailer" onclick="window.open('https://youtube.com/watch?v=${trailer.key}', '_blank')">▶ Ver Tráiler Oficial</button>` : '';
 
-    // --- 2. LÓGICA DE PROVEEDORES (Streaming) ---
     const watchData = (watchRes.results || {})[userCountry] || {};
-    const flatrate = (watchData.flatrate || []);
-    const rent = (watchData.rent || []);
-    const allWatch = [...flatrate, ...rent.filter(r => !flatrate.find(f => f.provider_id === r.provider_id))].slice(0, 8);
+    const allWatch = [...(watchData.flatrate || []), ...(watchData.rent || [])].slice(0, 8);
     const jwLink = watchData.link || `https://www.justwatch.com/ar/buscar?q=${encodeURIComponent(title)}`;
     let providersHtml = '';
     if (allWatch.length) {
-      providersHtml = `<div class="providers-section"><div class="providers-label">🌍 Dónde ver en ${userCountry}</div><div class="providers-row">
-        ${allWatch.map(p => `<a href="${jwLink}" target="_blank" class="provider-pill ${userProviders.has(p.provider_id)?'mine':''}"><img src="${IMG_BASE}original${p.logo_path}" alt="${esc(p.provider_name)}"><span>${esc(p.provider_name)}</span></a>`).join('')}
+      providersHtml = `<div class="providers-section"><div class="providers-label">🌍 Dónde ver</div><div class="providers-row">
+        ${allWatch.map(p => `<a href="${jwLink}" target="_blank" class="provider-pill ${userProviders.has(p.provider_id)?'mine':''}"><img src="${IMG_BASE}original${p.logo_path}"><span>${esc(p.provider_name)}</span></a>`).join('')}
       </div></div>`;
     }
 
-    // --- 3. LÓGICA DE SAGA ---
+    // --- SAGA ---
     let sagaHtml = '';
     if (isM && collectionId) {
-      try {
-        const colRes = await fetch(`${API_BASE}/collection/${collectionId}?api_key=${API_KEY}&language=es-419`).then(r=>r.json());
-        const otherMovies = (colRes.parts || []).filter(p => p.id !== id).sort((a,b) => (a.release_date||'').localeCompare(b.release_date||''));
+      const colRes = await fetch(`${API_BASE}/collection/${collectionId}?api_key=${API_KEY}&language=es-419`).then(r=>r.json()).catch(()=>null);
+      if (colRes && colRes.parts) {
+        const otherMovies = colRes.parts.filter(p => p.id !== id).sort((a,b) => (a.release_date||'').localeCompare(b.release_date||''));
         if (otherMovies.length > 0) {
-          sagaHtml = `<div class="modal-saga"><div class="saga-title">Colección: ${esc(colRes.name)}</div><div class="saga-list">
-            ${otherMovies.map(m => `<div class="saga-item" onclick="openDetail(${m.id},'movie')"><img src="${m.poster_path ? IMG_BASE+'w154'+m.poster_path : ''}" alt="${esc(m.title)}"><div class="saga-item-title">${esc(m.title)}</div></div>`).join('')}
+          sagaHtml = `<div class="modal-saga"><div class="saga-title">Saga: ${esc(colRes.name)}</div><div class="saga-list">
+            ${otherMovies.map(m => `<div class="saga-item" onclick="openDetail(${m.id},'movie')"><img src="${m.poster_path ? IMG_BASE+'w154'+m.poster_path : ''}"><div class="saga-item-title">${esc(m.title)}</div></div>`).join('')}
           </div></div>`;
         }
-      } catch(e) {}
+      }
     }
 
-    // --- 4. LÓGICA DE REPARTO (CAST) ---
+    // --- REPARTO (CAST) ---
     const cast = (credits.cast || []).slice(0, 10);
     let castHtml = '';
     if (cast.length > 0) {
-      castHtml = `<div class="modal-cast"><div class="cast-title">Reparto Principal (tocá para buscar)</div><div class="cast-list">
-        ${cast.map(actor => `<div class="cast-item" onclick="searchByActor('${esc(actor.name)}')"><img src="${actor.profile_path ? IMG_BASE+'w185'+actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img" loading="lazy"><div class="cast-name">${esc(actor.name)}</div><div class="cast-char">${esc(actor.character)}</div></div>`).join('')}
+      castHtml = `<div class="modal-cast"><div class="cast-title">Reparto Principal</div><div class="cast-list">
+        ${cast.map(actor => `
+          <div class="cast-item" onclick="searchByActor('${esc(actor.name)}')">
+            <img src="${actor.profile_path ? IMG_BASE+'w185'+actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img">
+            <div class="cast-name">${esc(actor.name)}</div>
+            <div class="cast-char">${esc(actor.character)}</div>
+          </div>`).join('')}
       </div></div>`;
     }
 
@@ -985,8 +999,8 @@ async function openDetail(id,type){
         </div>
       </div>`);
   } catch (e) { 
-    console.error(e);
-    showModal('<div style="padding:40px;text-align:center;color:var(--accent);">Error al cargar los detalles.</div>'); 
+    console.error("Error en el modal:", e);
+    showModal('<div style="padding:40px;text-align:center;">Error al cargar detalles.</div>'); 
   }
 }
 
