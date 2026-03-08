@@ -1418,9 +1418,22 @@ const SF_GENRES=[
 ];
 
 function openFullSearch(q){ 
-  document.getElementById('search-fullscreen').classList.add('open'); 
+  const overlay = document.getElementById('search-fullscreen');
+  const sfInput = document.getElementById('sf-input');
   
-  // Ocultamos la barra de búsqueda del header
+  // 1. Pasa el texto de la barra chica a la grande
+  sfInput.value = q;
+  
+  // 2. Abre la pantalla completa y bloquea el scroll de fondo
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  
+  // 3. Carga los filtros y ejecuta la búsqueda automáticamente
+  renderGenreFilters();
+  renderProviderFilters();
+  runFullSearch(q, 1);
+  
+  // 4. Oculta suavemente la barra de búsqueda del header
   const headerSearch = document.querySelector('.search-bar');
   if(headerSearch) {
     headerSearch.style.transition = 'opacity 0.2s';
@@ -1428,17 +1441,15 @@ function openFullSearch(q){
     headerSearch.style.pointerEvents = 'none';
   }
 
-  // Ponemos el cursor automáticamente en el buscador fullscreen
-  setTimeout(() => {
-    const sfInput = document.getElementById('sf-input');
-    if(sfInput) sfInput.focus();
-  }, 100);
+  // 5. Pone el cursor en la barra grande listo para escribir
+  setTimeout(() => sfInput.focus(), 100);
 }
 
 function closeFullSearch(){ 
   document.getElementById('search-fullscreen').classList.remove('open'); 
+  document.body.style.overflow = '';
   
-  // Volvemos a mostrar la barra de búsqueda del header
+  // Vuelve a mostrar la barra de búsqueda del header
   const headerSearch = document.querySelector('.search-bar');
   if(headerSearch) {
     headerSearch.style.opacity = '1';
