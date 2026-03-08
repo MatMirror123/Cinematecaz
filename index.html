@@ -378,18 +378,25 @@
   
   /* Slider mejorado */
   .cast-list { 
-    display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; 
-    scrollbar-width: thin; scrollbar-color: var(--gold) transparent;
+    display: flex; 
+    gap: 16px; 
+    overflow-x: auto; 
+    /* Aumentamos el padding vertical para que el scale no corte la imagen */
+    padding: 20px 4px; 
+    scrollbar-width: none;
+    cursor: grab;
   }
+  .cast-list:active { cursor: grabbing; }
+  .cast-list::-webkit-scrollbar { display: none; }
   
-  /* Ocultamos el scrollbar feo en Chrome/Safari pero que funcione */
-  .cast-list::-webkit-scrollbar { height: 4px; }
-  .cast-list::-webkit-scrollbar-track { background: transparent; }
-  .cast-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-  .cast-list:hover::-webkit-scrollbar-thumb { background: var(--gold); }
-
-  .cast-item { flex: 0 0 85px; text-align: center; transition: transform 0.2s ease; }
-  .cast-item:hover { transform: scale(1.05); }
+  .cast-item { 
+    flex: 0 0 80px; 
+    text-align: center; 
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+  /* El scale ahora tiene espacio de sobra arriba y abajo */
+  .cast-item:hover { transform: scale(1.1); z-index: 10; }
   
   .cast-img { 
     width: 64px; height: 64px; border-radius: 50%; object-fit: cover; 
@@ -915,17 +922,17 @@ async function openDetail(id,type){
       } catch(e) { console.error("Error cargando colección", e); }
     }
 
-    // --- Lógica de Reparto ---
+    // --- Lógica de Reparto con Clic ---
     const cast = (credits.cast || []).slice(0, 10); 
     let castHtml = '';
     if(cast.length > 0) {
       castHtml = `
         <div class="modal-cast">
-          <div class="cast-title">Reparto Principal</div>
+          <div class="cast-title">Reparto Principal (tocá para buscar más)</div>
           <div class="cast-list">
             ${cast.map(actor => `
-              <div class="cast-item">
-                <img src="${actor.profile_path ? IMG_BASE+'w185'+actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img" loading="lazy">
+              <div class="cast-item" onclick="searchByActor('${esc(actor.name)}')">
+                <img src="${actor.profile_path ? IMG_BASE+'w185'+actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img" loading="lazy" title="Ver más de ${esc(actor.name)}">
                 <div class="cast-name">${esc(actor.name)}</div>
                 <div class="cast-char">${esc(actor.character)}</div>
               </div>`).join('')}
@@ -1771,7 +1778,17 @@ function esc(str){
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-/* ── BACKUP / EXPORT & IMPORT ── */
+function searchByActor(actorName) {
+  // 1. Cerramos el modal de la película actual
+  closeModal();
+  
+  // 2. Abrimos la búsqueda de pantalla completa con el nombre del actor
+  openFullSearch(actorName);
+  
+  // 3. Opcional: Mostramos un brindis informativo
+  showToast(`Buscando películas de: ${actorName}`, 'info');
+}
+
 /* ── CLOUD SYNC (GIST) ── */
 async function syncToCloud() {
   const token = localStorage.getItem('gh_token');
