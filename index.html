@@ -36,6 +36,31 @@
   .btn-primary{background:linear-gradient(135deg,var(--gold),var(--amber));color:#1a1206;border:none;border-radius:var(--radius);padding:14px 32px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.95rem;cursor:pointer;width:100%;margin-top:8px;transition:opacity 0.2s,transform 0.1s;letter-spacing:0.02em;}
   .btn-primary:hover{opacity:0.9;transform:translateY(-1px);}
 
+  .setup-gist-box {
+    text-align: left; 
+    background: var(--bg4); 
+    padding: 16px; 
+    border-radius: 12px; 
+    border: 1px dashed var(--border);
+  }
+  .gist-label {
+    font-size: 0.75rem; 
+    color: var(--gold); 
+    text-transform: uppercase; 
+    font-weight: 700;
+  }
+  .gist-text {
+    font-size: 0.8rem; 
+    color: var(--text2); 
+    margin: 8px 0;
+  }
+  .gist-list {
+    font-size: 0.75rem; 
+    color: var(--text3); 
+    padding-left: 18px; 
+    line-height: 1.6;
+  }
+
   /* HEADER */
   header{position:sticky;top:0;z-index:500;background:rgba(10,10,12,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:20px;height:64px;}
   .logo{font-family:'Playfair Display',serif;font-weight:900;font-size:1.4rem;color:var(--gold);letter-spacing:-0.5px;white-space:nowrap;}
@@ -385,17 +410,29 @@
 <div id="setup-screen">
   <div class="setup-card">
     <div class="setup-logo">🎬 Cinematecaz</div>
-    <p class="setup-subtitle">Tu diario personal de cine & series.<br>Calificá, guardá, y descubrí lo que vas a amar.</p>
+    <p class="setup-subtitle">Tu diario personal de cine & series.<br>Calificá, guardá y descubrí lo que vas a amar.</p>
+    
     <div class="setup-field">
-      <label>API Key de TMDB (gratuita)</label>
+      <label>1. API Key de TMDB (Necesaria)</label>
       <input type="text" id="api-key-input" placeholder="Ej: a1b2c3d4e5f6...">
     </div>
-    <p class="setup-hint">
-      1. Creá cuenta gratis en <a href="https://www.themoviedb.org/signup" target="_blank">themoviedb.org</a><br>
-      2. <strong>Configuración → API</strong> → copiá la <strong>API Key (v3 auth)</strong><br>
-      3. Todos tus datos se guardan solo en tu navegador
+    <p class="setup-hint" style="margin-bottom: 24px;">
+      • Creá cuenta en <a href="https://www.themoviedb.org/signup" target="_blank">themoviedb.org</a><br>
+      • Copiá la <b>API Key (v3 auth)</b> desde Configuración → API.
     </p>
-    <button class="btn-primary" onclick="initApp()">Entrar a mi Cinematecaz →</button>
+
+    <div style="text-align: left; background: var(--bg4); padding: 16px; border-radius: 12px; border: 1px dashed var(--border);">
+      <label style="font-size: 0.75rem; color: var(--gold); text-transform: uppercase; font-weight: 700;">☁️ Sincronización (Opcional)</label>
+      <p style="font-size: 0.8rem; color: var(--text2); margin: 8px 0;">Para usar tu lista en el celu y la PC, necesitás GitHub:</p>
+      <ol style="font-size: 0.75rem; color: var(--text3); padding-left: 18px; line-height: 1.6;">
+        <li>Entrá a <b>github.com</b> y creá un <b>Gist</b> nuevo.</li>
+        <li>Copiá el <b>ID</b> (los números/letras finales de la URL).</li>
+        <li>Generá un <b>Token (classic)</b> con permiso de 'gist'.</li>
+        <li>Configurá ambos dentro de la app en el ícono ⚙.</li>
+      </ol>
+    </div>
+
+    <button class="btn-primary" onclick="initApp()" style="margin-top: 24px;">Entrar a mi Cinematecaz →</button>
   </div>
 </div>
 
