@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cinemateca Personal</title>
+<title>Cinematecaz Personal</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#c9a84c">
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2503/2503508.png">
@@ -342,7 +342,7 @@
 <!-- SETUP -->
 <div id="setup-screen">
   <div class="setup-card">
-    <div class="setup-logo">🎬 Cinemateca</div>
+    <div class="setup-logo">🎬 Cinematecaz</div>
     <p class="setup-subtitle">Tu diario personal de cine & series.<br>Calificá, guardá, y descubrí lo que vas a amar.</p>
     <div class="setup-field">
       <label>API Key de TMDB (gratuita)</label>
@@ -353,13 +353,13 @@
       2. <strong>Configuración → API</strong> → copiá la <strong>API Key (v3 auth)</strong><br>
       3. Todos tus datos se guardan solo en tu navegador
     </p>
-    <button class="btn-primary" onclick="initApp()">Entrar a mi Cinemateca →</button>
+    <button class="btn-primary" onclick="initApp()">Entrar a mi Cinematecaz →</button>
   </div>
 </div>
 
 <!-- HEADER -->
 <header>
-  <div class="logo">🎬 Cinemateca</div>
+  <div class="logo">🎬 Cinematecaz</div>
   <div class="search-bar">
     <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input type="text" id="search-input" placeholder="Buscar película o serie..." autocomplete="off">
@@ -1677,7 +1677,7 @@ async function syncFromCloud() {
     if(!file) throw new Error('Archivo no encontrado');
     
     const data = JSON.parse(file.content);
-    if (confirm('⚠️ Esto reemplazará tu Cinemateca local con los datos de la nube. ¿Continuar?')) {
+    if (confirm('⚠️ Esto reemplazará tu Cinematecaz local con los datos de la nube. ¿Continuar?')) {
       localStorage.setItem('rated', JSON.stringify(data.rated || {}));
       localStorage.setItem('saved', JSON.stringify(data.saved || {}));
       localStorage.setItem('upnext', JSON.stringify(data.upNext || [])); 
