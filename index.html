@@ -886,7 +886,17 @@ function saveAll(){
   localStorage.setItem('userProviders',JSON.stringify([...userProviders]));
   localStorage.setItem('userCountry',userCountry);
 }
-function bootstrap(){ setupSearch(); setupTabs(); setupFilters(); renderAll(); loadTrending(); loadNewReleases(); }
+
+function bootstrap(){ 
+  setupSearch(); 
+  setupTabs(); 
+  setupFilters(); 
+  renderAll(); 
+  loadTrending(); 
+  loadNewReleases(); 
+  loadDice();
+}
+
 function renderAll(){ renderRecent(); renderCW(); renderMyMovies(); renderMySeries(); renderSaved(); renderUpNext(); updateProfile(); updateListaBadge(); }
 
 /* ── TABS ── */
