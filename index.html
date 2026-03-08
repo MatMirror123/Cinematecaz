@@ -94,7 +94,7 @@
   main{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:28px 24px;}
   .page{display:none;}
   .page.active{display:block;}
-  .section-block{margin-bottom:36px;}
+  .section-block{margin-bottom:56px;}
   .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
   .section-title{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;}
   .section-count{font-size:0.78rem;color:var(--text3);font-family:'DM Mono',monospace;}
@@ -505,6 +505,36 @@
   }
   @media (max-width: 768px) { .dice-grid { grid-template-columns: 1fr; } }
 
+/* --------------------------------------------------- ADN CINÉFILO (GRÁFICOS DE RADAR) ---------------------------------------------------- */
+  .radars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 24px;
+  }
+  .radar-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .radar-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+    border-color: var(--gold);
+  }
+  .radar-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+  }
+  @media(max-width: 900px) {
+    .radars-grid { grid-template-columns: 1fr; }
+  }
 
 </style>
 </head>
@@ -605,6 +635,24 @@
       <div class="section-header"><div class="section-title">🔥 Tendencias hoy</div></div>
       <div id="trending-grid" class="movie-grid"><div class="loading-row"><div class="spinner"></div></div></div>
     </div>
+
+    <div class="section-block" id="adn-block" style="display:none">
+      <div class="section-header">
+        <div class="section-title">🧬 Tu ADN Cinéfilo</div>
+      </div>
+      <div class="radars-grid">
+        <div class="radar-card">
+          <div class="radar-wrap"><canvas id="chart-genres"></canvas></div>
+        </div>
+        <div class="radar-card">
+          <div class="radar-wrap"><canvas id="chart-decades"></canvas></div>
+        </div>
+        <div class="radar-card">
+          <div class="radar-wrap"><canvas id="chart-ratings"></canvas></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- ══ PELÍCULAS ══ -->
@@ -1266,6 +1314,9 @@ function updateProfile(){
   document.getElementById('stat-top').textContent=p.topRating;
   document.getElementById('stat-genres').textContent=p.topGenre;
   document.getElementById('profile-genres').innerHTML=p.sortedGenres.map(([gid,avg])=>`<div class="genre-pill">${GENRE_NAMES[gid]||gid} <span class="gpct">${Math.round((avg/10)*100)}%</span></div>`).join('');
+  
+  // Llama a los gráficos para que se actualicen
+  renderRadars(); 
 }
 
 /* ── CONTINUE WATCHING ── */
@@ -1321,9 +1372,10 @@ async function loadNewReleases(){
       movies.sort((a,b)=>score(b)-score(a)); tvs.sort((a,b)=>score(b)-score(a));
     }
     const merged=[];
-    for(let i=0;i<10;i++){if(movies[i])merged.push(movies[i]);if(tvs[i])merged.push(tvs[i]);}
-    document.getElementById('releases-count').textContent=`${merged.slice(0,12).length} estrenos`;
-    grid.innerHTML=merged.slice(0,12).map(item=>makeCard(item,false)).join('');
+    // Aumentamos el loop para asegurar 16 ítems en total
+    for(let i=0;i<12;i++){if(movies[i])merged.push(movies[i]);if(tvs[i])merged.push(tvs[i]);}
+    document.getElementById('releases-count').textContent=`${merged.slice(0,16).length} estrenos`;
+    grid.innerHTML=merged.slice(0,16).map(item=>makeCard(item,false)).join('');
   }catch(e){ grid.innerHTML=`<div style="color:var(--accent);font-size:0.83rem;padding:16px">Error al cargar estrenos.</div>`; }
 }
 
@@ -1433,8 +1485,8 @@ function makeCard(item,showMatch){
 }
 
 function renderRecent(){
-  // Ahora ordenamos estrictamente por la fecha en que vos la calificaste
-  const items = Object.values(rated).sort((a,b) => (b.ratedAt || 0) - (a.ratedAt || 0)).slice(0, 12);
+  // Ahora cortamos en 16 en lugar de 12
+  const items = Object.values(rated).sort((a,b) => (b.ratedAt || 0) - (a.ratedAt || 0)).slice(0, 16);
   
   document.getElementById('recent-count').textContent=`${Object.keys(rated).length} en total`;
   const grid=document.getElementById('recent-grid');
@@ -1476,7 +1528,8 @@ async function loadTrending(){
   try{
     const r=await fetch(`${API_BASE}/trending/all/day?api_key=${API_KEY}&language=es-419`);
     const data=await r.json();
-    const items=(data.results||[]).filter(i=>i.media_type==='movie'||i.media_type==='tv').slice(0,12);
+    // Ahora cortamos en 16 en lugar de 12
+    const items=(data.results||[]).filter(i=>i.media_type==='movie'||i.media_type==='tv').slice(0,16);
     grid.innerHTML=items.map(item=>makeCard(item,false)).join('');
   }catch(e){grid.innerHTML=`<div style="color:var(--accent);font-size:0.83rem;padding:18px">Error. Verificá tu API Key.</div>`;}
 }
@@ -2099,6 +2152,121 @@ function renderDiceCard(type, item, badgeText, subtitle, mediaType) {
     <div class="dice-meta">${year} · ⭐ ${item.vote_average?.toFixed(1)} TMDB<br>${esc(subtitle)}</div>
   `;
   container.onclick = () => openDetail(item.id, mediaType);
+}
+
+let radarInstances = {};
+
+function renderRadars() {
+  const items = Object.values(rated);
+  const adnBlock = document.getElementById('adn-block');
+  
+  // Ocultamos si hay menos de 5 calificaciones para no mostrar gráficos vacíos
+  if (items.length < 5) {
+    if (adnBlock) adnBlock.style.display = 'none';
+    return;
+  }
+  adnBlock.style.display = 'block';
+
+  // 1. GRÁFICO DE GÉNEROS (Top 8)
+  const genreCounts = {};
+  items.forEach(i => {
+    (i.genre_ids || []).forEach(g => { genreCounts[g] = (genreCounts[g] || 0) + 1; });
+  });
+  const topGenres = Object.entries(genreCounts).sort((a,b) => b[1] - a[1]).slice(0, 8);
+  // Rellenamos con vacíos si no llega a 8
+  while(topGenres.length < 8) topGenres.push(['-', 0]);
+  const gLabels = topGenres.map(g => g[0] !== '-' ? (GENRE_NAMES[g[0]] || 'Otro') : '');
+  const gData = topGenres.map(g => g[1]);
+
+  // 2. GRÁFICO DE DÉCADAS (8 Puntas)
+  const decCounts = {'Clásicos (<60s)':0, '1960s':0, '1970s':0, '1980s':0, '1990s':0, '2000s':0, '2010s':0, '2020s+':0};
+  items.forEach(i => {
+    const y = parseInt((i.release_date || i.first_air_date || '0').slice(0,4));
+    if (!y) return;
+    if (y < 1960) decCounts['Clásicos (<60s)']++;
+    else if (y < 1970) decCounts['1960s']++;
+    else if (y < 1980) decCounts['1970s']++;
+    else if (y < 1990) decCounts['1980s']++;
+    else if (y < 2000) decCounts['1990s']++;
+    else if (y < 2010) decCounts['2000s']++;
+    else if (y < 2020) decCounts['2010s']++;
+    else decCounts['2020s+']++;
+  });
+
+  // 3. GRÁFICO DE PERFIL DE CRÍTICO (Distribución de Notas)
+  const ratCounts = {'Aplazos (1-3)':0, 'Nota 4':0, 'Nota 5':0, 'Nota 6':0, 'Nota 7':0, 'Nota 8':0, 'Nota 9':0, 'Obra Maestra (10)':0};
+  items.forEach(i => {
+    const r = Math.round(i.rating);
+    if (r <= 3) ratCounts['Aplazos (1-3)']++;
+    else if (r === 4) ratCounts['Nota 4']++;
+    else if (r === 5) ratCounts['Nota 5']++;
+    else if (r === 6) ratCounts['Nota 6']++;
+    else if (r === 7) ratCounts['Nota 7']++;
+    else if (r === 8) ratCounts['Nota 8']++;
+    else if (r === 9) ratCounts['Nota 9']++;
+    else if (r === 10) ratCounts['Obra Maestra (10)']++;
+  });
+
+  // Dibujamos los 3
+  drawRadarChart('chart-genres', 'Géneros Dominantes', gLabels, gData, 'rgba(201, 168, 76, 0.4)', '#c9a84c');
+  drawRadarChart('chart-decades', 'Viaje en el Tiempo', Object.keys(decCounts), Object.values(decCounts), 'rgba(74, 158, 255, 0.4)', '#4a9eff');
+  drawRadarChart('chart-ratings', 'Perfil de Crítico', Object.keys(ratCounts), Object.values(ratCounts), 'rgba(76, 175, 120, 0.4)', '#4caf78');
+}
+
+function drawRadarChart(canvasId, title, labels, data, bgColor, borderColor) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  
+  // Destruimos el gráfico anterior si existe para evitar superposiciones
+  if (radarInstances[canvasId]) { radarInstances[canvasId].destroy(); }
+
+  radarInstances[canvasId] = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Vistas',
+        data: data,
+        backgroundColor: bgColor,
+        borderColor: borderColor,
+        borderWidth: 2,
+        pointBackgroundColor: borderColor,
+        pointBorderColor: '#18181f',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: borderColor
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        r: {
+          angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          pointLabels: { 
+            color: '#a09888', 
+            font: { family: "'DM Mono', monospace", size: 10 } 
+          },
+          ticks: { display: false, beginAtZero: true }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        title: { 
+          display: true, text: title, color: '#e8e4da', 
+          font: { family: "'Playfair Display', serif", size: 16 },
+          padding: { bottom: 16 }
+        },
+        tooltip: {
+          backgroundColor: '#18181f',
+          titleColor: '#c9a84c',
+          bodyColor: '#e8e4da',
+          borderColor: 'rgba(201,168,76,0.2)',
+          borderWidth: 1
+        }
+      }
+    }
+  });
 }
 
 </script>
