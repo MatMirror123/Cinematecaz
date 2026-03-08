@@ -7,6 +7,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#c9a84c">
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2503/2503508.png">
+<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2503/2503508.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -346,6 +347,14 @@
   
   .btn-trailer{background:rgba(230,57,70,0.15); color:var(--accent); border:1px solid var(--accent); border-radius:var(--radius); padding:11px; font-family:'DM Sans',sans-serif; font-weight:600; cursor:pointer; font-size:0.82rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:12px; width:100%;}
   .btn-trailer:hover{background:var(--accent); color:#fff;}
+
+  .modal-cast{margin-top:20px;}
+  .cast-title{font-size:0.72rem; color:var(--text2); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:12px; font-weight:600;}
+  .cast-list{display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; scrollbar-width: thin;}
+  .cast-item{flex:0 0 80px; text-align:center;}
+  .cast-img{width:60px; height:60px; border-radius:50%; object-fit:cover; background:var(--bg4); margin-bottom:6px; border:1px solid var(--border);}
+  .cast-name{font-size:0.7rem; font-weight:600; color:var(--text); line-height:1.2; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .cast-char{font-size:0.6rem; color:var(--text3); margin-top:2px;}
 </style>
 </head>
 <body>
@@ -536,6 +545,15 @@
         <div class="sf-filter-group">
           <label class="sf-filter-opt"><input type="checkbox" id="sf-type-movie" onchange="applyFilters()"> 🎬 Películas</label>
           <label class="sf-filter-opt"><input type="checkbox" id="sf-type-tv" onchange="applyFilters()"> 📺 Series</label>
+        </div>
+      </div>
+
+      <div class="sf-filter-section">
+        <div class="sf-filter-title">Disponibilidad</div>
+        <div class="sf-filter-group">
+          <label class="sf-filter-opt">
+            <input type="checkbox" id="sf-only-mine" onchange="applyFilters()"> 🏠 Solo en mis servicios
+          </label>
         </div>
       </div>
 
@@ -838,6 +856,24 @@ async function openDetail(id,type){
       } catch(e) { console.error("Error cargando colección", e); }
     }
 
+    // --- Lógica de Reparto ---
+    const cast = (credits.cast || []).slice(0, 10); 
+    let castHtml = '';
+    if(cast.length > 0) {
+      castHtml = `
+        <div class="modal-cast">
+          <div class="cast-title">Reparto Principal</div>
+          <div class="cast-list">
+            ${cast.map(actor => `
+              <div class="cast-item">
+                <img src="${actor.profile_path ? IMG_BASE+'w185'+actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img" loading="lazy">
+                <div class="cast-name">${esc(actor.name)}</div>
+                <div class="cast-char">${esc(actor.character)}</div>
+              </div>`).join('')}
+          </div>
+        </div>`;
+    }
+
     // --- Lógica de Tráiler ---
     const trailer = (videosRes.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube') || (videosRes.results || [])[0];
     const trailerBtn = trailer ? `<button class="btn-trailer" onclick="window.open('https://youtube.com/watch?v=${trailer.key}', '_blank')">▶ Ver Tráiler Oficial</button>` : '';
@@ -876,8 +912,13 @@ async function openDetail(id,type){
         ${trailerBtn}
         ${providersHtml}
         <p class="modal-overview">${esc(details.overview||'Sin descripción.')}</p>
-        ${sagaHtml}
+        
+        ${sagaHtml} 
+        
+        ${castHtml} 
+        
         ${progressHtml}
+        
         <div class="rating-widget">
           <div class="rating-label">Tu calificación</div>
           <div class="rating-display">
@@ -1520,32 +1561,52 @@ async function runFullSearch(q, page){
 }
 
 function applyFilters(){
-  const typeMovie=document.getElementById('sf-type-movie')?.checked;
-  const typeTV=document.getElementById('sf-type-tv')?.checked;
-  const scoreMin=parseFloat(document.getElementById('sf-score-min')?.value||0);
-  const yearMin=parseInt(document.getElementById('sf-year-min')?.value||1900);
-  const checkedGenres=[...document.querySelectorAll('.sf-genre-cb:checked')].map(c=>parseInt(c.value));
-  const checkedProviders=[...document.querySelectorAll('.sf-provider-cb:checked')].map(c=>parseInt(c.value));
+  // 1. Capturamos los valores de los botones y checkboxes
+  const typeMovie = document.getElementById('sf-type-movie')?.checked;
+  const typeTV = document.getElementById('sf-type-tv')?.checked;
+  const onlyMine = document.getElementById('sf-only-mine')?.checked; // Nuevo filtro 🏠
+  const scoreMin = parseFloat(document.getElementById('sf-score-min')?.value || 0);
+  const yearMin = parseInt(document.getElementById('sf-year-min')?.value || 1900);
+  
+  // Capturamos géneros y proveedores seleccionados
+  const checkedGenres = [...document.querySelectorAll('.sf-genre-cb:checked')].map(c => parseInt(c.value));
+  const checkedProviders = [...document.querySelectorAll('.sf-provider-cb:checked')].map(c => parseInt(c.value));
 
-  fsFiltered=fsAllResults.filter(item=>{
-    // type
-    if(typeMovie&&!typeTV&&item.media_type!=='movie') return false;
-    if(typeTV&&!typeMovie&&item.media_type!=='tv') return false;
-    // score
-    if(scoreMin>0&&(item.vote_average||0)<scoreMin) return false;
-    // year
-    const year=parseInt((item.release_date||item.first_air_date||'1900').slice(0,4));
-    if(yearMin>1900&&year<yearMin) return false;
-    // genres
-    if(checkedGenres.length>0&&!checkedGenres.some(g=>(item.genre_ids||[]).includes(g))) return false;
+  // 2. Procesamos la lista maestra (fsAllResults) para crear la lista filtrada (fsFiltered)
+  fsFiltered = fsAllResults.filter(item => {
+    
+    // Filtro por Tipo: Si uno está marcado, excluimos al otro
+    if(typeMovie && !typeTV && item.media_type !== 'movie') return false;
+    if(typeTV && !typeMovie && item.media_type !== 'tv') return false;
+    
+    // Filtro por Puntuación: Comparamos contra el puntaje de TMDB
+    if(scoreMin > 0 && (item.vote_average || 0) < scoreMin) return false;
+    
+    // Filtro por Año: Extraemos los primeros 4 dígitos de la fecha
+    const year = parseInt((item.release_date || item.first_air_date || '1900').slice(0, 4));
+    if(yearMin > 1900 && year < yearMin) return false;
+    
+    // Filtro por Géneros: Verificamos si la peli tiene al menos uno de los elegidos
+    if(checkedGenres.length > 0 && !checkedGenres.some(g => (item.genre_ids || []).includes(g))) return false;
+
+    // --- FILTRO DE DISPONIBILIDAD (Solo en mis servicios) ---
+    // Como la API de búsqueda rápida no trae los proveedores al instante,
+    // este filtro prioriza lo que ya tenés en tu Cinematecaz (visto o guardado).
+    if(onlyMine) {
+      const isKnown = rated[item.id] || saved[item.id];
+      if(!isKnown) return false;
+    }
+
     return true;
   });
 
-  // provider filter is advisory (we don't have per-result provider data in search)
-  // just show a note if providers are checked
+  // 3. Reiniciamos el contador de la "paginación" para mostrar desde el principio
+  fsShowing = FS_PAGE_SIZE; 
 
-  fsShowing=FS_PAGE_SIZE; // reset visible count on filter change
-  updateFilterBadges(typeMovie,typeTV,scoreMin,yearMin,checkedGenres,checkedProviders);
+  // 4. Actualizamos los indicadores (badges) para que sepas cuántos filtros hay activos
+  updateFilterBadges(typeMovie, typeTV, scoreMin, yearMin, checkedGenres, checkedProviders);
+  
+  // 5. Renderizamos la grilla con los resultados finales
   renderFullResults(false);
 }
 
