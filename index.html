@@ -1227,26 +1227,27 @@ function calcMatch(c, p) {
   let base = weight ? Math.round(score / weight) : 45;
 
   if (c.sourceItem) {
+    // Bono por tu calificación (máximo +6%)
     base += Math.max(0, (c.sourceItem.rating - 7) * 2);
 
-    // --- NUEVA LÓGICA DE TÍTULO INTELIGENTE ---
-    // Esta función limpia el título: pasa a minúsculas, quita lo que sigue a ":" 
-    // y borra números al final (Ej: "Toy Story 2" -> "toy story")
-    const clean = (str) => (str || '').toLowerCase()
-      .split(/[:\-]/)[0] 
-      .replace(/\d+$/, '') 
+    // --- LIMPIEZA EXTREMA DE TÍTULOS ---
+    const cleanTitle = (s) => (s || '')
+      .toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quita acentos (á -> a)
+      .split(/[:\-–]/)[0] // Corta en los dos puntos o guiones (subtítulos)
+      .replace(/\s+(v[oi]l\s+)?(\d+|[ivx]+)$/i, '') // Quita "2", "3", "II", "III", etc. al final
       .trim();
 
-    const t1 = clean(c.title || c.name);
-    const t2 = clean(c.sourceItem.title || c.sourceItem.name);
+    const t1 = cleanTitle(c.title || c.name);
+    const t2 = cleanTitle(c.sourceItem.title || c.sourceItem.name);
 
-    // Si los títulos limpios coinciden y tienen una longitud razonable
+    // Si los títulos base coinciden
     const isSameTitle = t1.length > 3 && t1 === t2;
     
-    // Chequeo por ID (por si en el futuro la API lo incluye)
+    // Chequeo por ID (por si la API lo manda)
     const isSameCollection = c.belongs_to_collection?.id && 
-                            c.sourceItem.collectionId && 
-                            c.belongs_to_collection.id === c.sourceItem.collectionId;
+                             c.sourceItem.collectionId && 
+                             c.belongs_to_collection.id === c.sourceItem.collectionId;
 
     if (isSameCollection || isSameTitle) {
       base = 99; 
@@ -1254,6 +1255,7 @@ function calcMatch(c, p) {
     }
   }
 
+  // Si llegó a 99 por azar pero no es saga, bajamos a 95
   if (base >= 99 && !c.isSaga) base = 95; 
 
   return Math.min(99, Math.max(30, base));
