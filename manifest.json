@@ -1,0 +1,17 @@
+{
+    "name": "Cinemateca Personal",
+    "short_name": "Cinemateca",
+    "description": "Tu diario personal de cine y series",
+    "start_url": "./cinemateca.html",
+    "display": "standalone",
+    "background_color": "#0a0a0c",
+    "theme_color": "#c9a84c",
+    "icons": [
+    {
+        "src": "https://cdn-icons-png.flaticon.com/512/2503/2503508.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+    }
+    ]
+}
