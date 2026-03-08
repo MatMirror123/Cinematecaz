@@ -471,14 +471,28 @@
   </div>
 
   <!-- ══ RECOMENDACIONES ══ -->
-  <div class="section-header">
+  <div class="page" id="tab-recomendaciones">
+    <div class="section-header">
       <div class="section-title">Para vos</div>
       <button class="filter-btn" onclick="loadRecs()" style="display:flex; align-items:center; gap:6px;">🔄 Refrescar</button>
     </div>
-    <div id="recs-empty" class="empty-state" style="display:none"><div class="empty-icon">🔮</div><div class="empty-text">Calificá al menos 3 títulos para que<br>armemos tu perfil peliculero.</div></div>
+    
+    <div id="recs-empty" class="empty-state" style="display:none">
+      <div class="empty-icon">🔮</div>
+      <div class="empty-text">Calificá al menos 3 títulos para que<br>armemos tu perfil peliculero.</div>
+    </div>
+    
     <div class="recs-grid" id="recs-container">
-      <div class="recs-column"><h2>🎬 Películas para vos</h2><div id="movie-recs-list"></div><div class="loading-row" id="movie-recs-loading" style="display:none"><div class="spinner"></div></div></div>
-      <div class="recs-column"><h2>📺 Series para vos</h2><div id="tv-recs-list"></div><div class="loading-row" id="tv-recs-loading" style="display:none"><div class="spinner"></div></div></div>
+      <div class="recs-column">
+        <h2>🎬 Películas para vos</h2>
+        <div id="movie-recs-list"></div>
+        <div class="loading-row" id="movie-recs-loading" style="display:none"><div class="spinner"></div></div>
+      </div>
+      <div class="recs-column">
+        <h2>📺 Series para vos</h2>
+        <div id="tv-recs-list"></div>
+        <div class="loading-row" id="tv-recs-loading" style="display:none"><div class="spinner"></div></div>
+      </div>
     </div>
   </div>
 
