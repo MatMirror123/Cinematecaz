@@ -1417,21 +1417,33 @@ const SF_GENRES=[
   {id:10765,name:'Sci-Fi & Fantasía'},{id:10759,name:'Acción & Aventura'},
 ];
 
-function openFullSearch(q){
-  const overlay=document.getElementById('search-fullscreen');
-  const sfInput=document.getElementById('sf-input');
-  sfInput.value=q;
-  overlay.classList.add('open');
-  document.body.style.overflow='hidden';
-  renderGenreFilters();
-  renderProviderFilters();
-  runFullSearch(q,1);
-  setTimeout(()=>sfInput.focus(),100);
+function openFullSearch(q){ 
+  document.getElementById('search-fullscreen').classList.add('open'); 
+  
+  // Ocultamos la barra de búsqueda del header
+  const headerSearch = document.querySelector('.search-bar');
+  if(headerSearch) {
+    headerSearch.style.transition = 'opacity 0.2s';
+    headerSearch.style.opacity = '0';
+    headerSearch.style.pointerEvents = 'none';
+  }
+
+  // Ponemos el cursor automáticamente en el buscador fullscreen
+  setTimeout(() => {
+    const sfInput = document.getElementById('sf-input');
+    if(sfInput) sfInput.focus();
+  }, 100);
 }
 
-function closeFullSearch(){
-  document.getElementById('search-fullscreen').classList.remove('open');
-  document.body.style.overflow='';
+function closeFullSearch(){ 
+  document.getElementById('search-fullscreen').classList.remove('open'); 
+  
+  // Volvemos a mostrar la barra de búsqueda del header
+  const headerSearch = document.querySelector('.search-bar');
+  if(headerSearch) {
+    headerSearch.style.opacity = '1';
+    headerSearch.style.pointerEvents = 'auto';
+  }
 }
 
 function renderGenreFilters(){
