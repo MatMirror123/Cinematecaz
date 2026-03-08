@@ -2,7 +2,7 @@
     "name": "Cinemateca Personal",
     "short_name": "Cinemateca",
     "description": "Tu diario personal de cine y series",
-    "start_url": "./cinemateca.html",
+    "start_url": "./",
     "display": "standalone",
     "background_color": "#0a0a0c",
     "theme_color": "#c9a84c",
@@ -14,4 +14,5 @@
         "purpose": "any maskable"
     }
     ]
+
 }
