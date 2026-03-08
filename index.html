@@ -586,12 +586,16 @@
     </div>
 
     <div class="settings-field">
-      <div class="sf-label">Mis Datos (Backup)</div>
-      <div style="display:flex; gap:10px; margin-top:8px;">
-        <button class="cw-btn" onclick="exportData()" style="padding:10px; flex:1;">📥 Exportar a JSON</button>
-        <button class="cw-btn" onclick="document.getElementById('import-file').click()" style="padding:10px; flex:1;">📤 Importar JSON</button>
-        <input type="file" id="import-file" style="display:none" accept=".json" onchange="importData(this)">
+      <div class="sf-label">☁️ Sincronización en la Nube (GitHub Gist)</div>
+      <div style="display:flex; gap:10px; margin-bottom: 12px;">
+        <input type="password" id="settings-gh-token" placeholder="Tu GitHub Token" title="Pega tu Personal Access Token aquí" style="flex:2;">
+        <input type="text" id="settings-gist-id" placeholder="ID del Gist" title="Pega el ID de tu Gist aquí" style="flex:1;">
       </div>
+      <div style="display:flex; gap:10px;">
+        <button class="cw-btn" onclick="syncToCloud()" style="padding:10px; flex:1; background:rgba(201,168,76,0.15); color:var(--gold); border-color:var(--gold);">☁️ Subir Nube</button>
+        <button class="cw-btn" onclick="syncFromCloud()" style="padding:10px; flex:1; background:rgba(74,158,255,0.15); color:var(--blue); border-color:var(--blue);">⬇️ Bajar Nube</button>
+      </div>
+      <p style="font-size:0.7rem; color:var(--text3); margin-top:8px;">Tus datos viajan directo a tu bóveda privada en GitHub. Nadie más los ve.</p>
     </div>
 
     <button class="settings-save-btn" onclick="saveSettings()">Guardar ajustes</button>
@@ -1357,20 +1361,32 @@ async function loadRecs(){
 function openSettings(){
   const overlay=document.getElementById('settings-overlay');
   document.getElementById('settings-api-key').value=API_KEY;
+  // Agregamos esto:
+  document.getElementById('settings-gh-token').value = localStorage.getItem('gh_token') || '';
+  document.getElementById('settings-gist-id').value = localStorage.getItem('gist_id') || '';
+  
   const countrySelect=document.getElementById('settings-country');
   countrySelect.value=userCountry;
   renderProviderGrid();
   overlay.classList.add('open');
 }
+  
 function closeSettings(){ document.getElementById('settings-overlay').classList.remove('open'); }
+  
 function saveSettings(){
   const newKey=document.getElementById('settings-api-key').value.trim();
   if(newKey){ API_KEY=newKey; localStorage.setItem('tmdb_key',newKey); }
+  
+  // Agregamos esto:
+  localStorage.setItem('gh_token', document.getElementById('settings-gh-token').value.trim());
+  localStorage.setItem('gist_id', document.getElementById('settings-gist-id').value.trim());
+  
   userCountry=document.getElementById('settings-country').value;
   saveAll();
   closeSettings();
   showToast('Ajustes guardados ✓','success');
 }
+  
 function renderProviderGrid(){
   const grid=document.getElementById('provider-grid');
   grid.innerHTML=ALL_PROVIDERS.map(p=>`
@@ -1592,45 +1608,64 @@ function esc(str){
 }
 
 /* ── BACKUP / EXPORT & IMPORT ── */
-function exportData() {
-  const data = {
-    rated: JSON.parse(localStorage.getItem('rated') || '{}'),
-    saved: JSON.parse(localStorage.getItem('saved') || '{}'),
-    upnext: JSON.parse(localStorage.getItem('upnext') || '[]'),
-    progress: JSON.parse(localStorage.getItem('progress') || '{}'),
-    userProviders: JSON.parse(localStorage.getItem('userProviders') || '[]'),
-    userCountry: localStorage.getItem('userCountry') || 'AR'
+/* ── CLOUD SYNC (GIST) ── */
+async function syncToCloud() {
+  const token = localStorage.getItem('gh_token');
+  const gistId = localStorage.getItem('gist_id');
+  if(!token || !gistId) return showToast('Falta Token o ID en los ajustes', 'error');
+  
+  const data = { 
+    rated, saved, upNext, progress, 
+    userProviders: [...userProviders], userCountry 
   };
-  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `cinemateca_backup_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
+  
+  const payload = { 
+    files: { "cinemateca_backup.json": { content: JSON.stringify(data, null, 2) } } 
+  };
+  
+  try {
+    showToast('Subiendo a la nube... ☁️', 'info');
+    const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+      method: 'PATCH',
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error('Credenciales incorrectas');
+    showToast('¡Guardado en la nube! ✓', 'success');
+  } catch(e) {
+    showToast('Error al subir: Verificá tus credenciales', 'error');
+  }
 }
 
-function importData(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (confirm('⚠️ Esto reemplazará tu Cinemateca actual con los datos del archivo. ¿Continuar?')) {
-        localStorage.setItem('rated', JSON.stringify(data.rated || {}));
-        localStorage.setItem('saved', JSON.stringify(data.saved || {}));
-        localStorage.setItem('upnext', JSON.stringify(data.upnext || []));
-        localStorage.setItem('progress', JSON.stringify(data.progress || {}));
-        if(data.userProviders) localStorage.setItem('userProviders', JSON.stringify(data.userProviders));
-        if(data.userCountry) localStorage.setItem('userCountry', data.userCountry);
-        location.reload(); 
-      }
-    } catch (err) { 
-      showToast('Error: Archivo inválido', 'error'); 
+async function syncFromCloud() {
+  const token = localStorage.getItem('gh_token');
+  const gistId = localStorage.getItem('gist_id');
+  if(!token || !gistId) return showToast('Falta Token o ID en los ajustes', 'error');
+  
+  try {
+    showToast('Conectando con la nube... ⬇️', 'info');
+    const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if(!res.ok) throw new Error('Gist no encontrado');
+    
+    const json = await res.json();
+    const file = json.files["cinemateca_backup.json"];
+    if(!file) throw new Error('Archivo no encontrado');
+    
+    const data = JSON.parse(file.content);
+    if (confirm('⚠️ Esto reemplazará tu Cinemateca local con los datos de la nube. ¿Continuar?')) {
+      localStorage.setItem('rated', JSON.stringify(data.rated || {}));
+      localStorage.setItem('saved', JSON.stringify(data.saved || {}));
+      localStorage.setItem('upnext', JSON.stringify(data.upNext || [])); 
+      localStorage.setItem('progress', JSON.stringify(data.progress || {}));
+      if(data.userProviders) localStorage.setItem('userProviders', JSON.stringify(data.userProviders));
+      if(data.userCountry) localStorage.setItem('userCountry', data.userCountry);
+      location.reload(); 
     }
-  };
-  reader.readAsText(file);
-  input.value = ''; // Resetea el input para poder importar el mismo archivo de nuevo si es necesario
+  } catch(e) {
+    showToast('Error al bajar: ' + e.message, 'error');
+  }
 }
 
 </script>
