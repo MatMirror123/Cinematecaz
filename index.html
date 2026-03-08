@@ -382,7 +382,7 @@
     gap: 16px; 
     overflow-x: auto; 
     /* Aumentamos el padding vertical para que el scale no corte la imagen */
-    padding: 20px 4px; 
+    padding: 22px 5px; 
     scrollbar-width: none;
     cursor: grab;
   }
@@ -396,7 +396,7 @@
     cursor: pointer;
   }
   /* El scale ahora tiene espacio de sobra arriba y abajo */
-  .cast-item:hover { transform: scale(1.1); z-index: 10; }
+  .cast-item:hover { transform: scale(1.1); z-index: 5; }
   
   .cast-img { 
     width: 64px; height: 64px; border-radius: 50%; object-fit: cover; 
@@ -899,10 +899,10 @@ async function openDetail(id,type){
     const title=isM?details.title:details.name;
     const year=(isM?details.release_date:details.first_air_date||'').slice(0,4);
     const genres=details.genres||[];
-    
-    // --- Lógica de Colección (Saga) ---
+    const collectionId = details.belongs_to_collection ? details.belongs_to_collection.id : null;
+
+    // --- LÓGICA DE SAGA ---
     let sagaHtml = '';
-    let collectionId = details.belongs_to_collection ? details.belongs_to_collection.id : null;
     if(isM && collectionId) {
       try {
         const colRes = await fetch(`${API_BASE}/collection/${collectionId}?api_key=${API_KEY}&language=es-419`).then(r=>r.json());
@@ -910,8 +910,7 @@ async function openDetail(id,type){
         if(otherMovies.length > 0) {
           sagaHtml = `<div class="modal-saga">
             <div class="saga-title">Colección: ${esc(colRes.name)}</div>
-            <div class="saga-list">
-              ${otherMovies.map(m => `
+            <div class="saga-list">${otherMovies.map(m => `
                 <div class="saga-item" onclick="openDetail(${m.id},'movie')">
                   <img src="${m.poster_path ? IMG_BASE+'w154'+m.poster_path : ''}" alt="${esc(m.title)}">
                   <div class="saga-item-title">${esc(m.title)}</div>
@@ -919,20 +918,20 @@ async function openDetail(id,type){
             </div>
           </div>`;
         }
-      } catch(e) { console.error("Error cargando colección", e); }
+      } catch(e) {}
     }
 
-    // --- Lógica de Reparto con Clic ---
+    // --- LÓGICA DE REPARTO (CAST) ---
     const cast = (credits.cast || []).slice(0, 10); 
     let castHtml = '';
     if(cast.length > 0) {
       castHtml = `
         <div class="modal-cast">
-          <div class="cast-title">Reparto Principal (tocá para buscar más)</div>
+          <div class="cast-title">Reparto Principal (tocá para buscar)</div>
           <div class="cast-list">
             ${cast.map(actor => `
               <div class="cast-item" onclick="searchByActor('${esc(actor.name)}')">
-                <img src="${actor.profile_path ? IMG_BASE+'w185'+actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img" loading="lazy" title="Ver más de ${esc(actor.name)}">
+                <img src="${actor.profile_path ? IMG_BASE+'w185'+actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img" loading="lazy">
                 <div class="cast-name">${esc(actor.name)}</div>
                 <div class="cast-char">${esc(actor.character)}</div>
               </div>`).join('')}
@@ -940,26 +939,20 @@ async function openDetail(id,type){
         </div>`;
     }
 
-    // --- Lógica de Tráiler ---
     const trailer = (videosRes.results || []).find(v => v.type === 'Trailer' && v.site === 'YouTube') || (videosRes.results || [])[0];
     const trailerBtn = trailer ? `<button class="btn-trailer" onclick="window.open('https://youtube.com/watch?v=${trailer.key}', '_blank')">▶ Ver Tráiler Oficial</button>` : '';
 
     const existing=rated[id];
     const currentRating=existing?existing.rating:5;
     const isSaved=!!saved[id];
-    const prog=progress[id]||{};
-
-    // Guardamos el collectionId en el modal actual para cuando guardemos el rating
-    currentModal={id,type,title,genre_ids:genres.map(g=>g.id),poster_path:details.poster_path||'',backdrop_path:details.backdrop_path||'',release_date:(isM?details.release_date:details.first_air_date)||'',overview:details.overview||'',seasons_total:details.number_of_seasons||1, collectionId};
+    
+    currentModal={id,type,title,genre_ids:genres.map(g=>g.id),poster_path:details.poster_path||'',backdrop_path:details.backdrop_path||'',release_date:(isM?details.release_date:details.first_air_date)||'',overview:details.overview||'', collectionId};
 
     const backdrop=details.backdrop_path?`${IMG_BASE}w780${details.backdrop_path}`:'';
     const poster=details.poster_path?`${IMG_BASE}w342${details.poster_path}`:'';
 
-    // (Aquí va tu lógica de progressHtml que ya tenés para series...)
-    let progressHtml = ''; // ...mantener el código de series que tenías...
-    
-    // Generar Watch Providers (mantener código que ya tenías)
-    let providersHtml = ''; // ...mantener código de providers...
+    // (Aquí va tu lógica de providersHtml...)
+    let providersHtml = ''; // Asegurate de que esta variable esté bien generada antes de showModal
 
     showModal(`
       ${backdrop?`<img src="${backdrop}" class="modal-backdrop">`:`<div class="modal-backdrop-gradient"></div>`}
@@ -968,41 +961,32 @@ async function openDetail(id,type){
           ${poster?`<img src="${poster}" class="modal-poster">`:`<div class="modal-poster"></div>`}
           <div class="modal-title-block">
             <div class="modal-title">${esc(title)}</div>
-            <div class="modal-meta">
-              <span>📅 ${year}</span>
-              <span class="result-type ${isM?'type-movie':'type-tv'}">${isM?'Película':'Serie'}</span>
-            </div>
+            <div class="modal-meta"><span>📅 ${year}</span> <span class="result-type ${isM?'type-movie':'type-tv'}">${isM?'Película':'Serie'}</span></div>
           </div>
         </div>
 
         ${genres.length?`<div class="modal-genres">${genres.map(g=>`<span class="modal-genre-tag">${g.name}</span>`).join('')}</div>`:''}
 
-        <div class="rating-widget" style="margin-bottom: 20px; background: var(--bg2); border: 1px solid var(--border);">
+        <div class="rating-widget" style="background: var(--bg4); border: 1px solid var(--gold); margin: 15px 0;">
           <div class="rating-label">Tu calificación</div>
           <div class="rating-display">
             <div class="rating-number" id="modal-rating-display">${currentRating}<span>/10</span></div>
             <input type="range" class="rating-slider" min="0" max="10" step="0.5" value="${currentRating}" id="modal-rating-slider" style="--pct:${currentRating*10}%" oninput="updateRatingDisplay(this)">
           </div>
-          <div class="modal-action-row" style="margin-top: 12px;">
-            <button class="btn-rate" onclick="rateItem()">${existing?'✏️ Actualizar':'⭐ Guardar Nota'}</button>
-          </div>
+          <button class="btn-rate" onclick="rateItem()" style="margin-top:10px; width:100%;">${existing ? '✏️ Actualizar' : '⭐ Guardar'}</button>
         </div>
 
         ${trailerBtn}
         ${providersHtml}
-        
-        <p class="modal-overview" style="margin-top: 16px;">${esc(details.overview||'Sin descripción.')}</p>
+        <p class="modal-overview" style="margin-top:15px; font-style: italic;">${esc(details.overview||'Sin descripción.')}</p>
         
         ${sagaHtml} 
-        ${castHtml} 
-
-        <div class="modal-action-row" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
-          <button class="btn-save-toggle ${isSaved?'saved':''}" id="btn-save-toggle" onclick="toggleSave()" style="flex:1;">${isSaved?'🔖 Guardado':'🔖 Guardar para después'}</button>
-          ${existing?`<button class="btn-delete" onclick="deleteRating(${id})" title="Eliminar de mi lista">🗑</button>`:''}
+        ${castHtml} <div class="modal-action-row" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+          <button class="btn-save-toggle ${isSaved?'saved':''}" id="btn-save-toggle" onclick="toggleSave()" style="flex:1;">${isSaved?'🔖 Guardado':'🔖 Guardar'}</button>
+          ${existing?`<button class="btn-delete" onclick="deleteRating(${id})">🗑</button>`:''}
         </div>
       </div>`);
-
-  }catch(e){ showModal(`<div style="padding:40px;text-align:center;color:var(--accent)">${e.message}</div>`); }
+  }catch(e){ showModal('<div style="padding:40px;text-align:center;">Error al cargar</div>'); }
 }
 
 function setStatus(status){
