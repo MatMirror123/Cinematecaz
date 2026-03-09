@@ -616,10 +616,19 @@
 
 <!-- HEADER -->
 <header>
-  <div class="logo">🎬 Cinematecaz</div>
+  <div class="logo" onclick="showTab('inicio')" style="cursor:pointer">🎬 Cinematecaz</div>
   <div class="search-bar">
-    <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="text" id="search-input" placeholder="Buscar película o serie..." autocomplete="off">
+    <div style="display:flex; gap:10px; align-items:center;">
+      <div style="position:relative; flex:1;">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="search-input" placeholder="Buscar película o serie..." autocomplete="off">
+      </div>
+      
+      <button class="settings-btn" id="search-full-btn" title="Búsqueda avanzada" onclick="openFullSearch('')" style="position:relative; padding: 8px 10px;">
+        🔍
+        <div id="sf-badge-count" class="tab-badge" style="position:absolute; top:-5px; right:-5px; display:none">0</div>
+      </button>
+    </div>
     <div id="search-results" class="search-results"></div>
   </div>
   <nav class="nav-tabs">
@@ -693,7 +702,7 @@
   </div>
 
   <!-- ══ PELÍCULAS ══ -->
-  <div class="page" id="tab-movies">
+  <div class="page" id="tab-peliculas">
     <div class="section-header">
       <div class="section-title">Mis Películas</div>
       <div class="section-count" id="movies-count">0 películas</div>
@@ -2033,22 +2042,21 @@ function applyFilters(){
   renderFullResults(false);
 }
 
-function updateFilterBadges(typeMovie,typeTV,scoreMin,yearMin,checkedGenres,checkedProviders){
-  const tb=document.getElementById('type-badge');
-  tb.style.display=(typeMovie||typeTV)?'inline':'none';
-  tb.textContent=(typeMovie&&typeTV)?'2':typeMovie?'Peli':'Serie';
+function updateFilterBadges(typeMovie, typeTV, scoreMin, yearMin, checkedGenres, checkedProviders) {
+  let count = 0;
+  if (typeMovie && !typeTV) count++;
+  if (typeTV && !typeMovie) count++;
+  if (scoreMin > 0) count++;
+  if (yearMin > 1900) count++;
+  count += (checkedGenres ? checkedGenres.length : 0);
+  count += (checkedProviders ? checkedProviders.length : 0);
 
-  const sb=document.getElementById('score-badge');
-  sb.style.display=scoreMin>0?'inline':'none';
-  sb.textContent=`${scoreMin}+`;
-
-  const yb=document.getElementById('year-badge');
-  yb.style.display=yearMin>1900?'inline':'none';
-  yb.textContent=`${yearMin}+`;
-
-  const gb=document.getElementById('genre-badge');
-  gb.style.display=checkedGenres.length>0?'inline':'none';
-  gb.textContent=checkedGenres.length;
+  const badge = document.getElementById('sf-badge-count');
+  // Usamos un check de seguridad para que no tire error si el badge no existe
+  if (badge) {
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'inline-block' : 'none';
+  }
 }
 
 function renderFullResults(append=false){
@@ -2389,6 +2397,32 @@ function drawRadarChart(canvasId, title, labels, data, bgColor, borderColor) {
     }
   });
 }
+
+// Forzamos el renderizado inicial de todas las pestañas
+function renderAll(){ 
+  try {
+    if (typeof renderRecent === 'function') renderRecent();
+    if (typeof renderCW === 'function') renderCW();
+    if (typeof renderMyMovies === 'function') renderMyMovies();
+    if (typeof renderMySeries === 'function') renderMySeries();
+    if (typeof renderSaved === 'function') renderSaved();
+    if (typeof renderUpNext === 'function') renderUpNext();
+    if (typeof updateProfile === 'function') updateProfile();
+    if (typeof updateListaBadge === 'function') updateListaBadge();
+  } catch (e) {
+    console.warn("Error en el renderizado inicial, pero la app intentará seguir:", e);
+  }
+}
+
+// Esta es la mecha que enciende el motor
+document.addEventListener('DOMContentLoaded', () => {
+  const k = localStorage.getItem('tmdb_key');
+  if (k) {
+    API_KEY = k;
+    loadAll();
+    bootstrap(); // bootstrap ya llama a renderAll()
+  }
+});
 
 </script>
 </body>
