@@ -373,6 +373,10 @@
   .btn-trailer{background:rgba(230,57,70,0.15); color:var(--accent); border:1px solid var(--accent); border-radius:var(--radius); padding:11px; font-family:'DM Sans',sans-serif; font-weight:600; cursor:pointer; font-size:0.82rem; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:12px; width:100%;}
   .btn-trailer:hover{background:var(--accent); color:#fff;}
 
+  .sort-wrap { display:flex; flex-direction:column; gap:8px; padding-bottom: 8px;}
+  .sort-select { background:var(--bg3); border:1px solid var(--border); border-radius:var(--radius); padding:7px 10px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.82rem; outline:none; cursor:pointer; min-width: 160px; }
+  .sort-select:focus { border-color:var(--gold); }
+
 /* ----------------------------------------------------------  CAST DISPLAY ---------------------------------------------------------- */
   .modal-cast { 
     margin-top: 24px; 
@@ -537,6 +541,9 @@
   }
 
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
 <body>
 
@@ -607,6 +614,17 @@
       </div>
     </div>
 
+    <div class="section-block" id="adn-block" style="display:none">
+      <div class="section-header">
+        <div class="section-title">🧬 Tu ADN Cinéfilo</div>
+      </div>
+      <div class="radars-grid">
+        <div class="radar-card"><div class="radar-wrap"><canvas id="chart-genres"></canvas></div></div>
+        <div class="radar-card"><div class="radar-wrap"><canvas id="chart-decades"></canvas></div></div>
+        <div class="radar-card"><div class="radar-wrap"><canvas id="chart-ratings"></canvas></div></div>
+      </div>
+    </div>
+
     <div class="section-block" id="cw-block" style="display:none">
       <div class="section-header">
         <div class="section-title">▶ Continuar viendo</div>
@@ -635,35 +653,31 @@
       <div class="section-header"><div class="section-title">🔥 Tendencias hoy</div></div>
       <div id="trending-grid" class="movie-grid"><div class="loading-row"><div class="spinner"></div></div></div>
     </div>
-
-    <div class="section-block" id="adn-block" style="display:none">
-      <div class="section-header">
-        <div class="section-title">🧬 Tu ADN Cinéfilo</div>
-      </div>
-      <div class="radars-grid">
-        <div class="radar-card">
-          <div class="radar-wrap"><canvas id="chart-genres"></canvas></div>
-        </div>
-        <div class="radar-card">
-          <div class="radar-wrap"><canvas id="chart-decades"></canvas></div>
-        </div>
-        <div class="radar-card">
-          <div class="radar-wrap"><canvas id="chart-ratings"></canvas></div>
-        </div>
-      </div>
-    </div>
-
   </div>
 
   <!-- ══ PELÍCULAS ══ -->
   <div class="page" id="tab-peliculas">
     <div class="section-header"><div class="section-title">Mis Películas</div><div class="section-count" id="movies-count"></div></div>
-    <div style="padding:0 0 16px;max-width:360px;">
-      <div class="filter-row-label">Calificación <span id="movies-range-label">0 – 10</span></div>
-      <div class="dual-range-track" id="movies-range-track">
-        <div class="dual-range-fill" id="movies-range-fill"></div>
-        <input type="range" id="movies-rmin" min="0" max="10" step="0.5" value="0" oninput="updateDualRange('movies')" onchange="renderMyMovies()">
-        <input type="range" id="movies-rmax" min="0" max="10" step="0.5" value="10" oninput="updateDualRange('movies')" onchange="renderMyMovies()">
+    <div style="display:flex; justify-content:space-between; gap:24px; align-items:flex-end; flex-wrap:wrap; padding:0 0 16px;">
+      <div style="max-width:300px; flex:1; min-width:200px;">
+        <div class="filter-row-label">Calificación <span id="movies-range-label">0 – 10</span></div>
+        <div class="dual-range-track" id="movies-range-track">
+          <div class="dual-range-fill" id="movies-range-fill"></div>
+          <input type="range" id="movies-rmin" min="0" max="10" step="0.5" value="0" oninput="updateDualRange('movies')" onchange="renderMyMovies()">
+          <input type="range" id="movies-rmax" min="0" max="10" step="0.5" value="10" oninput="updateDualRange('movies')" onchange="renderMyMovies()">
+        </div>
+      </div>
+      
+      <div class="sort-wrap" style="margin-left: auto; align-items: flex-end;">
+        <div class="filter-row-label">Ordenar por</div>
+        <select id="movies-sort" class="sort-select" onchange="renderMyMovies()">
+          <option value="date_desc">Agregado: Más reciente</option>
+          <option value="date_asc">Agregado: Más antiguo</option>
+          <option value="rating_desc">Nota: Mayor a Menor</option>
+          <option value="rating_asc">Nota: Menor a Mayor</option>
+          <option value="alpha_asc">Nombre: A - Z</option>
+          <option value="alpha_desc">Nombre: Z - A</option>
+        </select>
       </div>
     </div>
     <div id="movies-grid" class="movie-grid"></div>
@@ -673,22 +687,37 @@
   <!-- ══ SERIES ══ -->
   <div class="page" id="tab-series">
     <div class="section-header"><div class="section-title">Mis Series</div><div class="section-count" id="series-count"></div></div>
-    <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;padding-bottom:16px;">
-      <div class="filter-row" id="series-status-row" style="margin-bottom:0">
-        <button class="filter-btn active" data-status="all" onclick="setSeriesStatus(this,'all')">Todas</button>
-        <button class="filter-btn" data-status="watching" onclick="setSeriesStatus(this,'watching')">▶ Viendo</button>
-        <button class="filter-btn" data-status="paused" onclick="setSeriesStatus(this,'paused')">⏸ Pausadas</button>
-      </div>
-      <div style="max-width:300px;flex:1;min-width:200px;">
+    <div style="display:flex; gap:20px; align-items:flex-end; flex-wrap:wrap; padding-bottom:16px;">
+      
+      <div style="max-width:260px; flex:1; min-width:180px; margin-bottom:8px">
         <div class="filter-row-label">Calificación <span id="series-range-label">0 – 10</span></div>
-        <div class="dual-range-track" id="series-range-track">
+        <div class="dual-range-track" id="series-range-track" style="margin: 10px 0;">
           <div class="dual-range-fill" id="series-range-fill"></div>
           <input type="range" id="series-rmin" min="0" max="10" step="0.5" value="0" oninput="updateDualRange('series')" onchange="renderMySeries()">
           <input type="range" id="series-rmax" min="0" max="10" step="0.5" value="10" oninput="updateDualRange('series')" onchange="renderMySeries()">
         </div>
       </div>
+
+      <div class="filter-row" id="series-status-row" style="margin-bottom:8px">
+        <button class="filter-btn active" data-status="all" onclick="setSeriesStatus(this,'all')">Todas</button>
+        <button class="filter-btn" data-status="watching" onclick="setSeriesStatus(this,'watching')">▶ Viendo</button>
+        <button class="filter-btn" data-status="paused" onclick="setSeriesStatus(this,'paused')">⏸ Pausadas</button>
+        <button class="filter-btn" data-status="completed" onclick="setSeriesStatus(this,'completed')">✓ Terminadas</button>
+      </div>
+
+      <div class="sort-wrap" style="margin-left: auto; align-items: flex-end; margin-bottom:8px;">
+        <div class="filter-row-label">Ordenar por</div>
+        <select id="series-sort" class="sort-select" onchange="renderMySeries()">
+          <option value="date_desc">Agregado: Más reciente</option>
+          <option value="date_asc">Agregado: Más antiguo</option>
+          <option value="rating_desc">Nota: Mayor a Menor</option>
+          <option value="rating_asc">Nota: Menor a Mayor</option>
+          <option value="alpha_asc">Nombre: A - Z</option>
+          <option value="alpha_desc">Nombre: Z - A</option>
+        </select>
+      </div>
+      
     </div>
-    <div id="series-grid" class="movie-grid"></div>
     <div class="empty-state" id="series-empty" style="display:none"><div class="empty-icon">📺</div><div class="empty-text">Todavía no calificaste ninguna serie.</div></div>
   </div>
 
@@ -1028,7 +1057,12 @@ async function doSearch(q){
     const r=await fetch(`${API_BASE}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(q)}&language=es-419`);
     const data=await r.json();
     if(data.status_message) throw new Error(data.status_message);
-    const items=(data.results||[]).filter(i=>i.media_type==='movie'||i.media_type==='tv').slice(0,8);
+    
+    // Filtramos y ORDENAMOS por popularidad antes de cortar a 8 resultados
+    let items=(data.results||[]).filter(i=>i.media_type==='movie'||i.media_type==='tv');
+    items.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+    items = items.slice(0,8);
+    
     if(!items.length){results.innerHTML='<div style="padding:12px;text-align:center;color:var(--text3);font-size:0.83rem">Sin resultados</div>';return;}
     results.innerHTML=items.map(item=>{
       const isM=item.media_type==='movie';
@@ -1151,6 +1185,14 @@ async function openDetail(id, type) {
 
     currentModal = { id, type, title, genre_ids: genres.map(g => g.id), poster_path: details.poster_path || '', backdrop_path: details.backdrop_path || '', release_date: (isM ? details.release_date : details.first_air_date) || '', collectionId, seasons_total: totalSeasons };
 
+// (Acá termina la lógica del reparto...)
+
+    // 1. Calculamos la nota de TMDB para mostrarla
+    const tmdbRating = details.vote_average ? ` · ⭐ ${details.vote_average.toFixed(1)} TMDB` : '';
+
+    // 2. Agregamos vote_average y seasons_total al currentModal para que se guarden
+    currentModal = { id, type, title, genre_ids: genres.map(g => g.id), poster_path: details.poster_path || '', backdrop_path: details.backdrop_path || '', release_date: (isM ? details.release_date : details.first_air_date) || '', collectionId, seasons_total: details.number_of_seasons || 1, vote_average: details.vote_average || 0 };
+
     showModal(`
       ${backdrop ? `<img src="${backdrop}" class="modal-backdrop">` : `<div class="modal-backdrop-gradient"></div>`}
       <div class="modal-body">
@@ -1158,7 +1200,7 @@ async function openDetail(id, type) {
           ${poster ? `<img src="${poster}" class="modal-poster">` : `<div class="modal-poster"></div>`}
           <div class="modal-title-block">
             <div class="modal-title">${esc(title)}</div>
-            <div class="modal-meta"><span>📅 ${year}</span> <span class="result-type ${isM ? 'type-movie' : 'type-tv'}">${isM ? 'Película' : 'Serie'}</span></div>
+            <div class="modal-meta"><span>📅 ${year}${tmdbRating}</span> <span class="result-type ${isM ? 'type-movie' : 'type-tv'}">${isM ? 'Película' : 'Serie'}</span></div>
           </div>
         </div>
 
@@ -1254,16 +1296,26 @@ function updateRatingDisplay(slider){
 
 function rateItem() {
   if (!currentModal) return;
-  const {id, type, title, genre_ids, poster_path, release_date, collectionId} = currentModal;
+  // Extraemos vote_average del modal actual
+  const {id, type, title, genre_ids, poster_path, release_date, collectionId, vote_average} = currentModal;
   const rating = parseFloat(document.getElementById('modal-rating-slider').value);
 
-  // IMPORTANTE: Asegurate de que collectionId esté aquí abajo
   rated[id] = {
     id, type, title, rating, genre_ids, poster_path, release_date, 
     ratedAt: Date.now(), 
-    collectionId: collectionId // <--- Sin esto, el 99% no sabe con qué comparar
+    collectionId: collectionId,
+    vote_average: vote_average // Guardamos la nota de TMDB
   };
-  saveAll(); closeModal();
+
+  if (type === 'tv') {
+    const prog = progress[id] || {};
+    prog.status = 'completed';
+    if (currentModal.seasons_total) prog.seasons_total = currentModal.seasons_total;
+    progress[id] = prog;
+  }
+
+  saveAll(); 
+  closeModal();
   showToast(`"${title}" → ${rating}/10 ✓`,'success');
   renderAll();
 }
@@ -1275,14 +1327,16 @@ function deleteRating(id){
 
 function toggleSave(){
   if(!currentModal) return;
-  const{id,type,title,genre_ids,poster_path,release_date,overview}=currentModal;
+  // Extraemos vote_average
+  const{id,type,title,genre_ids,poster_path,release_date,overview,vote_average}=currentModal;
   const btn=document.getElementById('btn-save-toggle');
+  
   if(saved[id]){
     delete saved[id]; upNext=upNext.filter(x=>x!=id);
     btn.textContent='🔖 Guardar'; btn.classList.remove('saved');
     showToast(`"${title}" quitado de guardados`,'');
   }else{
-    saved[id]={id,type,title,genre_ids,poster_path,release_date,overview,savedAt:Date.now()};
+    saved[id]={id,type,title,genre_ids,poster_path,release_date,overview,vote_average,savedAt:Date.now()};
     btn.textContent='🔖 Guardado'; btn.classList.add('saved');
     showToast(`"${title}" guardado para después 🔖`,'info');
   }
@@ -1471,16 +1525,21 @@ function makeCard(item,showMatch){
   const poster=item.poster_path?`${IMG_BASE}w342${item.poster_path}`:'';
   const year=(item.release_date||item.first_air_date||'').slice(0,4);
   const myRating=rated[item.id]?rated[item.id].rating:null;
+  // Creamos el texto de TMDB si el dato existe
+  const tmdbRating = item.vote_average ? ` · ⭐ ${item.vote_average.toFixed(1)}` : '';
   const isSavedItem=!!saved[item.id];
+  
+  // Tu nota personal queda EXCLUSIVA para la esquina superior derecha
   const ratingHtml=myRating!==null?`<div class="card-rating-badge">★ ${myRating}</div>`:'';
   const matchHtml=(showMatch&&item.match!==undefined)?`<div class="card-match-badge">${item.match}%</div>`:'';
   const saveHtml=(isSavedItem&&myRating===null)?`<div class="card-save-badge">🔖</div>`:'';
   const type=item.media_type||item.type||'movie';
+  
   return `<div class="movie-card" onclick="openDetail(${item.id},'${type}')">
     ${poster?`<img src="${poster}" class="card-poster" loading="lazy">`:`<div class="card-poster"></div>`}
     ${ratingHtml}${matchHtml}${saveHtml}
     <div class="card-overlay"><div class="card-title">${esc(item.title||item.name||'')}</div><div class="card-year">${year}</div></div>
-    <div class="card-info"><div class="card-info-title">${esc(item.title||item.name||'')}</div><div class="card-info-sub">${year}${myRating!==null?` · ★ ${myRating}/10`:''}</div></div>
+    <div class="card-info"><div class="card-info-title">${esc(item.title||item.name||'')}</div><div class="card-info-sub">${year}${tmdbRating}</div></div>
   </div>`;
 }
 
@@ -1494,13 +1553,36 @@ function renderRecent(){
   grid.innerHTML=items.map(item=>makeCard({...item,media_type:item.type},false)).join('');
 }
 
+// --- NUEVO: Motor de Ordenamiento ---
+function sortItems(items, sortVal) {
+  return items.sort((a, b) => {
+    if (sortVal === 'rating_desc') return b.rating - a.rating;
+    if (sortVal === 'rating_asc') return a.rating - b.rating;
+    if (sortVal === 'date_desc') return (b.ratedAt || 0) - (a.ratedAt || 0);
+    if (sortVal === 'date_asc') return (a.ratedAt || 0) - (b.ratedAt || 0);
+    
+    // Para ordenar alfabéticamente (ignorando acentos y mayúsculas)
+    const titleA = (a.title || a.name || '').toLowerCase();
+    const titleB = (b.title || b.name || '').toLowerCase();
+    if (sortVal === 'alpha_asc') return titleA.localeCompare(titleB);
+    if (sortVal === 'alpha_desc') return titleB.localeCompare(titleA);
+    
+    return 0;
+  });
+}
+
 function renderMyMovies(){
   const items=Object.values(rated).filter(i=>i.type==='movie');
   document.getElementById('movies-count').textContent=`${items.length} películas`;
+  
   const lo=parseFloat(document.getElementById('movies-rmin')?.value??0);
   const hi=parseFloat(document.getElementById('movies-rmax')?.value??10);
   let filtered=items.filter(i=>i.rating>=lo&&i.rating<=hi);
-  filtered.sort((a,b)=>b.rating-a.rating);
+  
+  // Aplicamos el ordenamiento elegido
+  const sortVal = document.getElementById('movies-sort')?.value || 'date_desc';
+  filtered = sortItems(filtered, sortVal);
+  
   const grid=document.getElementById('movies-grid'),empty=document.getElementById('movies-empty');
   if(!filtered.length){grid.innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
@@ -1510,12 +1592,18 @@ function renderMyMovies(){
 function renderMySeries(){
   const items=Object.values(rated).filter(i=>i.type==='tv');
   document.getElementById('series-count').textContent=`${items.length} series`;
+  
   const lo=parseFloat(document.getElementById('series-rmin')?.value??0);
   const hi=parseFloat(document.getElementById('series-rmax')?.value??10);
   let filtered=items.filter(i=>i.rating>=lo&&i.rating<=hi);
+  
   if(seriesStatusFilter==='watching') filtered=filtered.filter(i=>progress[i.id]?.status==='watching');
   else if(seriesStatusFilter==='paused') filtered=filtered.filter(i=>progress[i.id]?.status==='paused');
-  filtered.sort((a,b)=>b.rating-a.rating);
+  
+  // Aplicamos el ordenamiento elegido
+  const sortVal = document.getElementById('series-sort')?.value || 'date_desc';
+  filtered = sortItems(filtered, sortVal);
+  
   const grid=document.getElementById('series-grid'),empty=document.getElementById('series-empty');
   if(!filtered.length){grid.innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
@@ -1551,46 +1639,36 @@ function calcMatch(c, p) {
   let base = weight ? Math.round(score / weight) : 45;
 
   if (c.sourceItem) {
-    // Bono por tu calificación (máximo +6%)
+    // Bono por calificación de tu película favorita (máximo +6%)
     base += Math.max(0, (c.sourceItem.rating - 7) * 2);
 
-    // --- LIMPIEZA EXTREMA DE TÍTULOS ---
-    const cleanTitle = (s) => (s || '')
-      .toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quita acentos (á -> a)
-      .split(/[:\-–]/)[0] // Corta en los dos puntos o guiones (subtítulos)
-      .replace(/\s+(v[oi]l\s+)?(\d+|[ivx]+)$/i, '') // Quita "2", "3", "II", "III", etc. al final
-      .trim();
-
-    const t1 = cleanTitle(c.title || c.name);
-    const t2 = cleanTitle(c.sourceItem.title || c.sourceItem.name);
-
-    // Si los títulos base coinciden
-    const isSameTitle = t1.length > 3 && t1 === t2;
-    
-    // Chequeo por ID (por si la API lo manda)
+    // --- VERIFICACIÓN ESTRICTA POR COLECCIÓN OFICIAL DE TMDB ---
     const isSameCollection = c.belongs_to_collection?.id && 
                              c.sourceItem.collectionId && 
                              c.belongs_to_collection.id === c.sourceItem.collectionId;
 
-    if (isSameCollection || isSameTitle) {
+    if (isSameCollection) {
       base = 99; 
       c.isSaga = true;
     }
   }
 
-  // Si llegó a 99 por azar pero no es saga, bajamos a 95
+  // Si llegó a 99 por azar pero no es saga confirmada, lo topamos en 95
   if (base >= 99 && !c.isSaga) base = 95; 
 
   return Math.min(99, Math.max(30, base));
 }
 
-function matchReasons(c,p){
-  if (c.isSaga && c.sourceItem) return '🎯 Secuela / Saga de ' + esc(c.sourceItem.title||c.sourceItem.name);
-  if (c.sourceItem) return '🎯 Porque te gustó ' + esc(c.sourceItem.title||c.sourceItem.name);
+function matchReasons(c, p) {
+  // Solo se activa si comparten exactamente el mismo Collection ID oficial
+  if (c.isSaga && c.sourceItem) return '🎯 Colección de ' + esc(c.sourceItem.title || c.sourceItem.name);
   
-  const top=(c.genre_ids||[]).filter(g=>p.genreAvg[g]&&p.genreAvg[g]>=7).map(g=>GENRE_NAMES[g]||g).slice(0,3);
-  return top.length?'🎯 '+top.join(' · '):'';
+  // Si es una recomendación general basada en una semilla
+  if (c.sourceItem) return '🎯 Porque te gustó ' + esc(c.sourceItem.title || c.sourceItem.name);
+  
+  // Si es por afinidad de género
+  const top = (c.genre_ids || []).filter(g => p.genreAvg[g] && p.genreAvg[g] >= 7).map(g => GENRE_NAMES[g] || g).slice(0, 3);
+  return top.length ? '🎯 ' + top.join(' · ') : '';
 }
 
 async function loadRecs(){
@@ -1847,49 +1925,39 @@ function applyFilters(){
   // 1. Capturamos los valores de los botones y checkboxes
   const typeMovie = document.getElementById('sf-type-movie')?.checked;
   const typeTV = document.getElementById('sf-type-tv')?.checked;
-  const onlyMine = document.getElementById('sf-only-mine')?.checked; // Nuevo filtro 🏠
+  const onlyMine = document.getElementById('sf-only-mine')?.checked; 
   const scoreMin = parseFloat(document.getElementById('sf-score-min')?.value || 0);
   const yearMin = parseInt(document.getElementById('sf-year-min')?.value || 1900);
   
-  // Capturamos géneros y proveedores seleccionados
   const checkedGenres = [...document.querySelectorAll('.sf-genre-cb:checked')].map(c => parseInt(c.value));
   const checkedProviders = [...document.querySelectorAll('.sf-provider-cb:checked')].map(c => parseInt(c.value));
 
   // 2. Procesamos la lista maestra (fsAllResults) para crear la lista filtrada (fsFiltered)
   fsFiltered = fsAllResults.filter(item => {
-    
-    // Filtro por Tipo: Si uno está marcado, excluimos al otro
     if(typeMovie && !typeTV && item.media_type !== 'movie') return false;
     if(typeTV && !typeMovie && item.media_type !== 'tv') return false;
-    
-    // Filtro por Puntuación: Comparamos contra el puntaje de TMDB
     if(scoreMin > 0 && (item.vote_average || 0) < scoreMin) return false;
     
-    // Filtro por Año: Extraemos los primeros 4 dígitos de la fecha
     const year = parseInt((item.release_date || item.first_air_date || '1900').slice(0, 4));
     if(yearMin > 1900 && year < yearMin) return false;
-    
-    // Filtro por Géneros: Verificamos si la peli tiene al menos uno de los elegidos
     if(checkedGenres.length > 0 && !checkedGenres.some(g => (item.genre_ids || []).includes(g))) return false;
-
-    // --- FILTRO DE DISPONIBILIDAD (Solo en mis servicios) ---
-    // Como la API de búsqueda rápida no trae los proveedores al instante,
-    // este filtro prioriza lo que ya tenés en tu Cinematecaz (visto o guardado).
     if(onlyMine) {
       const isKnown = rated[item.id] || saved[item.id];
       if(!isKnown) return false;
     }
-
     return true;
   });
 
-  // 3. Reiniciamos el contador de la "paginación" para mostrar desde el principio
+  // --- NUEVO: Ordenar los resultados finales por popularidad ---
+  fsFiltered.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+
+  // 3. Reiniciamos el contador de la "paginación"
   fsShowing = FS_PAGE_SIZE; 
 
-  // 4. Actualizamos los indicadores (badges) para que sepas cuántos filtros hay activos
+  // 4. Actualizamos los indicadores (badges)
   updateFilterBadges(typeMovie, typeTV, scoreMin, yearMin, checkedGenres, checkedProviders);
   
-  // 5. Renderizamos la grilla con los resultados finales
+  // 5. Renderizamos la grilla
   renderFullResults(false);
 }
 
@@ -2062,73 +2130,73 @@ async function syncFromCloud() {
   }
 }
 
+// ==========================================
+// 🎲 1. RULETA DE RECOMENDACIONES (DADOS)
+// ==========================================
 async function loadDice(target = 'both') {
-  const profile = buildProfile();
-  const diceBlock = document.getElementById('dice-block');
-  
-  // Si no calificaste al menos 3 películas, ocultamos los dados
-  if (!profile || profile.count < 3) {
-    if (diceBlock) diceBlock.style.display = 'none';
-    return;
-  }
-  diceBlock.style.display = 'block';
-
-  const seenIds = new Set([...Object.keys(rated), ...Object.keys(saved)].map(Number));
-  const providerParam = userProviders.size > 0 ? `&with_watch_providers=${[...userProviders].join('|')}&watch_region=${userCountry}` : '';
-
-  // 🎲 1. APUESTA SEGURA (Basada en una película que le pusiste nota alta)
-  if (target === 'both' || target === 'safe') {
-    const safeCard = document.getElementById('dice-safe');
-    safeCard.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;z-index:2;position:relative;"><div class="spinner"></div></div>';
-    safeCard.onclick = null;
-    
-    // Agarramos tus favoritas (>= 7)
-    let favs = profile.items.filter(i => i.rating >= 7);
-    if (!favs.length) favs = profile.items;
-    
-    // Elegimos una "semilla" al azar
-    const seed = favs[Math.floor(Math.random() * favs.length)];
-    
-    try {
-      const r = await fetch(`${API_BASE}/movie/${seed.id}/recommendations?api_key=${API_KEY}&language=es-419`);
-      const d = await r.json();
-      const recs = (d.results || []).filter(i => !seenIds.has(i.id)); // Filtramos las que ya viste
-      if (!recs.length) throw new Error('No hay recs');
-      
-      // Elegimos una al azar de las top 10 recomendadas
-      const pick = recs[Math.floor(Math.random() * Math.min(10, recs.length))];
-      renderDiceCard('safe', pick, '🎲 Apuesta Segura', `Porque te gustó "${seed.title || seed.name}"`, 'movie');
-    } catch (e) {
-      renderDiceCard('safe', null, '🎲 Apuesta Segura', 'Tirá el dado otra vez', '');
+  try {
+    const profile = buildProfile();
+    const diceBlock = document.getElementById('dice-block');
+    if (!profile || profile.count < 3) {
+      if (diceBlock) diceBlock.style.display = 'none';
+      return;
     }
-  }
+    diceBlock.style.display = 'block';
 
-  // 🌌 2. DESCUBRIR (Género que casi no ves)
-  if (target === 'both' || target === 'discovery') {
-    const discCard = document.getElementById('dice-discovery');
-    discCard.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;z-index:2;position:relative;"><div class="spinner"></div></div>';
-    discCard.onclick = null;
-    
-    // Identificamos tus 3 géneros más vistos y los EXCLUIMOS
-    const top3Ids = profile.sortedGenres.slice(0, 3).map(g => Number(g[0]));
-    const availableGenres = SF_GENRES.filter(g => !top3Ids.includes(g.id));
-    
-    // Elegimos un género al azar de los que "ignoras"
-    const exploreGenre = availableGenres[Math.floor(Math.random() * availableGenres.length)];
-    
-    try {
-      // Buscamos películas bien puntuadas de ese género (página al azar para más variedad)
-      const randomPage = Math.floor(Math.random() * 3) + 1;
-      const r = await fetch(`${API_BASE}/discover/movie?api_key=${API_KEY}&language=es-419&with_genres=${exploreGenre.id}&sort_by=vote_average.desc&vote_count.gte=300&page=${randomPage}${providerParam}`);
-      const d = await r.json();
-      const recs = (d.results || []).filter(i => !seenIds.has(i.id));
-      if (!recs.length) throw new Error('No hay recs');
+    const seenIds = new Set([...Object.keys(rated), ...Object.keys(saved)].map(Number));
+    const providerParam = userProviders.size > 0 ? `&with_watch_providers=${[...userProviders].join('|')}&watch_region=${userCountry}` : '';
+
+    if (target === 'both' || target === 'safe') {
+      const safeCard = document.getElementById('dice-safe');
+      safeCard.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;z-index:2;position:relative;"><div class="spinner"></div></div>';
+      safeCard.onclick = null;
       
-      const pick = recs[Math.floor(Math.random() * Math.min(10, recs.length))];
-      renderDiceCard('discovery', pick, '🌌 Descubrir', `Explorar género: ${exploreGenre.name}`, 'movie');
-    } catch (e) {
-      renderDiceCard('discovery', null, '🌌 Descubrir', 'Tirá el dado otra vez', '');
+      let favs = profile.items.filter(i => i.rating >= 7);
+      if (!favs.length) favs = profile.items;
+      const seed = favs[Math.floor(Math.random() * favs.length)];
+      
+      try {
+        const r = await fetch(`${API_BASE}/movie/${seed.id}/recommendations?api_key=${API_KEY}&language=es-419`);
+        const d = await r.json();
+        const recs = (d.results || []).filter(i => !seenIds.has(i.id));
+        if (!recs.length) throw new Error('No hay recs');
+        const pick = recs[Math.floor(Math.random() * Math.min(10, recs.length))];
+        renderDiceCard('safe', pick, '🎲 Apuesta Segura', `Porque te gustó "${seed.title || seed.name}"`, 'movie');
+      } catch (e) {
+        renderDiceCard('safe', null, '🎲 Apuesta Segura', 'Tirá el dado otra vez', '');
+      }
     }
+
+    if (target === 'both' || target === 'discovery') {
+      const discCard = document.getElementById('dice-discovery');
+      discCard.innerHTML = '<div style="display:flex;height:100%;align-items:center;justify-content:center;z-index:2;position:relative;"><div class="spinner"></div></div>';
+      discCard.onclick = null;
+      
+      const ALL_GENRES_DICE = [
+        {id:28,name:'Acción'},{id:18,name:'Drama'},{id:35,name:'Comedia'},{id:27,name:'Terror'},
+        {id:878,name:'Sci-Fi'},{id:12,name:'Aventura'},{id:16,name:'Animación'},{id:80,name:'Crimen'},
+        {id:99,name:'Documental'},{id:14,name:'Fantasía'},{id:53,name:'Thriller'},{id:10749,name:'Romance'},
+        {id:9648,name:'Misterio'},{id:10752,name:'Bélico'},{id:37,name:'Western'}
+      ];
+
+      const top3Ids = profile.sortedGenres.slice(0, 3).map(g => Number(g[0]));
+      const availableGenres = ALL_GENRES_DICE.filter(g => !top3Ids.includes(g.id));
+      const exploreGenre = availableGenres.length > 0 ? availableGenres[Math.floor(Math.random() * availableGenres.length)] : ALL_GENRES_DICE[0];
+      
+      try {
+        const randomPage = Math.floor(Math.random() * 3) + 1;
+        const r = await fetch(`${API_BASE}/discover/movie?api_key=${API_KEY}&language=es-419&with_genres=${exploreGenre.id}&sort_by=vote_average.desc&vote_count.gte=300&page=${randomPage}${providerParam}`);
+        const d = await r.json();
+        const recs = (d.results || []).filter(i => !seenIds.has(i.id));
+        if (!recs.length) throw new Error('No hay recs');
+        const pick = recs[Math.floor(Math.random() * Math.min(10, recs.length))];
+        renderDiceCard('discovery', pick, '🌌 Descubrir', `Explorar género: ${exploreGenre.name}`, 'movie');
+      } catch (e) {
+        renderDiceCard('discovery', null, '🌌 Descubrir', 'Tirá el dado otra vez', '');
+      }
+    }
+  } catch (error) {
+    console.error("Error al cargar los dados:", error);
   }
 }
 
@@ -2154,116 +2222,97 @@ function renderDiceCard(type, item, badgeText, subtitle, mediaType) {
   container.onclick = () => openDetail(item.id, mediaType);
 }
 
+// ==========================================
+// 🧬 2. ADN CINÉFILO (GRÁFICOS DE RADAR)
+// ==========================================
 let radarInstances = {};
 
 function renderRadars() {
-  const items = Object.values(rated);
-  const adnBlock = document.getElementById('adn-block');
-  
-  // Ocultamos si hay menos de 5 calificaciones para no mostrar gráficos vacíos
-  if (items.length < 5) {
-    if (adnBlock) adnBlock.style.display = 'none';
-    return;
+  try {
+    const items = Object.values(rated);
+    const adnBlock = document.getElementById('adn-block');
+    
+    if (typeof Chart === 'undefined' || items.length < 5) {
+      if (adnBlock) adnBlock.style.display = 'none';
+      if (typeof Chart === 'undefined') console.warn("Chart.js no cargó.");
+      return;
+    }
+    
+    adnBlock.style.display = 'block';
+
+    const genreCounts = {};
+    items.forEach(i => {
+      (i.genre_ids || []).forEach(g => { genreCounts[g] = (genreCounts[g] || 0) + 1; });
+    });
+    const topGenres = Object.entries(genreCounts).sort((a,b) => b[1] - a[1]).slice(0, 8);
+    while(topGenres.length < 8) topGenres.push(['-', 0]);
+    const gLabels = topGenres.map(g => g[0] !== '-' ? (GENRE_NAMES[g[0]] || 'Otro') : '');
+    const gData = topGenres.map(g => g[1]);
+
+    const decCounts = {'Clásicos (<60s)':0, '1960s':0, '1970s':0, '1980s':0, '1990s':0, '2000s':0, '2010s':0, '2020s+':0};
+    items.forEach(i => {
+      const y = parseInt((i.release_date || i.first_air_date || '0').slice(0,4));
+      if (!y) return;
+      if (y < 1960) decCounts['Clásicos (<60s)']++;
+      else if (y < 1970) decCounts['1960s']++;
+      else if (y < 1980) decCounts['1970s']++;
+      else if (y < 1990) decCounts['1980s']++;
+      else if (y < 2000) decCounts['1990s']++;
+      else if (y < 2010) decCounts['2000s']++;
+      else if (y < 2020) decCounts['2010s']++;
+      else decCounts['2020s+']++;
+    });
+
+    const ratCounts = {'Aplazos (1-3)':0, 'Nota 4':0, 'Nota 5':0, 'Nota 6':0, 'Nota 7':0, 'Nota 8':0, 'Nota 9':0, 'Obra Maestra (10)':0};
+    items.forEach(i => {
+      const r = Math.round(i.rating);
+      if (r <= 3) ratCounts['Aplazos (1-3)']++;
+      else if (r === 4) ratCounts['Nota 4']++;
+      else if (r === 5) ratCounts['Nota 5']++;
+      else if (r === 6) ratCounts['Nota 6']++;
+      else if (r === 7) ratCounts['Nota 7']++;
+      else if (r === 8) ratCounts['Nota 8']++;
+      else if (r === 9) ratCounts['Nota 9']++;
+      else if (r === 10) ratCounts['Obra Maestra (10)']++;
+    });
+
+    drawRadarChart('chart-genres', 'Géneros Dominantes', gLabels, gData, 'rgba(201, 168, 76, 0.4)', '#c9a84c');
+    drawRadarChart('chart-decades', 'Viaje en el Tiempo', Object.keys(decCounts), Object.values(decCounts), 'rgba(74, 158, 255, 0.4)', '#4a9eff');
+    drawRadarChart('chart-ratings', 'Perfil de Crítico', Object.keys(ratCounts), Object.values(ratCounts), 'rgba(76, 175, 120, 0.4)', '#4caf78');
+  } catch (error) {
+    console.error("Error en renderRadars:", error);
   }
-  adnBlock.style.display = 'block';
-
-  // 1. GRÁFICO DE GÉNEROS (Top 8)
-  const genreCounts = {};
-  items.forEach(i => {
-    (i.genre_ids || []).forEach(g => { genreCounts[g] = (genreCounts[g] || 0) + 1; });
-  });
-  const topGenres = Object.entries(genreCounts).sort((a,b) => b[1] - a[1]).slice(0, 8);
-  // Rellenamos con vacíos si no llega a 8
-  while(topGenres.length < 8) topGenres.push(['-', 0]);
-  const gLabels = topGenres.map(g => g[0] !== '-' ? (GENRE_NAMES[g[0]] || 'Otro') : '');
-  const gData = topGenres.map(g => g[1]);
-
-  // 2. GRÁFICO DE DÉCADAS (8 Puntas)
-  const decCounts = {'Clásicos (<60s)':0, '1960s':0, '1970s':0, '1980s':0, '1990s':0, '2000s':0, '2010s':0, '2020s+':0};
-  items.forEach(i => {
-    const y = parseInt((i.release_date || i.first_air_date || '0').slice(0,4));
-    if (!y) return;
-    if (y < 1960) decCounts['Clásicos (<60s)']++;
-    else if (y < 1970) decCounts['1960s']++;
-    else if (y < 1980) decCounts['1970s']++;
-    else if (y < 1990) decCounts['1980s']++;
-    else if (y < 2000) decCounts['1990s']++;
-    else if (y < 2010) decCounts['2000s']++;
-    else if (y < 2020) decCounts['2010s']++;
-    else decCounts['2020s+']++;
-  });
-
-  // 3. GRÁFICO DE PERFIL DE CRÍTICO (Distribución de Notas)
-  const ratCounts = {'Aplazos (1-3)':0, 'Nota 4':0, 'Nota 5':0, 'Nota 6':0, 'Nota 7':0, 'Nota 8':0, 'Nota 9':0, 'Obra Maestra (10)':0};
-  items.forEach(i => {
-    const r = Math.round(i.rating);
-    if (r <= 3) ratCounts['Aplazos (1-3)']++;
-    else if (r === 4) ratCounts['Nota 4']++;
-    else if (r === 5) ratCounts['Nota 5']++;
-    else if (r === 6) ratCounts['Nota 6']++;
-    else if (r === 7) ratCounts['Nota 7']++;
-    else if (r === 8) ratCounts['Nota 8']++;
-    else if (r === 9) ratCounts['Nota 9']++;
-    else if (r === 10) ratCounts['Obra Maestra (10)']++;
-  });
-
-  // Dibujamos los 3
-  drawRadarChart('chart-genres', 'Géneros Dominantes', gLabels, gData, 'rgba(201, 168, 76, 0.4)', '#c9a84c');
-  drawRadarChart('chart-decades', 'Viaje en el Tiempo', Object.keys(decCounts), Object.values(decCounts), 'rgba(74, 158, 255, 0.4)', '#4a9eff');
-  drawRadarChart('chart-ratings', 'Perfil de Crítico', Object.keys(ratCounts), Object.values(ratCounts), 'rgba(76, 175, 120, 0.4)', '#4caf78');
 }
 
 function drawRadarChart(canvasId, title, labels, data, bgColor, borderColor) {
   const ctx = document.getElementById(canvasId);
   if (!ctx) return;
-  
-  // Destruimos el gráfico anterior si existe para evitar superposiciones
   if (radarInstances[canvasId]) { radarInstances[canvasId].destroy(); }
-
+  
   radarInstances[canvasId] = new Chart(ctx, {
     type: 'radar',
     data: {
       labels: labels,
       datasets: [{
-        label: 'Vistas',
-        data: data,
-        backgroundColor: bgColor,
-        borderColor: borderColor,
-        borderWidth: 2,
-        pointBackgroundColor: borderColor,
-        pointBorderColor: '#18181f',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: borderColor
+        label: 'Vistas', data: data, backgroundColor: bgColor, borderColor: borderColor,
+        borderWidth: 2, pointBackgroundColor: borderColor, pointBorderColor: '#18181f',
+        pointHoverBackgroundColor: '#fff', pointHoverBorderColor: borderColor
       }]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       scales: {
         r: {
           angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
           grid: { color: 'rgba(255, 255, 255, 0.05)' },
-          pointLabels: { 
-            color: '#a09888', 
-            font: { family: "'DM Mono', monospace", size: 10 } 
-          },
+          pointLabels: { color: '#a09888', font: { family: "'DM Mono', monospace", size: 10 } },
           ticks: { display: false, beginAtZero: true }
         }
       },
       plugins: {
         legend: { display: false },
-        title: { 
-          display: true, text: title, color: '#e8e4da', 
-          font: { family: "'Playfair Display', serif", size: 16 },
-          padding: { bottom: 16 }
-        },
-        tooltip: {
-          backgroundColor: '#18181f',
-          titleColor: '#c9a84c',
-          bodyColor: '#e8e4da',
-          borderColor: 'rgba(201,168,76,0.2)',
-          borderWidth: 1
-        }
+        title: { display: true, text: title, color: '#e8e4da', font: { family: "'Playfair Display', serif", size: 16 }, padding: { bottom: 16 } },
+        tooltip: { backgroundColor: '#18181f', titleColor: '#c9a84c', bodyColor: '#e8e4da', borderColor: 'rgba(201,168,76,0.2)', borderWidth: 1 }
       }
     }
   });
