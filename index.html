@@ -1111,7 +1111,7 @@ async function doSearch(q){
       return `<div class="search-result-item" onclick="openDetail(${item.id},'${item.media_type}')">
         ${poster?`<img src="${poster}" class="result-poster">`:`<div class="result-poster"></div>`}
         <div class="result-info"><div class="result-title">${esc(title)}</div><div class="result-meta">${year} · ${item.vote_average?.toFixed(1)||'—'} ⭐</div></div>
-        <span class="result-type ${isM?'type-movie':'type-tv'}">${isM?'Peli':'Serie'}</span>
+        <span class="result-type ${isM?'type-movie':'type-tv'}">${isM?'Película':'Serie'}</span>
       </div>`;
     }).join('');
   }catch(e){ results.innerHTML=`<div style="padding:12px;color:var(--accent);font-size:0.78rem">Error: ${e.message||'API key incorrecta'}</div>`; }
@@ -1590,7 +1590,7 @@ function renderRecent(){
   
   document.getElementById('recent-count').textContent=`${Object.keys(rated).length} en total`;
   const grid=document.getElementById('recent-grid');
-  if(!items.length){grid.innerHTML='<div class="empty-state"><div class="empty-icon">🎬</div><div class="empty-text">Buscá y calificá tu primera peli o serie</div></div>';return;}
+  if(!items.length){grid.innerHTML='<div class="empty-state"><div class="empty-icon">🎬</div><div class="empty-text">Buscá y calificá tu primera película o serie</div></div>';return;}
   grid.innerHTML=items.map(item=>makeCard({...item,media_type:item.type},false)).join('');
 }
 
