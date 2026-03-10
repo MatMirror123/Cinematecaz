@@ -41,7 +41,15 @@
   .setup-field{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;text-align:left;}
   .setup-field label{font-size:0.8rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;font-weight:500;}
   .setup-field input{background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;color:var(--text);font-family:'DM Mono',monospace;font-size:0.85rem;outline:none;transition:border-color 0.2s;}
+  .setup-field input::placeholder{color:var(--text3);opacity:1;}
   .setup-field input:focus{border-color:var(--gold);}
+  /* Anular el autofill amarillo del navegador */
+  .setup-field input:-webkit-autofill,
+  .setup-field input:-webkit-autofill:focus{
+    -webkit-box-shadow:0 0 0 1000px var(--bg4) inset !important;
+    -webkit-text-fill-color:var(--text) !important;
+    caret-color:var(--text);
+  }
   .setup-hint{font-size:0.78rem;color:var(--text3);line-height:1.5;}
   .setup-hint a{color:var(--gold);}
   .btn-primary{background:linear-gradient(135deg,var(--gold),var(--amber));color:#1a1206;border:none;border-radius:var(--radius);padding:14px 32px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.95rem;cursor:pointer;width:100%;margin-top:8px;transition:opacity 0.2s,transform 0.1s;letter-spacing:0.02em;}
@@ -183,14 +191,48 @@
   .modal-genres{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;}
   .modal-genre-tag{background:var(--bg4);border:1px solid var(--border);border-radius:12px;padding:3px 9px;font-size:0.71rem;color:var(--text2);}
 
-  /* Progress tracker */
-  .progress-widget{background:var(--bg4);border-radius:11px;padding:16px 20px;border:1px solid rgba(74,158,255,0.2);margin-bottom:11px;}
-  .pw-title{font-size:0.76rem;color:var(--blue);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;font-weight:600;}
-  .progress-selectors{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-  .progress-selectors label{font-size:0.78rem;color:var(--text2);}
-  .progress-selectors select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:7px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.82rem;outline:none;cursor:pointer;}
-  .progress-selectors select:focus{border-color:var(--blue);}
-  .progress-status{display:flex;gap:7px;margin-top:11px;flex-wrap:wrap;}
+  /* ── Progress tracker ── */
+  .progress-widget{background:var(--bg4);border-radius:11px;border:1px solid rgba(74,158,255,0.2);margin-bottom:11px;overflow:hidden;}
+
+  /* Header colapsable */
+  .pw-header{display:flex;align-items:center;gap:10px;padding:13px 18px;cursor:pointer;user-select:none;transition:background 0.15s;}
+  .pw-header:hover{background:rgba(74,158,255,0.06);}
+  .pw-title{font-size:0.72rem;color:var(--blue);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;white-space:nowrap;}
+  .pw-summary{display:flex;gap:6px;flex:1;flex-wrap:wrap;}
+  .pw-pill{font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:2px 8px;}
+  .pw-pill.active{color:var(--blue);border-color:rgba(74,158,255,0.4);background:rgba(74,158,255,0.08);}
+  .pw-chevron{font-size:1rem;color:var(--text3);transition:transform 0.25s;line-height:1;flex-shrink:0;}
+  .progress-widget.expanded .pw-chevron{transform:rotate(90deg);}
+
+  /* Cuerpo expandible */
+  .pw-body{padding:0 18px 16px;display:none;}
+  .progress-widget.expanded .pw-body{display:block;}
+
+  /* Tabs de temporadas */
+  .pw-season-tabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;}
+  .pw-season-tab{background:none;border:1px solid var(--border);border-radius:16px;padding:3px 10px;font-size:0.72rem;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+  .pw-season-tab:hover{border-color:rgba(74,158,255,0.4);color:var(--blue);}
+  .pw-season-tab.active{background:rgba(74,158,255,0.12);border-color:var(--blue);color:var(--blue);font-weight:600;}
+  .pw-season-tab .st-check{font-size:0.62rem;margin-left:3px;opacity:0.8;}
+
+  /* Lista de episodios */
+  .pw-ep-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:5px;margin-bottom:12px;min-height:36px;}
+  .pw-ep-item{position:relative;}
+  .pw-ep-item input[type=checkbox]{display:none;}
+  .pw-ep-label{
+    display:flex;align-items:center;justify-content:center;
+    height:32px;border-radius:6px;font-size:0.72rem;font-family:'DM Mono',monospace;
+    color:var(--text3);background:var(--bg3);border:1px solid var(--border);
+    cursor:pointer;transition:all 0.15s;user-select:none;
+  }
+  .pw-ep-item input:checked + .pw-ep-label{
+    background:rgba(74,158,255,0.15);border-color:var(--blue);color:var(--blue);font-weight:600;
+  }
+  .pw-ep-label:hover{border-color:rgba(74,158,255,0.4);color:var(--text);}
+  .pw-ep-loading{grid-column:1/-1;display:flex;justify-content:center;padding:8px;}
+
+  /* Botones de estado */
+  .progress-status{display:flex;gap:6px;flex-wrap:wrap;padding-top:4px;border-top:1px solid var(--border);}
   .status-btn{background:none;border:1px solid var(--border);border-radius:14px;padding:4px 11px;color:var(--text2);font-size:0.73rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
   .status-btn:hover{border-color:var(--blue);color:var(--blue);}
   .status-btn.watching.active{background:rgba(74,158,255,0.15);border-color:var(--blue);color:var(--blue);font-weight:600;}
@@ -263,7 +305,37 @@
   .sf-filter-group{display:flex;flex-direction:column;gap:6px;}
   .sf-filter-opt{display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 8px;border-radius:6px;transition:background 0.15s;font-size:0.82rem;color:var(--text2);}
   .sf-filter-opt:hover{background:var(--bg3);color:var(--text);}
-  .sf-filter-opt input[type=checkbox]{accent-color:var(--gold);width:14px;height:14px;cursor:pointer;flex-shrink:0;}
+  /* Custom checkbox en lugar del nativo */
+  .sf-filter-opt input[type=checkbox]{
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 4px;
+    border: 1.5px solid var(--text3);
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .sf-filter-opt input[type=checkbox]:checked {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+  .sf-filter-opt input[type=checkbox]:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 1px;
+    width: 5px;
+    height: 8px;
+    border: 1.5px solid #1a1206;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+  }
+  .sf-filter-opt:hover input[type=checkbox]:not(:checked){border-color:var(--text2);}
   .sf-filter-opt.checked{color:var(--gold);}
   .sf-filter-divider{height:1px;background:var(--border);margin:4px 0;}
   .sf-range-wrap{display:flex;flex-direction:column;gap:8px;}
@@ -404,23 +476,27 @@
     font-weight: 800; 
   }
   
-  .cast-list { 
-    display: flex; 
-    gap: 16px; 
-    overflow-x: auto; 
-    /* Padding inferior generoso para que el hover no se corte */
-    padding: 10px 4px 24px 4px; 
-    
-    /* Scroll elegante para PC */
+  /* Wrapper que maneja el scroll horizontal */
+  .cast-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
     scrollbar-width: thin;
     scrollbar-color: var(--gold) transparent;
+    padding: 28px 4px 20px 4px;
+    margin: -28px -4px -20px -4px;
   }
-  
-  /* Detalles de la barra de scroll (Webkit) */
-  .cast-list::-webkit-scrollbar { height: 6px; }
-  .cast-list::-webkit-scrollbar-track { background: transparent; }
-  .cast-list::-webkit-scrollbar-thumb { background: rgba(201, 168, 76, 0.4); border-radius: 10px; }
-  .cast-list::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+  .cast-scroll::-webkit-scrollbar { height: 6px; }
+  .cast-scroll::-webkit-scrollbar-track { background: transparent; }
+  .cast-scroll::-webkit-scrollbar-thumb { background: rgba(201, 168, 76, 0.4); border-radius: 10px; }
+  .cast-scroll::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+  .cast-list { 
+    display: flex; 
+    gap: 16px;
+    padding-bottom: 4px;
+    width: max-content;
+    min-width: 100%;
+  }
   
   .cast-item { 
     flex: 0 0 82px; 
@@ -453,6 +529,32 @@
   
   .cast-name { font-size: 0.72rem; font-weight: 600; color: var(--text); line-height: 1.2; }
   .cast-char { font-size: 0.62rem; color: var(--text3); margin-top: 4px; font-style: italic; }
+
+  /* Director destacado */
+  .cast-img-director {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px rgba(201,168,76,0.3), 0 6px 12px rgba(0,0,0,0.4);
+  }
+  .cast-item-director:hover .cast-img-director {
+    box-shadow: 0 0 20px rgba(201,168,76,0.7);
+  }
+  .cast-char-director {
+    color: var(--gold);
+    font-style: normal;
+    font-weight: 600;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  /* Separador vertical entre director y reparto */
+  .cast-separator {
+    flex-shrink: 0;
+    width: 1px;
+    align-self: stretch;
+    background: linear-gradient(to bottom, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    margin: 8px 4px;
+  }
 
 /* ----------------------------------------------------- RULETA / DADOS (INICIO) ------------------------------------------------------ */
   .dice-grid { 
@@ -956,18 +1058,17 @@ let userCountry = 'AR';
 
 // All major providers with their TMDB IDs
 const ALL_PROVIDERS = [
-  {id:8,   name:'Netflix',       logo:'https://image.tmdb.org/t/p/original/t2yyOv40HZeVlLjYsCsPHnWLk4W.jpg'},
-  {id:119, name:'Prime Video',   logo:'https://image.tmdb.org/t/p/original/68MNrwlkpF7WnmNPXLah69CR5xh.jpg'},
-  {id:337, name:'Disney+',       logo:'https://image.tmdb.org/t/p/original/7rwgEs15tFwyR9NPQ5vpzxTj19d.jpg'},
-  {id:1899,name:'Max',           logo:'https://image.tmdb.org/t/p/original/Ajqyt5aNxNx6bc9dYeOz7ywbbMD.jpg'},
-  {id:350, name:'Apple TV+',     logo:'https://image.tmdb.org/t/p/original/6uhKBfmtzFqOcLousHwZuzcrScK.jpg'},
-  {id:531, name:'Paramount+',    logo:'https://image.tmdb.org/t/p/original/xbhHHa1YgtpwhC8lb1NQ3ACVcLd.jpg'},
-  {id:619, name:'Star+',         logo:'https://image.tmdb.org/t/p/original/5qGIxdEO841C0tdY8vSdCvWi1Ls.jpg'},
-  {id:283, name:'Crunchyroll',   logo:'https://image.tmdb.org/t/p/original/8Gt1iClBlzTeQs8WQm8UrCoIxnQ.jpg'},
-  {id:11,  name:'MUBI',          logo:'https://image.tmdb.org/t/p/original/fq3DCO54VMpBBBZRFqb7LQxm8vj.jpg'},
-  {id:149, name:'Curiosity Stream',logo:'https://image.tmdb.org/t/p/original/3GtAZ1QObOUGOEFOQC9K9ajXsaR.jpg'},
-  {id:444, name:'Pluto TV',      logo:'https://image.tmdb.org/t/p/original/dFWcECB7arp5F0JEVasdUEWKrse.jpg'},
-  {id:188, name:'YouTube Premium',logo:'https://image.tmdb.org/t/p/original/6c84bNFuPpRVQePKZEkDAikz8GO.jpg'},
+  {id:8, name:'Netflix', logo:'https://image.tmdb.org/t/p/original/t2yyOv40HZeVlLjYsCsPHnWLk4W.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iI0U1MDkxNCIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5OPC90ZXh0Pjwvc3ZnPg=='},
+  {id:119, name:'Prime Video', logo:'https://image.tmdb.org/t/p/original/68MNrwlkpF7WnmNPXLah69CR5xh.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwQThFMSIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QPC90ZXh0Pjwvc3ZnPg=='},
+  {id:337, name:'Disney+', logo:'https://image.tmdb.org/t/p/original/7rwgEs15tFwyR9NPQ5vpzxTj19d.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzBDMEUzRiIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5EKzwvdGV4dD48L3N2Zz4='},
+  {id:1899, name:'Max', logo:'https://image.tmdb.org/t/p/original/Ajqyt5aNxNx6bc9dYeOz7ywbbMD.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwMkJFNyIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NPC90ZXh0Pjwvc3ZnPg=='},
+  {id:350, name:'Apple TV+', logo:'https://image.tmdb.org/t/p/original/6uhKBfmtzFqOcLousHwZuzcrScK.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwMDAwMCIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BVFY8L3RleHQ+PC9zdmc+'},
+  {id:531, name:'Paramount+', logo:'https://image.tmdb.org/t/p/original/xbhHHa1YgtpwhC8lb1NQ3ACVcLd.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwNjRGRiIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QKzwvdGV4dD48L3N2Zz4='},
+  {id:283, name:'Crunchyroll', logo:'https://image.tmdb.org/t/p/original/8Gt1iClBlzTeQs8WQm8UrCoIxnQ.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iI0Y0NzUyMSIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DUjwvdGV4dD48L3N2Zz4='},
+  {id:11, name:'MUBI', logo:'https://image.tmdb.org/t/p/original/fq3DCO54VMpBBBZRFqb7LQxm8vj.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzEyMTIxMiIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NPC90ZXh0Pjwvc3ZnPg=='},
+  {id:149, name:'Curiosity Stream', logo:'https://image.tmdb.org/t/p/original/3GtAZ1QObOUGOEFOQC9K9ajXsaR.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzNEMkI4RSIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DUzwvdGV4dD48L3N2Zz4='},
+  {id:444, name:'Pluto TV', logo:'https://image.tmdb.org/t/p/original/dFWcECB7arp5F0JEVasdUEWKrse.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzE2QjNGNyIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QVDwvdGV4dD48L3N2Zz4='},
+  {id:188, name:'YouTube Premium', logo:'https://image.tmdb.org/t/p/original/6c84bNFuPpRVQePKZEkDAikz8GO.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iI0ZGMDAwMCIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ZVDwvdGV4dD48L3N2Zz4='}
 ];
 
 
@@ -1080,12 +1181,12 @@ function setupSearch(){
   const input=document.getElementById('search-input');
   const results=document.getElementById('search-results');
   input.addEventListener('input',()=>{ clearTimeout(searchTimeout); const q=input.value.trim(); if(!q){results.classList.remove('open');return;} searchTimeout=setTimeout(()=>doSearch(q),350); });
-  input.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); const q=input.value.trim(); if(q){ results.classList.remove('open'); openFullSearch(q); } } });
+  input.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); const q=input.value.trim(); results.classList.remove('open'); openFullSearch(q); } });
   document.addEventListener('click',e=>{ if(!e.target.closest('.search-bar')) results.classList.remove('open'); });
 
   // fullscreen search input
   const sfInput=document.getElementById('sf-input');
-  sfInput.addEventListener('input',()=>{ clearTimeout(searchTimeout); const q=sfInput.value.trim(); if(!q) return; searchTimeout=setTimeout(()=>runFullSearch(q,1),350); });
+  sfInput.addEventListener('input',()=>{ clearTimeout(searchTimeout); const q=sfInput.value.trim(); if(!q){ applyFilters(); return; } searchTimeout=setTimeout(()=>runFullSearch(q,1),350); });
   sfInput.addEventListener('keydown',e=>{ if(e.key==='Escape') closeFullSearch(); });
 }
 async function doSearch(q){
@@ -1155,10 +1256,16 @@ async function openDetail(id, type) {
 
     const watchData = (watchRes.results || {})[userCountry] || {};
     const allWatch = [...(watchData.flatrate || []), ...(watchData.rent || [])].slice(0, 8);
+    const providerFullMap = Object.fromEntries(ALL_PROVIDERS.map(p => [p.id, p]));
     let providersHtml = '';
     if (allWatch.length) {
       providersHtml = `<div class="providers-section"><div class="providers-label">🌍 Dónde ver</div><div class="providers-row">
-        ${allWatch.map(p => `<div class="provider-pill"><img src="${IMG_BASE}original${p.logo_path}"><span>${esc(p.provider_name)}</span></div>`).join('')}
+        ${allWatch.map(p => {
+          const own = providerFullMap[p.provider_id];
+          const src = own ? own.logo : `${IMG_BASE}original${p.logo_path}`;
+          const onerr = own?.fallback ? `onerror="this.src='${own.fallback}'"` : `onerror="this.style.opacity='0'"`;
+          return `<div class="provider-pill"><img src="${src}" ${onerr}><span>${esc(p.provider_name)}</span></div>`;
+        }).join('')}
       </div></div>`;
     }
 
@@ -1176,18 +1283,36 @@ async function openDetail(id, type) {
     }
 
     const castData = (credits.cast || []).slice(0, 10);
+    const directorData = (credits.crew || []).filter(p => p.job === 'Director');
     let castHtml = '';
-    if (castData.length > 0) {
+    if (directorData.length > 0 || castData.length > 0) {
+      const directorHtml = directorData.map(dir => `
+        <div class="cast-item cast-item-director" onclick="searchByActor('${esc(dir.name)}')">
+          <img src="${dir.profile_path ? IMG_BASE + 'w185' + dir.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img cast-img-director" loading="lazy">
+          <div class="cast-name">${esc(dir.name)}</div>
+          <div class="cast-char cast-char-director">Director</div>
+        </div>`).join('');
+
+      const separatorHtml = directorData.length > 0 && castData.length > 0
+        ? `<div class="cast-separator"></div>`
+        : '';
+
+      const actorsHtml = castData.map(actor => `
+        <div class="cast-item" onclick="searchByActor('${esc(actor.name)}')">
+          <img src="${actor.profile_path ? IMG_BASE + 'w185' + actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img" loading="lazy">
+          <div class="cast-name">${esc(actor.name)}</div>
+          <div class="cast-char">${esc(actor.character || 'Actor')}</div>
+        </div>`).join('');
+
       castHtml = `
         <div class="modal-cast">
-          <div class="cast-title">Reparto Principal</div>
-          <div class="cast-list">
-            ${castData.map(actor => `
-              <div class="cast-item" onclick="searchByActor('${esc(actor.name)}')">
-                <img src="${actor.profile_path ? IMG_BASE + 'w185' + actor.profile_path : 'https://www.themoviedb.org/assets/2/v4/glyphicons/basic/glyphicons-basic-4-user-grey-d8fe577334c20f0170360f39245857471f7491c449efd3e2776e123443719321.svg'}" class="cast-img" loading="lazy">
-                <div class="cast-name">${esc(actor.name)}</div>
-                <div class="cast-char">${esc(actor.character || 'Actor')}</div>
-              </div>`).join('')}
+          <div class="cast-title">Reparto</div>
+          <div class="cast-scroll">
+            <div class="cast-list">
+              ${directorHtml}
+              ${separatorHtml}
+              ${actorsHtml}
+            </div>
           </div>
         </div>`;
     }
@@ -1196,32 +1321,37 @@ async function openDetail(id, type) {
     let progressHtml = '';
     if (!isM) {
       const prog = progress[id] || {};
-      const currentStatus = prog.status || '';
-      const currentSeason = prog.season || 1;
-      const currentEpisode = prog.episode || 1;
-      
-      let seasonOptions = '';
-      for(let i=1; i<=totalSeasons; i++){
-        seasonOptions += `<option value="${i}" ${i===currentSeason?'selected':''}>Temporada ${i}</option>`;
+      const isExpanded = !!prog.checkedEps && Object.values(prog.checkedEps).some(eps => eps.length > 0);
+      const { seasonPill, epPill } = getProgressPills(id, totalSeasons);
+      const statusClass = prog.status || '';
+
+      // Build season tabs
+      let seasonTabs = '';
+      for (let s = 1; s <= totalSeasons; s++) {
+        const checked = (prog.checkedEps?.[s] || []).length;
+        const checkMark = checked > 0 ? `<span class="st-check">✓${checked}</span>` : '';
+        seasonTabs += `<button class="pw-season-tab" data-season="${s}" onclick="switchProgressSeason(${id},${s},${totalSeasons})">${s}${checkMark}</button>`;
       }
 
       progressHtml = `
-        <div class="progress-widget" style="margin-top: 15px;">
-          <div class="pw-title">Seguimiento de Serie</div>
-          <div class="progress-selectors">
-            <select id="prog-season" onchange="loadSeasonEpisodes(${id}, this.value); saveProgress()">
-              ${seasonOptions}
-            </select>
-            <select id="prog-ep" onchange="saveProgress()">
-              <option value="${currentEpisode}">Ep. ${currentEpisode}</option>
-            </select>
-            <span id="prog-ep-loading" style="display:none;" class="spinner"></span>
+        <div class="progress-widget ${isExpanded ? 'expanded' : ''}" id="progress-widget">
+          <div class="pw-header" onclick="toggleProgressExpand(${id},${totalSeasons})">
+            <div class="pw-title">Seguimiento</div>
+            <div class="pw-summary">
+              <span class="pw-pill ${isExpanded ? 'active' : ''}" id="pw-season-pill">${seasonPill}</span>
+              <span class="pw-pill ${isExpanded ? 'active' : ''}" id="pw-ep-pill">${epPill}</span>
+            </div>
+            <span class="pw-chevron">›</span>
           </div>
-          <div class="progress-status">
-            <button class="status-btn watching ${currentStatus==='watching'?'active':''}" onclick="setStatus('watching')">▶ Viendo</button>
-            <button class="status-btn done ${currentStatus==='completed'?'active':''}" onclick="setStatus('completed')">✓ Terminada</button>
-            <button class="status-btn paused ${currentStatus==='paused'?'active':''}" onclick="setStatus('paused')">⏸ Pausada</button>
-            <button class="status-btn none ${currentStatus===''?'active':''}" onclick="setStatus('')">✕ Nada</button>
+          <div class="pw-body">
+            <div class="pw-season-tabs" id="pw-season-tabs">${seasonTabs}</div>
+            <div class="pw-ep-list" id="pw-ep-list"><div class="pw-ep-loading"><div class="spinner"></div></div></div>
+            <div class="progress-status">
+              <button class="status-btn watching ${statusClass==='watching'?'active':''}" onclick="setStatus('watching')">▶ Viendo</button>
+              <button class="status-btn done ${statusClass==='completed'?'active':''}" onclick="setStatus('completed')">✓ Terminada</button>
+              <button class="status-btn paused ${statusClass==='paused'?'active':''}" onclick="setStatus('paused')">⏸ Pausada</button>
+              <button class="status-btn none ${statusClass===''?'active':''}" onclick="setStatus('')">✕ Nada</button>
+            </div>
           </div>
         </div>`;
     }
@@ -1265,10 +1395,13 @@ async function openDetail(id, type) {
         </div>
       </div>`);
 
-    // Disparamos la carga de episodios si es una serie para que no quede vacío el selector
+    // Si es una serie expandida, cargamos la temporada activa
     if (!isM) {
       const prog = progress[id] || {};
-      loadSeasonEpisodes(id, prog.season || 1, prog.episode || 1);
+      const activeSeason = getActiveSeason(id);
+      if (document.getElementById('progress-widget')?.classList.contains('expanded')) {
+        switchProgressSeason(id, activeSeason, totalSeasons, true);
+      }
     }
 
   } catch (e) {
@@ -1277,52 +1410,227 @@ async function openDetail(id, type) {
   }
 }
 
-async function loadSeasonEpisodes(showId, seasonNum, targetEpisode = null) {
-  const epSelect = document.getElementById('prog-ep');
-  const loading = document.getElementById('prog-ep-loading');
-  if (!epSelect) return;
-  if (loading) loading.style.display = 'inline-block';
-  epSelect.disabled = true;
-  
-  const prevVal = targetEpisode || parseInt(epSelect.value) || 1;
-  
-  try {
-    const sd = await fetch(`${API_BASE}/tv/${showId}/season/${seasonNum}?api_key=${API_KEY}`).then(r => r.json());
-    const count = Math.max((sd.episodes || []).length, 1);
-    epSelect.innerHTML = Array.from({ length: count }, (_, i) => `<option value="${i + 1}">Ep. ${i + 1}</option>`).join('');
-    epSelect.value = prevVal <= count ? prevVal : 1;
-  } catch (e) {
-    epSelect.innerHTML = '<option value="1">Ep. 1</option>';
+// ── NUEVO SISTEMA DE TRACKING DE SERIES ──────────────────────────────────────
+
+// Caché de conteos de episodios por temporada: { showId: { season: count } }
+const epCountCache = {};
+
+function getProgressPills(showId, totalSeasons) {
+  const prog = progress[showId] || {};
+  const checkedEps = prog.checkedEps || {};
+  const allChecked = Object.values(checkedEps).flat();
+  if (allChecked.length === 0) return { seasonPill: 'Temporada ——', epPill: 'Ep. ——' };
+
+  // Encontrar la última temporada con episodios marcados
+  let lastSeason = 1;
+  for (let s = totalSeasons; s >= 1; s--) {
+    if ((checkedEps[s] || []).length > 0) { lastSeason = s; break; }
   }
-  
-  epSelect.disabled = false;
-  if (loading) loading.style.display = 'none';
-  saveProgress();
+  const lastEp = Math.max(...(checkedEps[lastSeason] || [1]));
+  return { seasonPill: `Temporada ${lastSeason}`, epPill: `Ep. ${lastEp}` };
 }
 
-function saveProgress() {
-  if (!currentModal || currentModal.type !== 'tv') return;
-  const prog = progress[currentModal.id] || { status: '' };
-  prog.season = parseInt(document.getElementById('prog-season')?.value) || 1;
-  prog.episode = parseInt(document.getElementById('prog-ep')?.value) || 1;
-  prog.seasons_total = currentModal.seasons_total;
-  progress[currentModal.id] = prog;
-  saveAll();
-  renderCW(); 
-  renderMySeries();
+function getActiveSeason(showId) {
+  const prog = progress[showId] || {};
+  const checkedEps = prog.checkedEps || {};
+  for (let s = 99; s >= 1; s--) {
+    if ((checkedEps[s] || []).length > 0) return s;
+  }
+  return 1;
 }
 
-function setStatus(status) {
+function toggleProgressExpand(showId, totalSeasons) {
+  const widget = document.getElementById('progress-widget');
+  if (!widget) return;
+  const wasExpanded = widget.classList.contains('expanded');
+  widget.classList.toggle('expanded');
+  if (!wasExpanded) {
+    // Al expandir, cargar la temporada activa
+    const active = getActiveSeason(showId);
+    switchProgressSeason(showId, active, totalSeasons, true);
+  }
+}
+
+async function switchProgressSeason(showId, season, totalSeasons, skipTabUpdate = false) {
+  const listEl = document.getElementById('pw-ep-list');
+  if (!listEl) return;
+
+  // Marcar tab activo
+  if (!skipTabUpdate) {
+    document.querySelectorAll('.pw-season-tab').forEach(t => {
+      t.classList.toggle('active', parseInt(t.dataset.season) === season);
+    });
+  } else {
+    // Marcar el tab correcto sin skip
+    document.querySelectorAll('.pw-season-tab').forEach(t => {
+      t.classList.toggle('active', parseInt(t.dataset.season) === season);
+    });
+  }
+
+  // Si ya tenemos el conteo en caché, renderizar directo
+  if (epCountCache[showId]?.[season]) {
+    renderEpChecklist(showId, season, epCountCache[showId][season]);
+    return;
+  }
+
+  listEl.innerHTML = '<div class="pw-ep-loading"><div class="spinner"></div></div>';
+
+  try {
+    const sd = await fetch(`${API_BASE}/tv/${showId}/season/${season}?api_key=${API_KEY}`).then(r => r.json());
+    const count = Math.max((sd.episodes || []).length, 1);
+    if (!epCountCache[showId]) epCountCache[showId] = {};
+    epCountCache[showId][season] = count;
+    renderEpChecklist(showId, season, count);
+  } catch(e) {
+    if (!epCountCache[showId]) epCountCache[showId] = {};
+    epCountCache[showId][season] = 12; // fallback
+    renderEpChecklist(showId, season, 12);
+  }
+}
+
+function renderEpChecklist(showId, season, epCount) {
+  const listEl = document.getElementById('pw-ep-list');
+  if (!listEl) return;
+  const checked = new Set((progress[showId]?.checkedEps?.[season]) || []);
+  listEl.innerHTML = Array.from({ length: epCount }, (_, i) => {
+    const ep = i + 1;
+    const isChecked = checked.has(ep);
+    const uid = `ep-${season}-${ep}`;
+    return `<div class="pw-ep-item">
+      <input type="checkbox" id="${uid}" ${isChecked ? 'checked' : ''} onchange="onEpCheck(${showId},${season},${ep},${epCount},this.checked)">
+      <label class="pw-ep-label" for="${uid}">E${ep}</label>
+    </div>`;
+  }).join('');
+}
+
+function onEpCheck(showId, season, ep, epCount, isChecked) {
+  if (!progress[showId]) progress[showId] = { checkedEps: {}, status: '' };
+  if (!progress[showId].checkedEps) progress[showId].checkedEps = {};
+  const seasonKey = String(season);
+  let epList = new Set(progress[showId].checkedEps[seasonKey] || []);
+  if (isChecked) epList.add(ep); else epList.delete(ep);
+  progress[showId].checkedEps[seasonKey] = [...epList].sort((a,b)=>a-b);
+  progress[showId].seasons_total = currentModal?.seasons_total || 1;
+
+  // Auto-estado
+  autoUpdateStatus(showId);
+  updateProgressUI(showId, currentModal?.seasons_total || 1);
+}
+
+function autoUpdateStatus(showId) {
+  const prog = progress[showId];
+  if (!prog) return;
+  const totalSeasons = prog.seasons_total || currentModal?.seasons_total || 1;
+  const checkedEps = prog.checkedEps || {};
+  const totalChecked = Object.values(checkedEps).flat().length;
+
+  if (totalChecked === 0) {
+    // Sin episodios: si estaba viendo → nada; si estaba pausada → se mantiene
+    if (prog.status === 'watching') prog.status = '';
+  } else {
+    // Verificar si están todos los eps de todas las temporadas
+    let allDone = true;
+    for (let s = 1; s <= totalSeasons; s++) {
+      const cached = epCountCache[currentModal?.id]?.[s];
+      if (!cached) { allDone = false; break; } // No sabemos el total → no marcar completo aún
+      if ((checkedEps[s] || []).length < cached) { allDone = false; break; }
+    }
+    prog.status = allDone ? 'completed' : 'watching';
+  }
+
+  // Actualizar botones de estado visual
+  const statusMap = { 'watching': 'watching', 'completed': 'done', 'paused': 'paused', '': 'none' };
+  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+  const target = document.querySelector(`.status-btn.${statusMap[prog.status] || 'none'}`);
+  if (target) target.classList.add('active');
+
+  saveAll(); renderCW(); renderMySeries();
+}
+
+function updateProgressUI(showId, totalSeasons) {
+  const { seasonPill, epPill } = getProgressPills(showId, totalSeasons);
+  const sEl = document.getElementById('pw-season-pill');
+  const eEl = document.getElementById('pw-ep-pill');
+  if (sEl) { sEl.textContent = seasonPill; sEl.classList.toggle('active', seasonPill !== 'Temporada ——'); }
+  if (eEl) { eEl.textContent = epPill; eEl.classList.toggle('active', epPill !== 'Ep. ——'); }
+
+  // Actualizar badges de temporadas
+  document.querySelectorAll('.pw-season-tab').forEach(tab => {
+    const s = parseInt(tab.dataset.season);
+    const count = (progress[showId]?.checkedEps?.[s] || []).length;
+    const checkSpan = tab.querySelector('.st-check');
+    if (checkSpan) { checkSpan.textContent = count > 0 ? `✓${count}` : ''; }
+    else if (count > 0) { tab.innerHTML += `<span class="st-check">✓${count}</span>`; }
+  });
+}
+
+async function setStatus(status) {
   if (!currentModal || currentModal.type !== 'tv') return;
+  if (!progress[currentModal.id]) progress[currentModal.id] = { checkedEps: {} };
+  const prog = progress[currentModal.id];
+  const totalSeasons = currentModal.seasons_total || 1;
+  const showId = currentModal.id;
+
+  if (status === 'completed') {
+    // Marcar todos los episodios de todas las temporadas
+    prog.status = 'completed';
+    // Fetch any seasons we don't have cached yet
+    const fetches = [];
+    for (let s = 1; s <= totalSeasons; s++) {
+      if (!epCountCache[showId]?.[s]) {
+        fetches.push(
+          fetch(`${API_BASE}/tv/${showId}/season/${s}?api_key=${API_KEY}`)
+            .then(r => r.json())
+            .then(sd => {
+              if (!epCountCache[showId]) epCountCache[showId] = {};
+              epCountCache[showId][s] = Math.max((sd.episodes||[]).length, 1);
+            })
+            .catch(() => {
+              if (!epCountCache[showId]) epCountCache[showId] = {};
+              epCountCache[showId][s] = 12;
+            })
+        );
+      }
+    }
+    if (fetches.length) await Promise.all(fetches);
+
+    if (!prog.checkedEps) prog.checkedEps = {};
+    for (let s = 1; s <= totalSeasons; s++) {
+      const count = epCountCache[showId]?.[s] || 12;
+      prog.checkedEps[s] = Array.from({length: count}, (_, i) => i + 1);
+    }
+    // Re-render the visible checklist
+    const activeSeason = parseInt(document.querySelector('.pw-season-tab.active')?.dataset?.season) || 1;
+    renderEpChecklist(showId, activeSeason, epCountCache[showId]?.[activeSeason] || 12);
+    // Refresh season tab badges
+    updateProgressUI(showId, totalSeasons);
+
+  } else if (status === '') {
+    // Desmarcar todos los episodios
+    prog.checkedEps = {};
+    prog.status = '';
+    // Re-render visible checklist
+    const activeSeason = parseInt(document.querySelector('.pw-season-tab.active')?.dataset?.season) || 1;
+    const count = epCountCache[showId]?.[activeSeason] || 12;
+    renderEpChecklist(showId, activeSeason, count);
+    updateProgressUI(showId, totalSeasons);
+
+  } else {
+    prog.status = status;
+  }
+
+  // Update status button visuals
   document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
   const classes = { 'watching': 'watching', 'completed': 'done', 'paused': 'paused', '': 'none' };
-  const target = document.querySelector(`.status-btn.${classes[status] || 'none'}`);
-  if (target) target.classList.add('active');
-  
-  const prog = progress[currentModal.id] || {};
-  prog.status = status;
-  progress[currentModal.id] = prog;
-  saveProgress(); // Guarda temporada/episodio y refresca tu sección de "Continuar Viendo"
+  document.querySelector(`.status-btn.${classes[status] || 'none'}`)?.classList.add('active');
+
+  saveAll(); renderCW(); renderMySeries();
+}
+
+// Mantener compatibilidad con rateItem (que sigue usando setStatus vía progress)
+function saveProgress() {
+  if (!currentModal || currentModal.type !== 'tv') return;
+  saveAll(); renderCW(); renderMySeries();
 }
 
 function updateRatingDisplay(slider){
@@ -1425,7 +1733,23 @@ function renderCW(){
   block.style.display='block';
   grid.innerHTML=items.map(item=>{
     const bd=item.backdrop_path?`${IMG_BASE}w500${item.backdrop_path}`:'';
-    const pct=item.seasons_total>1?Math.round(((item.season-1)/item.seasons_total)*100):0;
+    const pct = (() => {
+      const checkedEps = item.checkedEps || {};
+      const totalSeasons = item.seasons_total || 1;
+      const totalChecked = Object.values(checkedEps).flat().length;
+      // Estimación burda: asumimos ~10 eps/temporada si no hay caché
+      const estTotal = Object.values(epCountCache[item.id] || {}).reduce((s,v)=>s+v, totalSeasons * 10);
+      return Math.min(Math.round((totalChecked / estTotal) * 100), 99);
+    })();
+    const lastSeason = (() => {
+      const checkedEps = item.checkedEps || {};
+      for (let s = (item.seasons_total||1); s >= 1; s--) {
+        if ((checkedEps[s]||[]).length > 0) return s;
+      }
+      return null;
+    })();
+    const lastEp = lastSeason ? Math.max(...(item.checkedEps?.[lastSeason] || [0])) : null;
+    const progressLabel = lastSeason ? `T${lastSeason} E${lastEp}` : 'Sin progreso';
     const statusColor=item.status==='paused'?'var(--amber)':'var(--green)';
     const statusLabel=item.status==='paused'?'⏸ Pausada':'▶ Viendo';
     return `<div class="cw-card">
@@ -1435,7 +1759,7 @@ function renderCW(){
       </div>
       <div class="cw-body" onclick="openDetail(${item.id},'tv')">
         <div class="cw-title">${esc(item.title||'')}</div>
-        <div class="cw-progress-label" style="color:${statusColor}">${statusLabel} · T${item.season} E${item.episode}${item.rating?` · ★ ${item.rating}/10`:''}</div>
+        <div class="cw-progress-label" style="color:${statusColor}">${statusLabel} · ${progressLabel}${item.rating?` · ★ ${item.rating}/10`:''}</div>
         <div class="cw-progress-bar"><div class="cw-progress-fill" style="width:${pct}%"></div></div>
       </div>
       <div class="cw-actions">
@@ -1867,7 +2191,7 @@ function renderProviderGrid(){
   const grid=document.getElementById('provider-grid');
   grid.innerHTML=ALL_PROVIDERS.map(p=>`
     <div class="provider-chip ${userProviders.has(p.id)?'selected':''}" onclick="toggleProvider(${p.id},this)">
-      <img src="${p.logo}" alt="${p.name}" onerror="this.style.display='none'">
+      <img src="${p.logo}" alt="${p.name}" onerror="this.src='${p.fallback}'">
       <div class="provider-chip-name">${p.name}</div>
       <div class="chip-check">${userProviders.has(p.id)?'✓':''}</div>
     </div>`).join('');
@@ -1922,7 +2246,8 @@ function openFullSearch(q){
   // 3. Carga los filtros y ejecuta la búsqueda automáticamente
   renderGenreFilters();
   renderProviderFilters();
-  runFullSearch(q, 1);
+  if(q) runFullSearch(q, 1);
+  else applyFilters();
   
   // 4. Oculta suavemente la barra de búsqueda del header
   const headerSearch = document.querySelector('.search-bar');
@@ -1939,6 +2264,11 @@ function openFullSearch(q){
 function closeFullSearch(){ 
   document.getElementById('search-fullscreen').classList.remove('open'); 
   document.body.style.overflow = '';
+  
+  // Limpiar ambas barras de búsqueda
+  document.getElementById('sf-input').value = '';
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-results').classList.remove('open');
   
   // Vuelve a mostrar la barra de búsqueda del header
   const headerSearch = document.querySelector('.search-bar');
@@ -1961,7 +2291,7 @@ function renderProviderFilters(){
   list.innerHTML=ALL_PROVIDERS.map(p=>`
     <label class="sf-filter-opt">
       <input type="checkbox" class="sf-provider-cb" value="${p.id}" onchange="applyFilters()">
-      <img src="${p.logo}" style="width:14px;height:14px;border-radius:3px;"> ${p.name}
+      <img src="${p.logo}" style="width:14px;height:14px;border-radius:3px;" onerror="this.src='${p.fallback}'"> ${p.name}
     </label>`).join('');
 }
 
@@ -1977,14 +2307,57 @@ async function runFullSearch(q, page){
   }
 
   try{
-    // Fetch multiple pages in parallel for a richer result set
-    const pages=page===1?[1,2,3]:[page+2,page+3];
-    const fetches=pages.map(p=>fetch(`${API_BASE}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(q)}&language=en-US&page=${p}`).then(r=>r.json()).catch(()=>({results:[]})));
-    const results=await Promise.all(fetches);
-    const newItems=results.flatMap(d=>(d.results||[]).filter(i=>i.media_type==='movie'||i.media_type==='tv'));
-    // deduplicate
+    const pageNums = page===1 ? [1,2,3,4] : [page+3,page+4];
+    const fetches = pageNums.map(p =>
+      fetch(`${API_BASE}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(q)}&language=en-US&page=${p}`)
+        .then(r=>r.json()).catch(()=>({results:[]}))
+    );
+
+    // Search collections by name too
+    const collectionFetch = page===1
+      ? fetch(`${API_BASE}/search/collection?api_key=${API_KEY}&query=${encodeURIComponent(q)}&language=en-US`)
+          .then(r=>r.json()).catch(()=>({results:[]}))
+      : Promise.resolve({results:[]});
+
+    const [collectionData, ...pageResults] = await Promise.all([collectionFetch, ...fetches]);
+
+    const directItems = pageResults.flatMap(d=>(d.results||[]).filter(i=>i.media_type==='movie'||i.media_type==='tv'));
+
+    // Collect collection IDs: from name-search AND from movie details of top results
+    const collectionIdSet = new Set((collectionData.results||[]).slice(0,3).map(c=>c.id));
+
+    if(page===1){
+      // Fetch details of top 6 movies to get belongs_to_collection
+      const topMovies = directItems.filter(i=>i.media_type==='movie').slice(0,6);
+      const detailResults = await Promise.all(
+        topMovies.map(m =>
+          fetch(`${API_BASE}/movie/${m.id}?api_key=${API_KEY}&language=en-US`)
+            .then(r=>r.json()).catch(()=>({}))
+        )
+      );
+      detailResults.forEach(d => {
+        if(d.belongs_to_collection && d.belongs_to_collection.id) collectionIdSet.add(d.belongs_to_collection.id);
+      });
+    }
+
+    // Expand all found collections
+    const collectionMovies = (await Promise.all(
+      [...collectionIdSet].map(cid =>
+        fetch(`${API_BASE}/collection/${cid}?api_key=${API_KEY}&language=en-US`)
+          .then(r=>r.json()).catch(()=>({parts:[]}))
+      )
+    )).flatMap(c => (c.parts||[]).map(m => ({...m, media_type:'movie'})));
+
+    const rawItems = [...directItems, ...collectionMovies];
+
     const existingIds=new Set(fsAllResults.map(i=>i.id));
-    fsAllResults=[...fsAllResults,...newItems.filter(i=>!existingIds.has(i.id))];
+    const seenNew=new Set();
+    const newItems = rawItems.filter(i=>{
+      if(seenNew.has(i.id)||existingIds.has(i.id)) return false;
+      seenNew.add(i.id);
+      return true;
+    });
+    fsAllResults=[...fsAllResults,...newItems];
   }catch(e){
     grid.innerHTML=`<div style="grid-column:1/-1;color:var(--accent);padding:20px">Error: ${e.message}</div>`;
     return;
@@ -1994,39 +2367,50 @@ async function runFullSearch(q, page){
 }
 
 function applyFilters(){
-  // 1. Capturamos los valores de los botones y checkboxes
   const typeMovie = document.getElementById('sf-type-movie')?.checked;
   const typeTV = document.getElementById('sf-type-tv')?.checked;
-  const onlyMine = document.getElementById('sf-only-mine')?.checked; 
+  const onlyMine = document.getElementById('sf-only-mine')?.checked;
   const scoreMin = parseFloat(document.getElementById('sf-score-min')?.value || 0);
   const yearMin = parseInt(document.getElementById('sf-year-min')?.value || 1900);
-  
   const checkedGenres = [...document.querySelectorAll('.sf-genre-cb:checked')].map(c => parseInt(c.value));
   const checkedProviders = [...document.querySelectorAll('.sf-provider-cb:checked')].map(c => parseInt(c.value));
 
-  // 2. Procesamos la lista maestra (fsAllResults) para crear la lista filtrada (fsFiltered)
+  // --- MODO BROWSE: sin query pero con proveedor seleccionado ---
+  const q = document.getElementById('sf-input').value.trim();
+  if(!q){
+    if(checkedProviders.length > 0){
+      browseByProvider(checkedProviders, typeMovie, typeTV);
+      return;
+    }
+    // Sin query y sin proveedor: mostrar estado vacío
+    const grid = document.getElementById('sf-grid');
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text3)"><div style="font-size:2.5rem;margin-bottom:12px">🔍</div><div style="font-size:0.95rem">Escribí algo para buscar<br>o seleccioná un servicio para explorar su catálogo</div></div>';
+    document.getElementById('sf-results-title').textContent = 'Buscar';
+    document.getElementById('sf-results-count').textContent = '';
+    return;
+  }
+
   fsFiltered = fsAllResults.filter(item => {
     if(typeMovie && !typeTV && item.media_type !== 'movie') return false;
     if(typeTV && !typeMovie && item.media_type !== 'tv') return false;
     if(scoreMin > 0 && (item.vote_average || 0) < scoreMin) return false;
-    
     const year = parseInt((item.release_date || item.first_air_date || '1900').slice(0, 4));
     if(yearMin > 1900 && year < yearMin) return false;
     if(checkedGenres.length > 0 && !checkedGenres.some(g => (item.genre_ids || []).includes(g))) return false;
-    if(checkedProviders.length > 0) {
-      const itemProviders = item.watch_providers || [];
-      if(!checkedProviders.some(pid => itemProviders.includes(pid))) return false;
+    // Provider filter uses fsProviderCache (fetched on demand)
+    if(checkedProviders.length > 0){
+      const cached = fsProviderCache[item.id];
+      if(cached !== undefined && !checkedProviders.some(pid => cached.includes(pid))) return false;
     }
     return true;
   });
 
-  // 3. Filtro "Solo en mis servicios": necesita fetch async de providers
-  if (onlyMine && userProviders.size > 0) {
+  if(onlyMine && userProviders.size > 0){
     const uncached = fsFiltered.filter(i => fsProviderCache[i.id] === undefined).slice(0, 48);
-    if (uncached.length > 0) {
+    if(uncached.length > 0){
       document.getElementById('sf-results-count').textContent = 'Verificando disponibilidad...';
       fetchProvidersBatch(uncached).then(() => applyFilters());
-      return; // Se vuelve a llamar una vez que el caché esté listo
+      return;
     }
     fsFiltered = fsFiltered.filter(item => {
       const providers = fsProviderCache[item.id] || [];
@@ -2034,17 +2418,63 @@ function applyFilters(){
     });
   }
 
-  // --- NUEVO: Ordenar los resultados finales por popularidad ---
+  // Fetch providers for checked-provider filter on uncached items, then reapply
+  if(checkedProviders.length > 0){
+    const uncached = fsFiltered.filter(i => fsProviderCache[i.id] === undefined).slice(0, 48);
+    if(uncached.length > 0){
+      document.getElementById('sf-results-count').textContent = 'Verificando disponibilidad...';
+      fetchProvidersBatch(uncached).then(() => applyFilters());
+      return;
+    }
+    // Now that all are cached, refilter strictly
+    fsFiltered = fsFiltered.filter(item => {
+      const cached = fsProviderCache[item.id] || [];
+      return checkedProviders.some(pid => cached.includes(pid));
+    });
+  }
+
   fsFiltered.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-
-  // 3. Reiniciamos el contador de la "paginación"
-  fsShowing = FS_PAGE_SIZE; 
-
-  // 4. Actualizamos los indicadores (badges)
+  fsShowing = FS_PAGE_SIZE;
   updateFilterBadges(typeMovie, typeTV, scoreMin, yearMin, checkedGenres, checkedProviders);
-  
-  // 5. Renderizamos la grilla
   renderFullResults(false);
+}
+
+// Browse catalog of a provider via TMDB discover (no query needed)
+async function browseByProvider(providerIds, typeMovie, typeTV){
+  const grid = document.getElementById('sf-grid');
+  grid.innerHTML = '<div style="grid-column:1/-1;display:flex;justify-content:center;padding:40px"><div class="spinner"></div></div>';
+
+  const names = providerIds.map(id => ALL_PROVIDERS.find(p=>p.id===id)?.name).filter(Boolean);
+  const label = names.length > 1 ? names.join(' + ') : (names[0] || 'Servicio');
+  document.getElementById('sf-results-title').textContent = label;
+  document.getElementById('sf-results-count').textContent = 'Cargando catálogo...';
+
+  const providerStr = providerIds.join('|');
+  const types = [];
+  if(!typeTV || typeMovie) types.push('movie');
+  if(!typeMovie || typeTV) types.push('tv');
+
+  try {
+    const allItems = [];
+    const seen = new Set();
+    for(const type of types){
+      for(const pg of [1,2,3]){
+        const r = await fetch(`${API_BASE}/discover/${type}?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&with_watch_providers=${providerStr}&watch_region=${userCountry}&page=${pg}`);
+        const d = await r.json();
+        (d.results||[]).forEach(i => {
+          if(!seen.has(i.id)){ seen.add(i.id); allItems.push({...i, media_type:type}); }
+        });
+      }
+    }
+    allItems.sort((a,b) => (b.popularity||0) - (a.popularity||0));
+    fsAllResults = allItems;
+    fsFiltered = allItems;
+    fsShowing = FS_PAGE_SIZE;
+    document.getElementById('sf-results-count').textContent = `${allItems.length} título${allItems.length!==1?'s':''}`;
+    renderFullResults(false);
+  } catch(e) {
+    grid.innerHTML = `<div style="grid-column:1/-1;color:var(--accent);padding:20px">Error al cargar: ${e.message}</div>`;
+  }
 }
 
 function updateFilterBadges(typeMovie, typeTV, scoreMin, yearMin, checkedGenres, checkedProviders) {
@@ -2131,15 +2561,68 @@ function esc(str){
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-function searchByActor(actorName) {
-  // 1. Cerramos el modal de la película actual
+async function searchByActor(actorName) {
   closeModal();
-  
-  // 2. Abrimos la búsqueda de pantalla completa con el nombre del actor
-  openFullSearch(actorName);
-  
-  // 3. Opcional: Mostramos un brindis informativo
-  showToast(`Buscando películas de: ${actorName}`, 'info');
+
+  // Abrir pantalla fullscreen con un estado de carga
+  const overlay = document.getElementById('search-fullscreen');
+  const sfInput = document.getElementById('sf-input');
+  sfInput.value = actorName;
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderGenreFilters();
+  renderProviderFilters();
+  const headerSearch = document.querySelector('.search-bar');
+  if(headerSearch){ headerSearch.style.transition='opacity 0.2s'; headerSearch.style.opacity='0'; headerSearch.style.pointerEvents='none'; }
+  setTimeout(()=>sfInput.focus(),100);
+
+  const grid = document.getElementById('sf-grid');
+  const titleEl = document.getElementById('sf-results-title');
+  const countEl = document.getElementById('sf-results-count');
+
+  grid.innerHTML = '<div style="grid-column:1/-1;display:flex;justify-content:center;padding:40px"><div class="spinner"></div></div>';
+  titleEl.textContent = `Filmografía de ${actorName}`;
+  countEl.textContent = 'Buscando...';
+  fsAllResults = [];
+  fsShowing = FS_PAGE_SIZE;
+  fsPage = 1;
+
+  try {
+    // 1. Buscar el ID de la persona
+    const personSearch = await fetch(`${API_BASE}/search/person?api_key=${API_KEY}&query=${encodeURIComponent(actorName)}&language=en-US`).then(r=>r.json());
+    const person = (personSearch.results||[])[0];
+
+    if (!person) {
+      // Fallback: búsqueda de texto normal
+      runFullSearch(actorName, 1);
+      return;
+    }
+
+    // 2. Traer sus créditos completos
+    const credits = await fetch(`${API_BASE}/person/${person.id}/combined_credits?api_key=${API_KEY}&language=en-US`).then(r=>r.json());
+
+    // 3. Combinar cast + crew, filtrar películas/series con al menos una imagen
+    const cast = (credits.cast||[]).map(i=>({...i, media_type: i.media_type||'movie'}));
+    const crew = (credits.crew||[])
+      .filter(i=>['Director','Writer','Creator','Producer'].includes(i.job))
+      .map(i=>({...i, media_type: i.media_type||'movie'}));
+
+    const all = [...cast, ...crew];
+    const seen = new Set();
+    fsAllResults = all
+      .filter(i => {
+        if(seen.has(i.id)) return false;
+        seen.add(i.id);
+        return (i.media_type==='movie'||i.media_type==='tv') && i.poster_path;
+      })
+      .sort((a,b) => (b.popularity||0) - (a.popularity||0));
+
+    titleEl.textContent = `${person.name}`;
+    applyFilters();
+  } catch(e) {
+    countEl.textContent = 'Error al cargar filmografía';
+    grid.innerHTML = `<div style="grid-column:1/-1;color:var(--accent);padding:20px">Error: ${e.message}</div>`;
+  }
 }
 
 /* ── CLOUD SYNC (GIST) ── */
@@ -2441,8 +2924,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const k = localStorage.getItem('tmdb_key');
   if (k) {
     API_KEY = k;
+    document.getElementById('setup-screen').classList.add('hidden');
     loadAll();
     bootstrap(); // bootstrap ya llama a renderAll()
+  } else {
+    // Pre-rellenar por si había algo guardado (por si acaso)
+    const saved = localStorage.getItem('tmdb_key') || '';
+    if (saved) document.getElementById('api-key-input').value = saved;
   }
 });
 
