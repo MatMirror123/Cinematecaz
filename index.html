@@ -33,11 +33,18 @@
   body::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
   /* SETUP */
-  #setup-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;flex-direction:column;gap:32px;padding:24px;}
+  #setup-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;flex-direction:column;gap:32px;padding:24px;overflow-y:auto;}
   #setup-screen.hidden{display:none;}
   .setup-card{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:48px;max-width:520px;width:100%;text-align:center;}
   .setup-logo{font-family:'Playfair Display',serif;font-size:3rem;font-weight:900;color:var(--gold);letter-spacing:-1px;margin-bottom:8px;}
   .setup-subtitle{color:var(--text2);font-size:0.9rem;margin-bottom:40px;line-height:1.6;}
+  /* Mobile: fill screen edge-to-edge */
+  @media(max-width:640px){
+    #setup-screen{padding:0;align-items:stretch;gap:0;}
+    .setup-card{border-radius:0;border:none;padding:28px 20px 40px;max-width:100%;height:100%;overflow-y:auto;display:flex;flex-direction:column;}
+    .setup-logo{font-size:2rem;margin-bottom:4px;}
+    .setup-subtitle{font-size:0.82rem;margin-bottom:24px;}
+  }
   .setup-field{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;text-align:left;}
   .setup-field label{font-size:0.8rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;font-weight:500;}
   .setup-field input{background:var(--bg4);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;color:var(--text);font-family:'DM Mono',monospace;font-size:0.85rem;outline:none;transition:border-color 0.2s;}
@@ -69,6 +76,8 @@
   .tab-badge{background:var(--accent);color:#fff;border-radius:8px;font-size:0.63rem;padding:1px 5px;margin-left:4px;font-weight:700;vertical-align:middle;}
   .settings-btn{background:none;border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;color:var(--text2);cursor:pointer;transition:all 0.2s;font-size:1rem;flex-shrink:0;}
   .settings-btn:hover{color:var(--gold);border-color:var(--gold);}
+  /* Mobile search btn — hidden on desktop */
+  .mobile-search-btn{display:none;}
 
   /* SEARCH DROPDOWN */
   .search-results{position:absolute;top:calc(100% + 8px);left:0;right:0;background:var(--bg3);border:1px solid var(--border);border-radius:12px;overflow:hidden;z-index:200;max-height:420px;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.6);display:none;}
@@ -90,9 +99,11 @@
   .page.active{display:block;}
   .section-block{margin-bottom:56px;}
   .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-  .section-title{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;}
+  .section-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;}
   .section-count{font-size:0.78rem;color:var(--text3);font-family:'DM Mono',monospace;}
   .filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;}
+  #series-status-row{flex-wrap:nowrap;}
+  #series-status-row .filter-btn{flex:1;text-align:center;}
   .filter-btn{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 13px;color:var(--text2);cursor:pointer;font-size:0.78rem;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
   .filter-btn:hover,.filter-btn.active{color:var(--gold);border-color:var(--gold);background:var(--glow);}
 
@@ -174,6 +185,84 @@
   .match-pct{font-family:'DM Mono',monospace;font-size:0.7rem;font-weight:600;min-width:30px;}
   .match-reasons{font-size:0.68rem;color:var(--text3);margin-top:3px;}
 
+  /* ── Recs mobile: poster card variant ── */
+  /* ── Recs mobile: poster card ── */
+  .rec-card-poster{
+    flex:0 0 135px;
+    cursor:pointer;
+    border-radius:8px;
+    background:var(--bg3);
+    border:1px solid var(--border);
+    transition:transform 0.18s;
+    overflow:hidden;
+  }
+  .rec-card-poster:active{ transform:scale(0.96); }
+  /* Image wrapper: positioning context for badge */
+  .rec-card-poster-img-wrap{
+    position:relative;
+    width:100%;
+    flex-shrink:0;
+    border-radius:7px 7px 0 0;
+    overflow:hidden;   /* clips image corners only */
+  }
+  .rec-card-poster-img-wrap img,
+  .rec-card-poster-img-wrap .no-poster{
+    width:100%;
+    aspect-ratio:2/3;
+    object-fit:cover;
+    display:block;
+    background:var(--bg4);
+  }
+  /* Info strip: title + sub on left, % on right */
+  .rec-card-poster-info{
+    padding:6px 7px;
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+  .rec-card-poster-text{
+    flex:1;
+    min-width:0;
+  }
+  .rec-card-poster-title{
+    font-size:0.65rem;
+    font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    line-height:1.2;
+  }
+  .rec-card-poster-sub{
+    font-size:0.57rem;
+    color:var(--text2);
+    line-height:1.2;
+  }
+  .rec-match-badge{
+    flex-shrink:0;
+    font-family:'DM Mono',monospace;
+    font-size:0.63rem;
+    font-weight:700;
+    line-height:1;
+    background:var(--bg4);
+    border:1px solid var(--border);
+    border-radius:4px;
+    padding:2px 4px;
+  }
+  /* Horizontal scroll container for recs on mobile */
+  .recs-hscroll{
+    display:flex;
+    gap:9px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding-bottom:8px;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    /* Critical: must not expand parent */
+    min-width:0;
+    width:100%;
+  }
+  .recs-hscroll::-webkit-scrollbar{ display:none; }
+
   /* MODAL */
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity 0.25s;}
   .modal-overlay.open{opacity:1;pointer-events:all;}
@@ -232,8 +321,9 @@
   .pw-ep-loading{grid-column:1/-1;display:flex;justify-content:center;padding:8px;}
 
   /* Botones de estado */
-  .progress-status{display:flex;gap:6px;flex-wrap:wrap;padding-top:4px;border-top:1px solid var(--border);}
-  .status-btn{background:none;border:1px solid var(--border);border-radius:14px;padding:4px 11px;color:var(--text2);font-size:0.73rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+  .progress-status{display:flex;gap:5px;flex-wrap:nowrap;padding-top:4px;border-top:1px solid var(--border);}
+  .progress-status .status-btn{flex:1;text-align:center;}
+  .status-btn{background:none;border:1px solid var(--border);border-radius:14px;padding:4px 8px;color:var(--text2);font-size:0.69rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
   .status-btn:hover{border-color:var(--blue);color:var(--blue);}
   .status-btn.watching.active{background:rgba(74,158,255,0.15);border-color:var(--blue);color:var(--blue);font-weight:600;}
   .status-btn.done.active{background:rgba(76,175,120,0.15);border-color:var(--green);color:var(--green);font-weight:600;}
@@ -293,13 +383,16 @@
   .sf-results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
   .sf-results-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;}
   .sf-results-count{font-size:0.78rem;color:var(--text3);font-family:'DM Mono',monospace;}
-  .sf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:14px;}
+  .sf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;}
   .sf-load-more{display:flex;justify-content:center;padding:28px;}
   .sf-load-more-btn{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:10px 28px;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.85rem;transition:all 0.2s;}
   .sf-load-more-btn:hover{color:var(--gold);border-color:var(--gold);}
 
   /* FILTERS SIDEBAR */
-  .sf-filters{width:240px;flex-shrink:0;border-left:1px solid var(--border);overflow-y:auto;padding:20px 18px;background:var(--bg2);}
+  .sf-filters{width:190px;flex-shrink:0;border-left:1px solid var(--border);overflow-y:auto;padding:0;background:var(--bg2);transition:width 0.25s;}
+  .sf-filters.collapsed{width:44px;overflow:hidden;}
+  .sf-filters-body{padding:4px 14px 20px;}
+  .sf-filters.collapsed .sf-filters-body{display:none;}
   .sf-filter-section{margin-bottom:24px;}
   .sf-filter-title{font-size:0.72rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.12em;font-weight:600;margin-bottom:12px;}
   .sf-filter-group{display:flex;flex-direction:column;gap:6px;}
@@ -345,6 +438,21 @@
   .sf-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold2);border:2px solid var(--bg);cursor:pointer;}
   .sf-clear-btn{background:none;border:1px solid var(--border);border-radius:14px;padding:5px 12px;color:var(--text3);font-size:0.73rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;margin-top:4px;}
   .sf-clear-btn:hover{color:var(--accent);border-color:var(--accent);}
+  /* Filters toggle button */
+  .sf-filters-toggle{
+    display:flex;align-items:center;gap:7px;
+    width:100%;padding:13px 14px;
+    background:none;border:none;border-bottom:1px solid var(--border);
+    color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;
+    text-transform:uppercase;letter-spacing:0.08em;
+    transition:color 0.15s;white-space:nowrap;
+  }
+  .sf-filters-toggle:hover{color:var(--gold);}
+  .sf-toggle-label{flex:1;text-align:left;}
+  .sf-toggle-chevron{transition:transform 0.2s;flex-shrink:0;}
+  .sf-filters.collapsed .sf-toggle-chevron{transform:rotate(180deg);}
+  .sf-filters.collapsed .sf-toggle-label{display:none;}
+  .sf-filter-section{margin-bottom:20px;}
   .sf-active-badge{display:inline-block;background:var(--gold);color:#1a1206;border-radius:8px;font-size:0.62rem;padding:1px 5px;margin-left:6px;font-weight:700;vertical-align:middle;}
 
 
@@ -437,11 +545,249 @@
     .profile-genres{grid-column:span 2;}
     main{padding:14px 10px;}
   }
-  @media(max-width:580px){
-    header{gap:8px;padding:0 10px;}
-    .logo{font-size:1rem;}
-    .search-bar{max-width:180px;}
-    .cw-grid{grid-template-columns:1fr;}
+
+  /* BOTTOM NAV: hidden on desktop */
+  #bottom-nav{ display:none; }
+
+  /* ================================================================
+     MOBILE — 640px
+  ================================================================ */
+  @media(max-width:640px){
+
+    body{ padding-bottom:70px; }
+
+    /* HEADER */
+    header{ padding:0 12px; height:52px; gap:8px; overflow:visible; position:sticky; }
+    .logo{ font-size:1.2rem; }
+    .nav-tabs{ display:none; }
+    /* Hide full search bar, show icon button */
+    .search-bar{ display:none; }
+    /* Mobile search: absolutely centered in header */
+    .mobile-search-btn{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--bg3);
+      border:1px solid var(--border);
+      border-radius:50%;
+      width:40px;
+      height:40px;
+      color:var(--text2);
+      cursor:pointer;
+      transition:all 0.2s;
+      -webkit-tap-highlight-color:transparent;
+      /* Center absolutely in header */
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform:translate(-50%, -50%);
+      z-index:510;
+    }
+    .mobile-search-btn:active{ background:var(--bg4); }
+    .search-fullscreen.open ~ * #mobile-search-btn,
+    body.fs-open .mobile-search-btn{ display:none; }
+    .settings-btn{ padding:6px 9px; font-size:0.9rem; margin-left:auto; }
+    /* Header needs position:relative for absolute child */
+    header{ position:sticky !important; }
+
+    /* Inicio center — elevated bubble */
+    .bn-center{
+      flex:1.2;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-end;
+      padding:0 0 6px;
+      height:60px;
+      box-sizing:border-box;
+      position:relative;
+      color:var(--text3);
+      /* Bubble overflows upward */
+      overflow:visible;
+    }
+    .bn-center.active{ color:var(--text); }
+    .bn-center-bubble{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:52px;
+      height:52px;
+      border-radius:50%;
+      background:var(--bg3);
+      border:1px solid var(--border);
+      /* Lift above the nav bar */
+      position:absolute;
+      bottom:18px;
+      left:50%;
+      transform:translateX(-50%);
+      box-shadow:0 -4px 16px rgba(0,0,0,0.4);
+    }
+    .bn-center.active .bn-center-bubble{
+      background:var(--bg4);
+      border-color:rgba(255,255,255,0.15);
+    }
+    .bn-center .bn-icon{ font-size:1.4rem; display:block; }
+    .bn-center-label{
+      font-family:'DM Sans',sans-serif;
+      font-size:0.58rem;
+      letter-spacing:0.02em;
+      color:inherit;
+      position:relative;
+      z-index:1;
+    }
+
+    /* BOTTOM NAV */
+    #bottom-nav{
+      display:flex;
+      position:fixed;
+      bottom:0; left:0; right:0;
+      height:60px;
+      min-height:60px;
+      max-height:60px;
+      background:rgba(10,10,12,0.97);
+      backdrop-filter:blur(24px);
+      -webkit-backdrop-filter:blur(24px);
+      border-top:1px solid var(--border);
+      z-index:600;
+      padding:0 2px;
+      gap:0;
+      align-items:flex-end;
+      overflow:visible;
+      box-sizing:border-box;
+    }
+    .bn-tab{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-end;
+      gap:2px;
+      background:none;
+      border:none;
+      color:var(--text3);
+      cursor:pointer;
+      font-family:'DM Sans',sans-serif;
+      font-size:0.58rem;
+      letter-spacing:0.02em;
+      padding:0 0 6px;
+      height:60px;
+      box-sizing:border-box;
+      position:relative;
+      transition:color 0.15s;
+      -webkit-tap-highlight-color:transparent;
+      flex-shrink:0;
+    }
+    .bn-tab.active{ color:var(--gold); }
+    .bn-tab .bn-icon{ font-size:1.35rem; line-height:1; display:block; }
+    .bn-badge{
+      position:absolute;
+      top:4px; right:calc(50% - 22px);
+      background:var(--accent);
+      color:#fff;
+      border-radius:8px;
+      font-size:0.55rem;
+      padding:1px 4px;
+      font-weight:700;
+      line-height:1.4;
+    }
+
+    /* TOAST above bottom nav */
+    #toast{ bottom:74px; }
+
+    /* MAIN */
+    main{ padding:10px 8px 10px; }
+    .section-block{ margin-bottom:32px; }
+    .section-title{ font-size:1rem; }
+
+    /* MOVIE GRID — 3 cols */
+    .movie-grid{ grid-template-columns:repeat(3,1fr); gap:7px; }
+    .card-info{ padding:5px 6px; }
+    .card-info-title{ font-size:0.67rem; }
+    .card-info-sub{ font-size:0.59rem; }
+
+    /* CW */
+    .cw-grid{ grid-template-columns:1fr; }
+
+    /* PROFILE */
+    .profile-hero{ grid-template-columns:1fr 1fr; padding:12px; gap:8px; }
+    .profile-genres{ grid-column:span 2; }
+    .stat-number{ font-size:1.5rem; }
+
+    /* LISTS / RECS */
+    .list-layout{ grid-template-columns:1fr; gap:14px; }
+    .recs-grid{ grid-template-columns:1fr; gap:20px; }
+    .recs-column{ overflow:hidden; min-width:0; }
+    .recs-column h2{ font-size:1rem; margin-bottom:10px; }
+    .list-col h2{ font-size:1rem; margin-bottom:10px; }
+    /* List items: constrain to screen */
+    .list-item{ flex-wrap:nowrap; min-width:0; }
+    .list-item-info{ min-width:0; flex:1; overflow:hidden; }
+    .list-item-actions{ flex-shrink:0; }
+    .list-item-title{ font-size:0.8rem; }
+    .list-item-sub{ font-size:0.65rem; }
+
+    /* DICE */
+    .dice-grid{ grid-template-columns:1fr; gap:10px; }
+
+    /* MODAL → bottom sheet */
+    .modal-overlay{ align-items:flex-end; padding:0; }
+    .modal{
+      border-radius:20px 20px 0 0;
+      max-height:91vh;
+      max-width:100%;
+      width:100%;
+      transform:translateY(40px);
+    }
+    .modal-overlay.open .modal{ transform:translateY(0); }
+    .modal-backdrop,
+    .modal-backdrop-gradient{ height:150px; border-radius:20px 20px 0 0; }
+    .modal-body{ padding:12px 14px 80px; }
+    .modal-header{ margin-top:-44px; gap:10px; }
+    .modal-poster{ width:66px; height:99px; }
+    .modal-title-block{ padding-top:44px; }
+    .modal-title{ font-size:1.08rem; }
+
+    /* FULLSCREEN SEARCH — layout vertical */
+    #search-fullscreen{ flex-direction:column; }
+    .sf-sidebar{
+      width:100%;
+      max-height:185px;
+      overflow-y:auto;
+      border-right:none;
+      border-bottom:1px solid var(--border);
+      padding:10px 12px;
+      flex-shrink:0;
+    }
+    .sf-main{ flex:1; overflow-y:auto; padding:10px 8px; }
+    .sf-input-wrap input{ font-size:0.88rem; }
+    .sf-input-icon{ display:none; }
+    .sf-input-wrap input{ padding-left:16px; }
+    .sf-filter-section{ margin-bottom:8px; }
+    #sf-grid{ grid-template-columns:repeat(3,1fr); gap:7px; }
+
+    /* SETTINGS → bottom sheet on mobile */
+    #settings-overlay{ align-items:flex-end; padding:0; }
+    .settings-panel{
+      border-radius:20px 20px 0 0;
+      transform:translateY(30px);
+    }
+    #settings-overlay.open .settings-panel{ transform:translateY(0); }
+
+    /* Dual range: center on mobile */
+    .filters-container{ flex-direction:column; align-items:stretch; gap:14px; padding:8px 0 16px; }
+    .filters-container > div{ width:100% !important; box-sizing:border-box; padding:0 18px; }
+    .sort-wrap{ align-items:flex-start !important; margin-left:0 !important; }
+    .sort-select{ width:100%; }
+    /* FILTER ROW — scroll horizontal sin wrap */
+    .filter-row{
+      flex-wrap:nowrap;
+      overflow-x:auto;
+      padding-bottom:4px;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none;
+    }
+    .filter-row::-webkit-scrollbar{ display:none; }
+    .filter-btn{ white-space:nowrap; flex-shrink:0; }
   }
 
   .modal-saga{margin-top:20px; padding:16px; background:var(--bg2); border:1px solid var(--border); border-radius:12px;}
@@ -691,7 +1037,7 @@
 
 <!-- HEADER -->
 <header>
-  <div class="logo" onclick="document.querySelector('.nav-tab[data-tab=inicio]').click()" style="cursor:pointer">🎬 Cinematecaz</div>
+  <div class="logo" onclick="switchTab('inicio')" style="cursor:pointer">🎬 Cinematecaz</div>
   <div class="search-bar">
     <div style="position:relative;">
       <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -699,6 +1045,10 @@
     </div>
     <div id="search-results" class="search-results"></div>
   </div>
+  <!-- Mobile: centered search button (absolutely positioned) -->
+  <button id="mobile-search-btn" class="mobile-search-btn" onclick="openFullSearch('')">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+  </button>
   <nav class="nav-tabs">
     <button class="nav-tab active" data-tab="inicio">Inicio</button>
     <button class="nav-tab" data-tab="peliculas">Películas</button>
@@ -708,6 +1058,29 @@
   </nav>
   <button class="settings-btn" onclick="openSettings()" title="Ajustes">⚙</button>
 </header>
+
+<!-- BOTTOM NAV (mobile only) -->
+<nav id="bottom-nav">
+  <button class="bn-tab" data-tab="peliculas" onclick="switchTab('peliculas')">
+    <span class="bn-icon">&#127916;</span>Pelis
+  </button>
+  <button class="bn-tab" data-tab="series" onclick="switchTab('series')">
+    <span class="bn-icon">&#128250;</span>Series
+  </button>
+  <button class="bn-tab bn-center active" data-tab="inicio" onclick="switchTab('inicio')">
+    <span class="bn-center-bubble">
+      <span class="bn-icon">&#127968;</span>
+    </span>
+    <span class="bn-center-label">Inicio</span>
+  </button>
+  <button class="bn-tab" data-tab="milista" onclick="switchTab('milista')">
+    <span class="bn-icon">&#128278;</span>Mi Lista
+    <span class="bn-badge" id="bn-lista-badge" style="display:none">0</span>
+  </button>
+  <button class="bn-tab" data-tab="recomendaciones" onclick="switchTab('recomendaciones')">
+    <span class="bn-icon">&#10024;</span>Para vos
+  </button>
+</nav>
 
 <main>
 
@@ -723,7 +1096,7 @@
 
     <div class="section-block" id="dice-block">
       <div class="section-header">
-        <div class="section-title">🎲 Ruleta Cinematográfica</div>
+        <div class="section-title">🧨 Ruleta Cinematográfica</div>
       </div>
       <div class="dice-grid">
         <div class="dice-card" id="dice-safe"></div>
@@ -796,10 +1169,10 @@
         <select id="movies-sort" class="sort-select" onchange="renderMyMovies()">
           <option value="date_desc">Agregado: Más reciente</option>
           <option value="date_asc">Agregado: Más antiguo</option>
-          <option value="rating_desc">Nota personal: Mayor a Menor</option>
-          <option value="rating_asc">Nota personal: Menor a Mayor</option>
-          <option value="tmdb_desc">Nota TMDB: Mayor a Menor</option>
-          <option value="tmdb_asc">Nota TMDB: Menor a Mayor</option>
+          <option value="rating_desc">Nota personal: Descendente</option>
+          <option value="rating_asc">Nota personal: Ascendente</option>
+          <option value="tmdb_desc">Nota TMDB: Descendente</option>
+          <option value="tmdb_asc">Nota TMDB: Ascendente</option>
           <option value="alpha_asc">Nombre: A - Z</option>
           <option value="alpha_desc">Nombre: Z - A</option>
         </select>
@@ -832,28 +1205,28 @@
         </div>
       </div>
 
-      <div style="flex-shrink:0;">
-        <label class="filter-row-label">Estado de la serie</label>
-        <div class="filter-row" id="series-status-row">
-          <button class="filter-btn active" data-status="all" onclick="setSeriesStatus(this,'all')">Todas</button>
-          <button class="filter-btn" data-status="watching" onclick="setSeriesStatus(this,'watching')">▶ Viendo</button>
-          <button class="filter-btn" data-status="paused" onclick="setSeriesStatus(this,'paused')">⏸ Pausadas</button>
-          <button class="filter-btn" data-status="completed" onclick="setSeriesStatus(this,'completed')">✓ Terminadas</button>
-        </div>
-      </div>
-
       <div class="sort-wrap" style="margin-left: auto; align-items: flex-end;">
         <label class="filter-row-label">Ordenar por</label>
         <select id="series-sort" class="sort-select" onchange="renderMySeries()">
           <option value="date_desc">Agregado: Más reciente</option>
           <option value="date_asc">Agregado: Más antiguo</option>
-          <option value="rating_desc">Nota personal: Mayor a Menor</option>
-          <option value="rating_asc">Nota personal: Menor a Mayor</option>
-          <option value="tmdb_desc">Nota TMDB: Mayor a Menor</option>
-          <option value="tmdb_asc">Nota TMDB: Menor a Mayor</option>
+          <option value="rating_desc">Nota personal: Descendente</option>
+          <option value="rating_asc">Nota personal: Ascendente</option>
+          <option value="tmdb_desc">Nota TMDB: Descendente</option>
+          <option value="tmdb_asc">Nota TMDB: Ascendente</option>
           <option value="alpha_asc">Nombre: A - Z</option>
           <option value="alpha_desc">Nombre: Z - A</option>
         </select>
+      </div>
+
+      <div style="flex-shrink:0;">
+        <label class="filter-row-label">Estado de la serie</label>
+        <div class="filter-row" id="series-status-row">
+          <button class="filter-btn active" data-status="all" onclick="setSeriesStatus(this,'all')">Todas</button>
+          <button class="filter-btn" data-status="watching" onclick="setSeriesStatus(this,'watching')">Viendo</button>
+          <button class="filter-btn" data-status="paused" onclick="setSeriesStatus(this,'paused')">Pausada</button>
+          <button class="filter-btn" data-status="completed" onclick="setSeriesStatus(this,'completed')">Terminada</button>
+        </div>
       </div>
 
     </div> <div id="series-grid" class="movie-grid"></div>
@@ -929,7 +1302,13 @@
     </div>
 
     <!-- FILTERS SIDEBAR -->
-    <aside class="sf-filters">
+    <aside class="sf-filters" id="sf-filters">
+      <button class="sf-filters-toggle" id="sf-filters-toggle" onclick="toggleFilters()" title="Mostrar/ocultar filtros">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/></svg>
+        <span class="sf-toggle-label">Filtros</span>
+        <svg class="sf-toggle-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="sf-filters-body" id="sf-filters-body">
       <div class="sf-filter-section">
         <div class="sf-filter-title">Tipo <span id="type-badge" class="sf-active-badge" style="display:none"></span></div>
         <div class="sf-filter-group">
@@ -978,6 +1357,7 @@
       </div>
 
       <button class="sf-clear-btn" onclick="clearFilters()">✕ Limpiar filtros</button>
+      </div><!-- /sf-filters-body -->
     </aside>
   </div>
 </div>
@@ -1120,17 +1500,29 @@ function bootstrap(){
 function setupTabs(){
   document.querySelectorAll('.nav-tab').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      // Cerramos la búsqueda si estaba abierta
       closeFullSearch();
-      
-      document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
-      document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-      btn.classList.add('active');
-      const tab=btn.dataset.tab;
-      document.getElementById('tab-'+tab).classList.add('active');
-      if(tab==='recomendaciones') loadRecs();
+      activateTab(btn.dataset.tab);
     });
   });
+}
+
+function switchTab(tab){
+  closeFullSearch();
+  activateTab(tab);
+}
+
+function activateTab(tab){
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.bn-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const topBtn=document.querySelector('.nav-tab[data-tab="'+tab+'"]');
+  if(topBtn) topBtn.classList.add('active');
+  const botBtn=document.querySelector('.bn-tab[data-tab="'+tab+'"]');
+  if(botBtn) botBtn.classList.add('active');
+  const page=document.getElementById('tab-'+tab);
+  if(page) page.classList.add('active');
+  if(tab==='recomendaciones') loadRecs();
+  if(window.innerWidth<=640) window.scrollTo({top:0,behavior:'smooth'});
 }
 
 /* ── FILTERS ── */
@@ -1329,7 +1721,7 @@ async function openDetail(id, type) {
       let seasonTabs = '';
       for (let s = 1; s <= totalSeasons; s++) {
         const checked = (prog.checkedEps?.[s] || []).length;
-        const checkMark = checked > 0 ? `<span class="st-check">✓${checked}</span>` : '';
+        const epTotal = epCountCache[id]?.[s] || '?'; const checkMark = checked > 0 ? `<span class="st-check">${checked}/${epTotal}</span>` : '';
         seasonTabs += `<button class="pw-season-tab" data-season="${s}" onclick="switchProgressSeason(${id},${s},${totalSeasons})">${s}${checkMark}</button>`;
       }
 
@@ -1349,7 +1741,7 @@ async function openDetail(id, type) {
             <div class="progress-status">
               <button class="status-btn watching ${statusClass==='watching'?'active':''}" onclick="setStatus('watching')">▶ Viendo</button>
               <button class="status-btn done ${statusClass==='completed'?'active':''}" onclick="setStatus('completed')">✓ Terminada</button>
-              <button class="status-btn paused ${statusClass==='paused'?'active':''}" onclick="setStatus('paused')">⏸ Pausada</button>
+              <button class="status-btn paused ${statusClass==='paused'?'active':''}" onclick="setStatus('paused')">‖ Pausada</button>
               <button class="status-btn none ${statusClass===''?'active':''}" onclick="setStatus('')">✕ Nada</button>
             </div>
           </div>
@@ -1511,6 +1903,10 @@ function onEpCheck(showId, season, ep, epCount, isChecked) {
   if (isChecked) epList.add(ep); else epList.delete(ep);
   progress[showId].checkedEps[seasonKey] = [...epList].sort((a,b)=>a-b);
   progress[showId].seasons_total = currentModal?.seasons_total || 1;
+  if (currentModal?.type) progress[showId].type = currentModal.type;
+  if (currentModal?.title) progress[showId].title = currentModal.title;
+  if (currentModal?.poster_path) progress[showId].poster_path = currentModal.poster_path;
+  if (currentModal?.backdrop_path) progress[showId].backdrop_path = currentModal.backdrop_path;
 
   // Auto-estado
   autoUpdateStatus(showId);
@@ -1560,7 +1956,7 @@ function updateProgressUI(showId, totalSeasons) {
     const count = (progress[showId]?.checkedEps?.[s] || []).length;
     const checkSpan = tab.querySelector('.st-check');
     if (checkSpan) { checkSpan.textContent = count > 0 ? `✓${count}` : ''; }
-    else if (count > 0) { tab.innerHTML += `<span class="st-check">✓${count}</span>`; }
+    else if (count > 0) { const tot = epCountCache[showId]?.[parseInt(tab.dataset.season)] || '?'; tab.innerHTML += `<span class="st-check">${count}/${tot}</span>`; }
   });
 }
 
@@ -1568,41 +1964,19 @@ async function setStatus(status) {
   if (!currentModal || currentModal.type !== 'tv') return;
   if (!progress[currentModal.id]) progress[currentModal.id] = { checkedEps: {} };
   const prog = progress[currentModal.id];
+  prog.type = currentModal.type || 'tv';
+  prog.title = currentModal.title || prog.title || '';
+  prog.poster_path = currentModal.poster_path || prog.poster_path || '';
+  prog.backdrop_path = currentModal.backdrop_path || prog.backdrop_path || '';
   const totalSeasons = currentModal.seasons_total || 1;
   const showId = currentModal.id;
 
   if (status === 'completed') {
-    // Marcar todos los episodios de todas las temporadas
-    prog.status = 'completed';
-    // Fetch any seasons we don't have cached yet
-    const fetches = [];
-    for (let s = 1; s <= totalSeasons; s++) {
-      if (!epCountCache[showId]?.[s]) {
-        fetches.push(
-          fetch(`${API_BASE}/tv/${showId}/season/${s}?api_key=${API_KEY}`)
-            .then(r => r.json())
-            .then(sd => {
-              if (!epCountCache[showId]) epCountCache[showId] = {};
-              epCountCache[showId][s] = Math.max((sd.episodes||[]).length, 1);
-            })
-            .catch(() => {
-              if (!epCountCache[showId]) epCountCache[showId] = {};
-              epCountCache[showId][s] = 12;
-            })
-        );
-      }
-    }
-    if (fetches.length) await Promise.all(fetches);
-
-    if (!prog.checkedEps) prog.checkedEps = {};
-    for (let s = 1; s <= totalSeasons; s++) {
-      const count = epCountCache[showId]?.[s] || 12;
-      prog.checkedEps[s] = Array.from({length: count}, (_, i) => i + 1);
-    }
+    // Delegate to shared helper
+    await markAllEpisodes(showId, totalSeasons);
     // Re-render the visible checklist
     const activeSeason = parseInt(document.querySelector('.pw-season-tab.active')?.dataset?.season) || 1;
     renderEpChecklist(showId, activeSeason, epCountCache[showId]?.[activeSeason] || 12);
-    // Refresh season tab badges
     updateProgressUI(showId, totalSeasons);
 
   } else if (status === '') {
@@ -1639,30 +2013,62 @@ function updateRatingDisplay(slider){
   slider.style.setProperty('--pct',(v*10)+'%');
 }
 
-function rateItem() {
+async function rateItem() {
   if (!currentModal) return;
-  // Extraemos vote_average del modal actual
-  const {id, type, title, genre_ids, poster_path, release_date, collectionId, vote_average} = currentModal;
+  const {id, type, title, genre_ids, poster_path, backdrop_path, release_date, collectionId, vote_average} = currentModal;
   const rating = parseFloat(document.getElementById('modal-rating-slider').value);
 
   rated[id] = {
-    id, type, title, rating, genre_ids, poster_path, release_date, 
+    id, type, title, rating, genre_ids, poster_path, backdrop_path, release_date, 
     ratedAt: Date.now(), 
     collectionId: collectionId,
-    vote_average: vote_average // Guardamos la nota de TMDB
+    vote_average: vote_average
   };
 
   if (type === 'tv') {
-    const prog = progress[id] || {};
-    prog.status = 'completed';
-    if (currentModal.seasons_total) prog.seasons_total = currentModal.seasons_total;
-    progress[id] = prog;
+    // Use same path as setStatus('completed'): fetch & mark all episodes
+    await markAllEpisodes(id, currentModal.seasons_total || 1);
   }
 
   saveAll(); 
   closeModal();
   showToast(`"${title}" → ${rating}/10 ✓`,'success');
   renderAll();
+}
+
+// Shared helper: mark every episode of every season as watched
+async function markAllEpisodes(showId, totalSeasons) {
+  if (!progress[showId]) progress[showId] = { checkedEps: {} };
+  const prog = progress[showId];
+  prog.status = 'completed';
+  if (!prog.checkedEps) prog.checkedEps = {};
+
+  // Fetch episode counts for any season not yet cached
+  const fetches = [];
+  for (let s = 1; s <= totalSeasons; s++) {
+    if (!epCountCache[showId]?.[s]) {
+      fetches.push(
+        fetch(`${API_BASE}/tv/${showId}/season/${s}?api_key=${API_KEY}`)
+          .then(r => r.json())
+          .then(sd => {
+            if (!epCountCache[showId]) epCountCache[showId] = {};
+            epCountCache[showId][s] = Math.max((sd.episodes||[]).length, 1);
+          })
+          .catch(() => {
+            if (!epCountCache[showId]) epCountCache[showId] = {};
+            epCountCache[showId][s] = 12;
+          })
+      );
+    }
+  }
+  if (fetches.length) await Promise.all(fetches);
+
+  // Mark all
+  for (let s = 1; s <= totalSeasons; s++) {
+    const count = epCountCache[showId]?.[s] || 12;
+    prog.checkedEps[s] = Array.from({length: count}, (_, i) => i + 1);
+  }
+  progress[showId] = prog;
 }
 
 function deleteRating(id){
@@ -1727,7 +2133,7 @@ function renderCW(){
   const block=document.getElementById('cw-block');
   const grid=document.getElementById('cw-grid');
   const watching=Object.entries(progress).filter(([,p])=>p.status==='watching'||p.status==='paused');
-  const items=watching.map(([id,p])=>({...p,...rated[id],id:Number(id)})).filter(i=>i.title&&i.type==='tv');
+  const items=watching.map(([id,p])=>{ const r=rated[id]||{}; return {...p,...r,id:Number(id), type:r.type||p.type||'tv', title:r.title||p.title||'', backdrop_path:r.backdrop_path||p.backdrop_path||'', poster_path:r.poster_path||p.poster_path||''}; }).filter(i=>i.title&&(i.type==='tv'||!i.type));
   document.getElementById('cw-count').textContent=`${items.length} en progreso`;
   if(!items.length){block.style.display='none';return;}
   block.style.display='block';
@@ -1751,7 +2157,7 @@ function renderCW(){
     const lastEp = lastSeason ? Math.max(...(item.checkedEps?.[lastSeason] || [0])) : null;
     const progressLabel = lastSeason ? `T${lastSeason} E${lastEp}` : 'Sin progreso';
     const statusColor=item.status==='paused'?'var(--amber)':'var(--green)';
-    const statusLabel=item.status==='paused'?'⏸ Pausada':'▶ Viendo';
+    const statusLabel=item.status==='paused'?'‖ Pausada':'▶ Viendo';
     return `<div class="cw-card">
       <div class="cw-backdrop-wrap" onclick="openDetail(${item.id},'tv')">
         ${bd?`<img src="${bd}" class="cw-backdrop">`:`<div class="cw-backdrop"></div>`}
@@ -1793,8 +2199,8 @@ async function loadNewReleases(){
     const merged=[];
     // Aumentamos el loop para asegurar 16 ítems en total
     for(let i=0;i<12;i++){if(movies[i])merged.push(movies[i]);if(tvs[i])merged.push(tvs[i]);}
-    document.getElementById('releases-count').textContent=`${merged.slice(0,16).length} estrenos`;
-    grid.innerHTML=merged.slice(0,16).map(item=>makeCard(item,false)).join('');
+    document.getElementById('releases-count').textContent=`${merged.slice(0,18).length} estrenos`;
+    grid.innerHTML=merged.slice(0,18).map(item=>makeCard(item,false)).join('');
   }catch(e){ grid.innerHTML=`<div style="color:var(--accent);font-size:0.83rem;padding:16px">Error al cargar estrenos.</div>`; }
 }
 
@@ -1802,7 +2208,14 @@ async function loadNewReleases(){
 function updateListaBadge(){
   const total=new Set([...Object.keys(saved),...upNext.map(String)]).size;
   const badge=document.getElementById('lista-badge');
-  if(total>0){badge.textContent=total;badge.style.display='inline';}else{badge.style.display='none';}
+  const bnBadge=document.getElementById('bn-lista-badge');
+  if(total>0){
+    badge.textContent=total; badge.style.display='inline';
+    if(bnBadge){bnBadge.textContent=total; bnBadge.style.display='inline';}
+  }else{
+    badge.style.display='none';
+    if(bnBadge) bnBadge.style.display='none';
+  }
   const sub=document.getElementById('saved-sub');
   if(sub) sub.textContent=`(${Object.keys(saved).length})`;
 }
@@ -1820,12 +2233,12 @@ function renderSaved(){
     return `<div class="list-item">
       ${poster?`<img src="${poster}" class="list-item-poster">`:`<div class="list-item-poster"></div>`}
       <div class="list-item-info">
-        <div class="list-item-title">${esc(item.title||'')}</div>
+        <div class="list-item-title">${esc((item.title||'').length>25?(item.title||'').slice(0,25)+'…':item.title||'')}</div>
         <div class="list-item-sub">${item.type==='movie'?'🎬':'📺'} ${year}</div>
       </div>
       <div class="list-item-actions">
         <button class="icon-btn" onclick="openDetail(${item.id},'${item.type}')">🔍</button>
-        ${!inQueue?`<button class="icon-btn" title="Agregar a Up Next" onclick="addToUpNext(${item.id})">⏭</button>`:`<span style="font-size:0.68rem;color:var(--blue);padding:0 4px">En cola</span>`}
+        ${!inQueue?`<button class="icon-btn" title="Agregar a Up Next" onclick="addToUpNext(${item.id})">⏭</button>`:`<button class="icon-btn" style="color:var(--blue);border-color:rgba(74,158,255,0.4)" disabled>▶</button>`}
         <button class="icon-btn danger" onclick="removeFromSaved(${item.id})">✕</button>
       </div>
     </div>`;
@@ -1847,7 +2260,7 @@ function renderUpNext(){
       <div class="drag-handle">⠿</div>
       ${poster?`<img src="${poster}" class="list-item-poster">`:`<div class="list-item-poster"></div>`}
       <div class="list-item-info">
-        <div class="list-item-title">${idx+1}. ${esc(item.title||'')}</div>
+        <div class="list-item-title">${idx+1}. ${esc((item.title||'').length>29?(item.title||'').slice(0,29)+'…':item.title||'')}</div>
         <div class="list-item-sub">${item.type==='movie'?'🎬':'📺'} ${year}</div>
       </div>
       <div class="list-item-actions">
@@ -1910,7 +2323,7 @@ function makeCard(item,showMatch){
 
 function renderRecent(){
   // Ahora cortamos en 16 en lugar de 12
-  const items = Object.values(rated).sort((a,b) => (b.ratedAt || 0) - (a.ratedAt || 0)).slice(0, 16);
+  const items = Object.values(rated).sort((a,b) => (b.ratedAt || 0) - (a.ratedAt || 0)).slice(0, 18);
   
   document.getElementById('recent-count').textContent=`${Object.keys(rated).length} en total`;
   const grid=document.getElementById('recent-grid');
@@ -1998,7 +2411,7 @@ async function loadTrending(){
     const r=await fetch(`${API_BASE}/trending/all/day?api_key=${API_KEY}&language=en-US`);
     const data=await r.json();
     // Ahora cortamos en 16 en lugar de 12
-    const items=(data.results||[]).filter(i=>i.media_type==='movie'||i.media_type==='tv').slice(0,16);
+    const items=(data.results||[]).filter(i=>i.media_type==='movie'||i.media_type==='tv').slice(0,18);
     grid.innerHTML=items.map(item=>makeCard(item,false)).join('');
   }catch(e){grid.innerHTML=`<div style="color:var(--accent);font-size:0.83rem;padding:18px">Error. Verificá tu API Key.</div>`;}
 }
@@ -2123,6 +2536,24 @@ async function loadRecs(){
     const year=(type==='movie'?item.release_date:item.first_air_date||'').slice(0,4);
     const color=item.match>=80?'#4caf78':item.match>=60?'#f59e0b':'#a09888';
     const provLogos=providers.map(p=>`<img src="${IMG_BASE}original${p.logo_path}" class="rec-provider-logo ${userProviders.has(p.provider_id)?'mine':''}" title="${p.provider_name}" onerror="this.remove()">`).join('');
+
+    // Mobile: compact poster card with % badge overlaid on image
+    if(window.innerWidth <= 640){
+      return `<div class="rec-card-poster" onclick="openDetail(${item.id},'${type}')">
+        <div class="rec-card-poster-img-wrap">
+          ${poster ? `<img src="${poster}" loading="lazy">` : `<div class="no-poster"></div>`}
+        </div>
+        <div class="rec-card-poster-info">
+          <div class="rec-card-poster-text">
+            <div class="rec-card-poster-title">${esc(title||'')}</div>
+            <div class="rec-card-poster-sub">${year}${item.vote_average?` · ⭐${item.vote_average.toFixed(1)}`:''}</div>
+          </div>
+          <span class="rec-match-badge" style="color:${color}">${item.match}%</span>
+        </div>
+      </div>`;
+    }
+
+    // Desktop: horizontal card with bar
     return `<div class="rec-card" onclick="openDetail(${item.id},'${type}')">
       ${poster?`<img src="${poster}" class="rec-poster">`:`<div class="rec-poster"></div>`}
       <div class="rec-info">
@@ -2136,19 +2567,26 @@ async function loadRecs(){
   }
 
   // Fetch providers for top recs and update cards
-  document.getElementById('movie-recs-list').innerHTML=movieRecs.length?movieRecs.map(i=>recCardHtml(i,'movie')).join(''):'<div style="color:var(--text3);font-size:0.83rem;padding:14px">Calificá más películas para obtener recomendaciones.</div>';
-  document.getElementById('tv-recs-list').innerHTML=tvRecs.length?tvRecs.map(i=>recCardHtml(i,'tv')).join(''):'<div style="color:var(--text3);font-size:0.83rem;padding:14px">Calificá más series para obtener recomendaciones.</div>';
+  const isMobile = window.innerWidth <= 640;
+  const wrapRecs = (cards, emptyMsg) => cards.length
+    ? (isMobile ? `<div class="recs-hscroll">${cards}</div>` : cards)
+    : `<div style="color:var(--text3);font-size:0.83rem;padding:14px">${emptyMsg}</div>`;
+  document.getElementById('movie-recs-list').innerHTML=wrapRecs(movieRecs.map(i=>recCardHtml(i,'movie')).join(''),'Calificá más películas para obtener recomendaciones.');
+  document.getElementById('tv-recs-list').innerHTML=wrapRecs(tvRecs.map(i=>recCardHtml(i,'tv')).join(''),'Calificá más series para obtener recomendaciones.');
   // Async: enrich top 8 rec cards with provider logos
   (async()=>{
     const enrichItems=async(items,type,listId)=>{
       for(const item of items.slice(0,8)){
         const prs=await getProviders(item.id,type);
         if(!prs.length) continue;
-        const card=document.querySelector(`#${listId} .rec-card[onclick*="${item.id}"]`);
+        const card=document.querySelector(`#${listId} [onclick*="${item.id}"]`);
         if(!card) continue;
         const logos=prs.map(p=>`<img src="${IMG_BASE}original${p.logo_path}" class="rec-provider-logo ${userProviders.has(p.provider_id)?'mine':''}" title="${p.provider_name}" onerror="this.remove()">`).join('');
+        // Desktop card has .rec-info; mobile poster card skips provider logos (no space)
+        const infoEl=card.querySelector('.rec-info');
+        if(!infoEl) continue;
         let row=card.querySelector('.rec-providers');
-        if(!row){row=document.createElement('div');row.className='rec-providers';card.querySelector('.rec-info').appendChild(row);}
+        if(!row){row=document.createElement('div');row.className='rec-providers';infoEl.appendChild(row);}
         row.innerHTML=logos;
       }
     };
@@ -2257,18 +2695,35 @@ function openFullSearch(q){
     headerSearch.style.pointerEvents = 'none';
   }
 
-  // 5. Pone el cursor en la barra grande listo para escribir
+  // 5. Restore filter sidebar collapsed state
+  const fc = localStorage.getItem('filtersCollapsed');
+  const sidebar = document.getElementById('sf-filters');
+  if(fc === '1') sidebar.classList.add('collapsed');
+  else sidebar.classList.remove('collapsed');
+
+  // 6. Pone el cursor en la barra grande listo para escribir
   setTimeout(() => sfInput.focus(), 100);
 }
 
+function toggleFilters(){
+  const sidebar = document.getElementById('sf-filters');
+  sidebar.classList.toggle('collapsed');
+  // Persist state
+  localStorage.setItem('filtersCollapsed', sidebar.classList.contains('collapsed') ? '1' : '0');
+}
+
 function closeFullSearch(){ 
-  document.getElementById('search-fullscreen').classList.remove('open'); 
+  document.getElementById('search-fullscreen').classList.remove('open');
+  document.body.classList.remove('fs-open'); 
   document.body.style.overflow = '';
   
   // Limpiar ambas barras de búsqueda
   document.getElementById('sf-input').value = '';
   document.getElementById('search-input').value = '';
   document.getElementById('search-results').classList.remove('open');
+  
+  // Limpiar TODOS los filtros
+  clearFilters();
   
   // Vuelve a mostrar la barra de búsqueda del header
   const headerSearch = document.querySelector('.search-bar');
@@ -2700,7 +3155,7 @@ async function loadDice(target = 'both') {
         <div class="dice-title" style="position:relative;z-index:2;color:var(--text2);font-size:1rem;">Función bloqueada</div>
         <div class="dice-meta" style="position:relative;z-index:2;">Calificá al menos ${MIN_RATED} películas o series<br>para activar la ruleta 🎬</div>`;
       if (target === 'both' || target === 'safe') {
-        document.getElementById('dice-safe').innerHTML = emptyHtml('🎲 Apuesta Segura', '');
+        document.getElementById('dice-safe').innerHTML = emptyHtml('🎯 Apuesta Segura', '');
         document.getElementById('dice-safe').onclick = null;
       }
       if (target === 'both' || target === 'discovery') {
@@ -2728,9 +3183,9 @@ async function loadDice(target = 'both') {
         const recs = (d.results || []).filter(i => !seenIds.has(i.id));
         if (!recs.length) throw new Error('No hay recs');
         const pick = recs[Math.floor(Math.random() * Math.min(10, recs.length))];
-        renderDiceCard('safe', pick, '🎲 Apuesta Segura', `Porque te gustó "${seed.title || seed.name}"`, 'movie');
+        renderDiceCard('safe', pick, '🧨 Apuesta Segura', `Porque te gustó "${seed.title || seed.name}"`, 'movie');
       } catch (e) {
-        renderDiceCard('safe', null, '🎲 Apuesta Segura', 'Tirá el dado otra vez', '');
+        renderDiceCard('safe', null, '🧨 Apuesta Segura', 'Tirá el dado otra vez', '');
       }
     }
 
@@ -2815,7 +3270,7 @@ function renderRadars() {
     // Labels fijos para el estado vacío
     const emptyGenreLabels = ['Acción','Drama','Comedia','Terror','Sci-Fi','Aventura','Thriller','Animación'];
     const emptyDecadeLabels = ['Clásicos (<60s)','1960s','1970s','1980s','1990s','2000s','2010s','2020s+'];
-    const emptyRatingLabels = ['Aplazos (1-3)','Nota 4','Nota 5','Nota 6','Nota 7','Nota 8','Nota 9','Obra Maestra (10)'];
+    const emptyRatingLabels = ['Obra Maestra (10)','Aplazos (1-3)','Nota 4','Nota 5','Nota 6','Nota 7','Nota 8','Nota 9'];
     const zeros8 = [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3];
 
     if (isEmpty) {
@@ -2848,7 +3303,7 @@ function renderRadars() {
       else decCounts['2020s+']++;
     });
 
-    const ratCounts = {'Aplazos (1-3)':0, 'Nota 4':0, 'Nota 5':0, 'Nota 6':0, 'Nota 7':0, 'Nota 8':0, 'Nota 9':0, 'Obra Maestra (10)':0};
+    const ratCounts = {'Obra Maestra (10)':0, 'Aplazos (1-3)':0, 'Nota 4':0, 'Nota 5':0, 'Nota 6':0, 'Nota 7':0, 'Nota 8':0, 'Nota 9':0};
     items.forEach(i => {
       const r = Math.round(i.rating);
       if (r <= 3) ratCounts['Aplazos (1-3)']++;
