@@ -196,7 +196,6 @@
     border:1px solid var(--border);
     transition:transform 0.18s;
     overflow:hidden;
-    scroll-snap-align:start;
   }
   .rec-card-poster:active{ transform:scale(0.96); }
   /* Image wrapper: positioning context for badge */
@@ -260,7 +259,6 @@
     padding-bottom:8px;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
-    scroll-snap-type:x mandatory;
     /* Critical: must not expand parent */
     min-width:0;
     width:100%;
@@ -268,10 +266,8 @@
   .recs-hscroll::-webkit-scrollbar{ display:none; }
   @media(max-width:640px){ .recs-more-btn{ display:none !important; } }
   .recs-pull-card{
-    flex:0 0 270px;
-    height:202px;
-    scroll-snap-align:start;
-    scroll-snap-stop:always;
+    flex:0 0 135px;
+    aspect-ratio:2/3;
     border-radius:8px;
     background:var(--bg3);
     border:1px solid var(--border);
@@ -2653,7 +2649,7 @@ function loadMoreRecs(type) {
     ? buildHscroll(shown, type, hasMore)
     : shown.map(i=>recCardHtml(i,type)).join('');
   document.getElementById(moreId).style.display = hasMore ? 'flex' : 'none';
-  if(isMobile) setTimeout(()=>attachHscrollListener(type), 50);
+  if(isMobile) attachHscrollListener(type);
 }
 
 async function loadRecs(){
@@ -2742,13 +2738,13 @@ async function loadRecs(){
   // Fetch providers for top recs and update cards
   const isMobile = window.innerWidth <= 640;
   const wrapRecs = (items, type, emptyMsg) => items.length
-    ? (isMobile ? buildHscroll(items, type, window['_'+type+'RecsAll'].length >= 9) : items.map(i=>recCardHtml(i,type)).join(''))
+    ? (isMobile ? buildHscroll(items, type, window['_'+type+'RecsAll'].length > items.length) : items.map(i=>recCardHtml(i,type)).join(''))
     : `<div style="color:var(--text3);font-size:0.83rem;padding:14px">${emptyMsg}</div>`;
   document.getElementById('movie-recs-list').innerHTML=wrapRecs(movieRecs,'movie','Calificá más películas para obtener recomendaciones.');
   document.getElementById('tv-recs-list').innerHTML=wrapRecs(tvRecs,'tv','Calificá más series para obtener recomendaciones.');
   document.getElementById('movie-recs-more').style.display = movieRecsAll.length >= 9 ? 'flex' : 'none';
   document.getElementById('tv-recs-more').style.display = tvRecsAll.length >= 9 ? 'flex' : 'none';
-  if(isMobile) { setTimeout(()=>{ attachHscrollListener('movie'); attachHscrollListener('tv'); }, 50); }
+  if(isMobile) { attachHscrollListener('movie'); attachHscrollListener('tv'); }
   // Async: enrich top 8 rec cards with provider logos
   (async()=>{
     const enrichItems=async(items,type,listId)=>{
