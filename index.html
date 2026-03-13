@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cinematecaz Personal</title>
+<title>Cinematecaz</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#c9a84c">
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2503/2503508.png">
@@ -90,7 +90,7 @@
   .result-title{font-weight:500;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .result-meta{font-size:0.73rem;color:var(--text2);margin-top:2px;}
   .result-type{font-size:0.68rem;font-weight:600;padding:2px 7px;border-radius:10px;text-transform:uppercase;letter-spacing:0.05em;flex-shrink:0;}
-  .type-movie{background:rgba(201,168,76,0.15);color:var(--gold);}
+  .type-movie{background:rgba(249,115,22,0.15);color:#f97316;}
   .type-tv{background:rgba(76,175,120,0.15);color:var(--green);}
 
   /* LAYOUT */
@@ -102,8 +102,8 @@
   .section-title{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;}
   .section-count{font-size:0.78rem;color:var(--text3);font-family:'DM Mono',monospace;}
   .filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;}
-  #series-status-row{flex-wrap:nowrap;}
-  #series-status-row .filter-btn{flex:1;text-align:center;}
+  #series-status-row .filter-btn{text-align:center;}
+  .sort-wrap{ order:1; }
   .filter-btn{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 13px;color:var(--text2);cursor:pointer;font-size:0.78rem;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
   .filter-btn:hover,.filter-btn.active{color:var(--gold);border-color:var(--gold);background:var(--glow);}
 
@@ -154,14 +154,14 @@
   .list-layout{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
   .list-col h2{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
   .list-col .col-sub{font-size:0.72rem;color:var(--text3);font-weight:400;font-family:'DM Sans',sans-serif;}
-  .list-item{display:flex;gap:10px;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:9px 11px;margin-bottom:9px;transition:all 0.2s;}
+  .list-item{display:flex;gap:14px;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:11px 14px;margin-bottom:10px;transition:all 0.2s;}
   .list-item:hover{background:var(--bg4);border-color:rgba(201,168,76,0.25);}
-  .list-item-poster{width:40px;height:60px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg4);}
+  .list-item-poster{width:84px;height:126px;border-radius:7px;object-fit:cover;flex-shrink:0;background:var(--bg4);cursor:pointer;}
   .list-item-info{flex:1;min-width:0;}
-  .list-item-title{font-weight:600;font-size:0.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
-  .list-item-sub{font-size:0.7rem;color:var(--text2);}
-  .list-item-actions{display:flex;gap:5px;flex-shrink:0;}
-  .icon-btn{background:none;border:1px solid var(--border);border-radius:5px;padding:4px 7px;color:var(--text2);cursor:pointer;font-size:0.78rem;transition:all 0.15s;}
+  .list-item-title{font-weight:600;font-size:1rem;margin-bottom:4px;}
+  .list-item-sub{font-size:0.78rem;color:var(--text2);}
+  .list-item-actions{display:flex;gap:6px;flex-shrink:0;align-items:center;}
+  .icon-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 9px;color:var(--text2);cursor:pointer;font-size:0.82rem;transition:all 0.15s;}
   .icon-btn:hover{border-color:var(--gold);color:var(--gold);}
   .icon-btn.danger:hover{border-color:var(--accent);color:var(--accent);}
   .drag-handle{cursor:grab;color:var(--text3);font-size:0.9rem;padding:0 3px;flex-shrink:0;user-select:none;}
@@ -170,20 +170,21 @@
 
   /* RECS */
   .recs-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+  .recs-column{min-width:0;overflow:hidden;}
   .recs-column h2{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-  .rec-card{display:flex;gap:11px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:9px;margin-bottom:9px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+  .rec-card{display:flex;gap:16px;background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:13px;margin-bottom:11px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
   .rec-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:background 0.2s;}
   .rec-card:hover{background:var(--bg4);transform:translateX(3px);}
   .rec-card:hover::before{background:var(--gold);}
-  .rec-poster{width:46px;height:69px;border-radius:5px;object-fit:cover;flex-shrink:0;background:var(--bg4);}
-  .rec-info{flex:1;min-width:0;}
-  .rec-title{font-weight:600;font-size:0.86rem;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .rec-sub{font-size:0.7rem;color:var(--text2);margin-bottom:5px;}
-  .match-bar{display:flex;align-items:center;gap:7px;}
-  .match-bar-track{flex:1;height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+  .rec-poster{width:84px;height:126px;border-radius:7px;object-fit:cover;flex-shrink:0;background:var(--bg4);}
+  .rec-info{flex:1;min-width:0;overflow:hidden;}
+  .rec-title{font-weight:600;font-size:1.05rem;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+  .rec-sub{font-size:0.8rem;color:var(--text2);margin-bottom:8px;}
+  .match-bar{display:flex;align-items:center;gap:8px;}
+  .match-bar-track{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
   .match-bar-fill{height:100%;border-radius:2px;transition:width 0.6s;}
-  .match-pct{font-family:'DM Mono',monospace;font-size:0.7rem;font-weight:600;min-width:30px;}
-  .match-reasons{font-size:0.68rem;color:var(--text3);margin-top:3px;}
+  .match-pct{font-family:'DM Mono',monospace;font-size:1.05rem;font-weight:700;white-space:nowrap;}
+  .match-reasons{font-size:0.76rem;color:var(--text3);margin-top:5px;}
 
   /* ── Recs mobile: poster card variant ── */
   /* ── Recs mobile: poster card ── */
@@ -195,6 +196,7 @@
     border:1px solid var(--border);
     transition:transform 0.18s;
     overflow:hidden;
+    scroll-snap-align:start;
   }
   .rec-card-poster:active{ transform:scale(0.96); }
   /* Image wrapper: positioning context for badge */
@@ -248,6 +250,7 @@
     border-radius:4px;
     padding:2px 4px;
   }
+  @media(max-width:640px){ .rec-match-badge{ font-size:0.75rem; padding:3px 6px; } }
   /* Horizontal scroll container for recs on mobile */
   .recs-hscroll{
     display:flex;
@@ -257,11 +260,48 @@
     padding-bottom:8px;
     -webkit-overflow-scrolling:touch;
     scrollbar-width:none;
+    scroll-snap-type:x mandatory;
     /* Critical: must not expand parent */
     min-width:0;
     width:100%;
   }
   .recs-hscroll::-webkit-scrollbar{ display:none; }
+  @media(max-width:640px){ .recs-more-btn{ display:none !important; } }
+  .recs-pull-card{
+    flex:0 0 270px;
+    height:202px;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+    border-radius:8px;
+    background:var(--bg3);
+    border:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    color:var(--text3);
+    font-size:0.62rem;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    opacity:0.4;
+    transition:opacity 0.25s, color 0.25s, border-color 0.25s;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .recs-pull-card.ready{
+    opacity:1;
+    color:var(--gold);
+    border-color:rgba(201,168,76,0.4);
+  }
+  .recs-pull-arrow{
+    font-size:2rem;
+    line-height:1;
+    transition:transform 0.3s;
+  }
+  .recs-pull-card.ready .recs-pull-arrow{
+    transform:translateX(5px);
+  }
 
   /* MODAL */
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(8px);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity 0.25s;}
@@ -287,6 +327,9 @@
   .pw-header{display:flex;align-items:center;gap:10px;padding:13px 18px;cursor:pointer;user-select:none;transition:background 0.15s;}
   .pw-header:hover{background:rgba(74,158,255,0.06);}
   .pw-title{font-size:0.72rem;color:var(--blue);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;white-space:nowrap;}
+  #rating-widget .pw-title{color:var(--gold);}
+  #rating-widget .pw-pill.active{color:var(--gold);border-color:rgba(201,168,76,0.4);background:rgba(201,168,76,0.08);}
+  #rating-widget .pw-header:hover{background:rgba(201,168,76,0.06);}
   .pw-summary{display:flex;gap:6px;flex:1;flex-wrap:wrap;}
   .pw-pill{font-size:0.75rem;font-family:'DM Mono',monospace;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:2px 8px;}
   .pw-pill.active{color:var(--blue);border-color:rgba(74,158,255,0.4);background:rgba(74,158,255,0.08);}
@@ -331,18 +374,18 @@
   .status-btn.none.active{background:rgba(255,255,255,0.06);border-color:var(--text3);color:var(--text3);font-weight:600;}
 
   /* Rating widget */
-  .rating-widget{background:var(--bg4);border-radius:11px;padding:16px 20px;border:1px solid var(--border);margin-bottom:11px;}
   .rating-label{font-size:0.76rem;color:var(--text2);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;}
   .rating-display{display:flex;align-items:center;gap:16px;}
   .rating-number{font-family:'Playfair Display',serif;font-size:2.6rem;font-weight:700;color:var(--gold);line-height:1;min-width:52px;}
   .rating-number span{font-size:1rem;color:var(--text3);}
   .rating-slider{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:linear-gradient(to right,var(--gold) 0%,var(--gold) var(--pct,0%),var(--bg3) var(--pct,0%));outline:none;cursor:pointer;}
+  .btn-rate{flex:2;background:linear-gradient(135deg,var(--gold),var(--amber));color:#1a1206;border:none;border-radius:var(--radius);padding:11px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;font-size:0.86rem;transition:opacity 0.2s;}
+  .btn-rate:hover{opacity:0.9;}
   .rating-slider::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:var(--gold2);border:2px solid var(--bg);box-shadow:0 0 8px rgba(201,168,76,0.5);cursor:pointer;}
 
   /* Modal actions */
   .modal-action-row{display:flex;gap:8px;}
-  .btn-rate{flex:2;background:linear-gradient(135deg,var(--gold),var(--amber));color:#1a1206;border:none;border-radius:var(--radius);padding:11px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;font-size:0.86rem;transition:opacity 0.2s;}
-  .btn-rate:hover{opacity:0.9;}
+
   .btn-save-toggle{flex:1;background:none;border:1px solid var(--blue);border-radius:var(--radius);padding:11px;color:var(--blue);cursor:pointer;font-size:0.82rem;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
   .btn-save-toggle:hover,.btn-save-toggle.saved{background:rgba(74,158,255,0.15);}
   .btn-delete{flex:0 0 42px;background:none;border:1px solid var(--accent);border-radius:var(--radius);padding:11px;color:var(--accent);cursor:pointer;font-size:0.86rem;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
@@ -531,7 +574,7 @@
   .provider-pill-none{font-size:0.78rem;color:var(--text3);}
 
   /* PROVIDER BADGE on rec cards */
-  .rec-providers{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;}
+  .rec-providers{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;}
   .rec-provider-logo{width:16px;height:16px;border-radius:3px;object-fit:cover;opacity:0.85;}
   .rec-provider-logo.mine{opacity:1;outline:1.5px solid var(--green);border-radius:3px;}
   ::-webkit-scrollbar{width:5px;height:5px;}
@@ -721,9 +764,10 @@
     .list-col h2{ font-size:1rem; margin-bottom:10px; }
     /* List items: constrain to screen */
     .list-item{ flex-wrap:nowrap; min-width:0; }
-    .list-item-info{ min-width:0; flex:1; overflow:hidden; }
+    .list-item-poster{ width:40px; height:60px; border-radius:5px; }
+    .list-item-info{ min-width:0; flex:1; overflow:hidden; max-width:calc(100vw - 180px); }
     .list-item-actions{ flex-shrink:0; }
-    .list-item-title{ font-size:0.8rem; }
+    .list-item-title{ font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:25ch; display:block; }
     .list-item-sub{ font-size:0.65rem; }
 
     /* DICE */
@@ -774,8 +818,13 @@
     #settings-overlay.open .settings-panel{ transform:translateY(0); }
 
     /* Dual range: center on mobile */
+    #series-status-wrap{ order:0; }
+    .sort-wrap{ order:0; }
+    #series-status-row{flex-wrap:nowrap;}
+    #series-status-row .filter-btn{flex:1;}
     .filters-container{ flex-direction:column; align-items:stretch; gap:14px; padding:8px 0 16px; }
-    .filters-container > div{ width:100% !important; box-sizing:border-box; padding:0 18px; }
+    .filters-container > div:not(.sort-wrap){ width:100% !important; box-sizing:border-box; padding:0 18px; }
+    .sort-wrap{ box-sizing:border-box; padding:0 18px; }
     .sort-wrap{ align-items:flex-start !important; margin-left:0 !important; }
     .sort-select{ width:100%; }
     /* FILTER ROW — scroll horizontal sin wrap */
@@ -1219,7 +1268,7 @@
         </select>
       </div>
 
-      <div style="flex-shrink:0;">
+      <div id="series-status-wrap" style="flex-shrink:0;">
         <label class="filter-row-label">Estado de la serie</label>
         <div class="filter-row" id="series-status-row">
           <button class="filter-btn active" data-status="all" onclick="setSeriesStatus(this,'all')">Todas</button>
@@ -1239,6 +1288,9 @@
 
   <!-- ══ MI LISTA ══ -->
   <div class="page" id="tab-milista">
+    <div class="section-header">
+      <div class="section-title">Mi Lista</div>
+    </div>
     <div class="list-layout">
       <div class="list-col">
         <h2>🔖 Guardados <span class="col-sub" id="saved-sub"></span></h2>
@@ -1270,11 +1322,13 @@
         <h2>🎬 Películas para vos</h2>
         <div id="movie-recs-list"></div>
         <div class="loading-row" id="movie-recs-loading" style="display:none"><div class="spinner"></div></div>
+        <button class="filter-btn recs-more-btn" id="movie-recs-more" style="display:none;width:100%;margin-top:4px;justify-content:center;" onclick="loadMoreRecs('movie')">Ver más películas</button>
       </div>
       <div class="recs-column">
         <h2>📺 Series para vos</h2>
         <div id="tv-recs-list"></div>
         <div class="loading-row" id="tv-recs-loading" style="display:none"><div class="spinner"></div></div>
+        <button class="filter-btn recs-more-btn" id="tv-recs-more" style="display:none;width:100%;margin-top:4px;justify-content:center;" onclick="loadMoreRecs('tv')">Ver más series</button>
       </div>
     </div>
   </div>
@@ -1635,6 +1689,8 @@ async function openDetail(id, type) {
     const collectionId = details.belongs_to_collection ? details.belongs_to_collection.id : null;
     const existing = rated[id];
     const currentRating = existing ? existing.rating : 5;
+    const ratingActive = !!existing;
+
     const isSaved = !!saved[id];
     
     // Obtenemos el total de temporadas para las series
@@ -1765,13 +1821,21 @@ async function openDetail(id, type) {
 
         ${genres.length ? `<div class="modal-genres">${genres.map(g => `<span class="modal-genre-tag">${g.name}</span>`).join('')}</div>` : ''}
 
-        ${progressHtml} <div class="rating-widget" style="background: var(--bg4); border: 1px solid var(--gold); margin: 15px 0;">
-          <div class="rating-label">Tu calificación</div>
-          <div class="rating-display">
-            <div class="rating-number" id="modal-rating-display">${currentRating}<span>/10</span></div>
-            <input type="range" class="rating-slider" min="0" max="10" step="0.5" value="${currentRating}" id="modal-rating-slider" style="--pct:${currentRating * 10}%" oninput="updateRatingDisplay(this)">
+        ${progressHtml} <div class="progress-widget ${ratingActive ? 'expanded' : ''}" id="rating-widget" style="margin: 15px 0; border-color: var(--gold);">
+          <div class="pw-header" onclick="toggleRatingExpand()">
+            <div class="pw-title">Tu calificación</div>
+            <div class="pw-summary">
+              <span class="pw-pill ${ratingActive ? 'active' : ''}" id="rating-header-pill">${ratingActive ? currentRating + '/10' : '-/10'}</span>
+            </div>
+            <span class="pw-chevron">›</span>
           </div>
-          <button class="btn-rate" onclick="rateItem()" style="margin-top:10px; width:100%;">${existing ? '✏️ Actualizar' : '⭐ Guardar'}</button>
+          <div class="pw-body">
+            <div class="rating-display" style="padding:4px 0 10px;">
+              <div class="rating-number" id="modal-rating-display">${currentRating}<span>/10</span></div>
+              <input type="range" class="rating-slider" min="0" max="10" step="0.5" value="${currentRating}" id="modal-rating-slider" style="--pct:${currentRating * 10}%" oninput="updateRatingDisplay(this)">
+            </div>
+            <button class="btn-rate" onclick="rateItem()" style="width:100%;">${existing ? '✏️ Actualizar' : '⭐ Guardar'}</button>
+          </div>
         </div>
 
         ${trailerBtn}
@@ -1806,6 +1870,17 @@ async function openDetail(id, type) {
 
 // Caché de conteos de episodios por temporada: { showId: { season: count } }
 const epCountCache = {};
+const totalEpCache = {}; // {showId: totalEpisodeCount}
+
+async function getTotalEps(showId) {
+  if (totalEpCache[showId]) return totalEpCache[showId];
+  try {
+    const d = await fetch(`${API_BASE}/tv/${showId}?api_key=${API_KEY}&language=es-AR`).then(r=>r.json());
+    const total = d.number_of_episodes || 0;
+    if (total > 0) totalEpCache[showId] = total;
+    return total;
+  } catch(e) { return 0; }
+}
 
 function getProgressPills(showId, totalSeasons) {
   const prog = progress[showId] || {};
@@ -1909,29 +1984,24 @@ function onEpCheck(showId, season, ep, epCount, isChecked) {
   if (currentModal?.backdrop_path) progress[showId].backdrop_path = currentModal.backdrop_path;
 
   // Auto-estado
-  autoUpdateStatus(showId);
-  updateProgressUI(showId, currentModal?.seasons_total || 1);
+  autoUpdateStatus(showId).then(() => { saveAll(); renderCW(); renderMySeries(); updateProgressUI(showId, currentModal?.seasons_total || 1); });
 }
 
-function autoUpdateStatus(showId) {
+async function autoUpdateStatus(showId) {
   const prog = progress[showId];
   if (!prog) return;
-  const totalSeasons = prog.seasons_total || currentModal?.seasons_total || 1;
   const checkedEps = prog.checkedEps || {};
   const totalChecked = Object.values(checkedEps).flat().length;
 
   if (totalChecked === 0) {
-    // Sin episodios: si estaba viendo → nada; si estaba pausada → se mantiene
     if (prog.status === 'watching') prog.status = '';
   } else {
-    // Verificar si están todos los eps de todas las temporadas
-    let allDone = true;
-    for (let s = 1; s <= totalSeasons; s++) {
-      const cached = epCountCache[currentModal?.id]?.[s];
-      if (!cached) { allDone = false; break; } // No sabemos el total → no marcar completo aún
-      if ((checkedEps[s] || []).length < cached) { allDone = false; break; }
+    const totalEps = await getTotalEps(showId);
+    if (totalEps > 0 && totalChecked >= totalEps) {
+      prog.status = 'completed';
+    } else if (prog.status !== 'paused') {
+      prog.status = 'watching';
     }
-    prog.status = allDone ? 'completed' : 'watching';
   }
 
   // Actualizar botones de estado visual
@@ -2007,6 +2077,10 @@ function saveProgress() {
   saveAll(); renderCW(); renderMySeries();
 }
 
+function toggleRatingExpand() {
+  document.getElementById('rating-widget')?.classList.toggle('expanded');
+}
+
 function updateRatingDisplay(slider){
   const v=parseFloat(slider.value);
   document.getElementById('modal-rating-display').innerHTML=`${v}<span>/10</span>`;
@@ -2025,11 +2099,10 @@ async function rateItem() {
     vote_average: vote_average
   };
 
-  if (type === 'tv') {
-    // Use same path as setStatus('completed'): fetch & mark all episodes
-    await markAllEpisodes(id, currentModal.seasons_total || 1);
-  }
+  if (type === 'tv') await markAllEpisodes(id, currentModal.seasons_total || 1);
 
+  const pill = document.getElementById('rating-header-pill');
+  if (pill) { pill.textContent = rating + '/10'; pill.classList.add('active'); }
   saveAll(); 
   closeModal();
   showToast(`"${title}" → ${rating}/10 ✓`,'success');
@@ -2100,13 +2173,24 @@ const GENRE_NAMES={28:'Acción',18:'Drama',35:'Comedia',27:'Terror',878:'Sci-Fi'
 function buildProfile(){
   const items=Object.values(rated);
   if(!items.length) return null;
-  const gs={},gc={};
+  const gs={},gc={},gsM={},gcM={},gsT={},gcT={};
   let total=0,top=0;
-  items.forEach(item=>{total+=item.rating;if(item.rating>top)top=item.rating;(item.genre_ids||[]).forEach(g=>{gs[g]=(gs[g]||0)+item.rating;gc[g]=(gc[g]||0)+1;});});
-  const ga={};
+  items.forEach(item=>{
+    total+=item.rating;
+    if(item.rating>top)top=item.rating;
+    const isM=item.type==='movie';
+    (item.genre_ids||[]).forEach(g=>{
+      gs[g]=(gs[g]||0)+item.rating; gc[g]=(gc[g]||0)+1;
+      if(isM){gsM[g]=(gsM[g]||0)+item.rating;gcM[g]=(gcM[g]||0)+1;}
+      else{gsT[g]=(gsT[g]||0)+item.rating;gcT[g]=(gcT[g]||0)+1;}
+    });
+  });
+  const ga={},gaM={},gaT={};
   Object.keys(gs).forEach(g=>ga[g]=gs[g]/gc[g]);
+  Object.keys(gsM).forEach(g=>gaM[g]=gsM[g]/gcM[g]);
+  Object.keys(gsT).forEach(g=>gaT[g]=gsT[g]/gcT[g]);
   const sg=Object.entries(ga).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  return{items,count:items.length,avgRating:(total/items.length).toFixed(1),topRating:top,genreAvg:ga,genreCounts:gc,sortedGenres:sg,topGenre:sg[0]?(GENRE_NAMES[sg[0][0]]||'Variado'):'—'};
+  return{items,count:items.length,avgRating:(total/items.length).toFixed(1),topRating:top,genreAvg:ga,genreAvgMovie:gaM,genreAvgTV:gaT,genreCounts:gc,sortedGenres:sg,topGenre:sg[0]?(GENRE_NAMES[sg[0][0]]||'Variado'):'—'};
 }
 
 function updateProfile(){
@@ -2129,15 +2213,39 @@ function updateProfile(){
 }
 
 /* ── CONTINUE WATCHING ── */
-function renderCW(){
+async function enrichCWItems(items) {
+  const missing = items.filter(i => !i.title);
+  await Promise.all(missing.map(async item => {
+    try {
+      const res = await fetch(`https://api.themoviedb.org/3/tv/${item.id}?api_key=${API_KEY}&language=es-AR`);
+      const d = await res.json();
+      if (d.name) {
+        progress[item.id].title = d.name;
+        progress[item.id].type = 'tv';
+        progress[item.id].backdrop_path = d.backdrop_path || '';
+        progress[item.id].poster_path = d.poster_path || '';
+        item.title = d.name;
+        item.type = 'tv';
+        item.backdrop_path = d.backdrop_path || '';
+        item.poster_path = d.poster_path || '';
+      }
+    } catch(e) {}
+  }));
+  if (missing.length) saveAll();
+}
+
+async function renderCW(){
   const block=document.getElementById('cw-block');
   const grid=document.getElementById('cw-grid');
   const watching=Object.entries(progress).filter(([,p])=>p.status==='watching'||p.status==='paused');
-  const items=watching.map(([id,p])=>{ const r=rated[id]||{}; return {...p,...r,id:Number(id), type:r.type||p.type||'tv', title:r.title||p.title||'', backdrop_path:r.backdrop_path||p.backdrop_path||'', poster_path:r.poster_path||p.poster_path||''}; }).filter(i=>i.title&&(i.type==='tv'||!i.type));
-  document.getElementById('cw-count').textContent=`${items.length} en progreso`;
-  if(!items.length){block.style.display='none';return;}
+  const items=watching.map(([id,p])=>{ const r=rated[id]||{}; const merged={...p,...r,id:Number(id)}; merged.type=r.type||p.type||'tv'; merged.title=r.title||p.title||''; merged.backdrop_path=r.backdrop_path||p.backdrop_path||''; merged.poster_path=r.poster_path||p.poster_path||''; return merged; }).filter(i=>i.type!=='movie');
+  // Enrich missing titles from TMDB then re-render
+  if (items.some(i=>!i.title)) { await enrichCWItems(items); }
+  const valid = items.filter(i=>i.title);
+  document.getElementById('cw-count').textContent=`${valid.length} en progreso`;
+  if(!valid.length){block.style.display='none';return;}
   block.style.display='block';
-  grid.innerHTML=items.map(item=>{
+  grid.innerHTML=valid.map(item=>{
     const bd=item.backdrop_path?`${IMG_BASE}w500${item.backdrop_path}`:'';
     const pct = (() => {
       const checkedEps = item.checkedEps || {};
@@ -2176,8 +2284,12 @@ function renderCW(){
   }).join('');
 }
 
-function markCompleted(id){
-  if(progress[id]){progress[id].status='completed';saveAll();renderCW();renderMySeries();showToast('¡Serie terminada! ✓','success');}
+async function markCompleted(id){
+  if(!progress[id]) return;
+  const totalSeasons = progress[id].seasons_total || 1;
+  await markAllEpisodes(id, totalSeasons);
+  saveAll(); renderCW(); renderMySeries();
+  showToast('¡Serie terminada! ✓','success');
 }
 
 /* ── NEW RELEASES ── */
@@ -2199,8 +2311,9 @@ async function loadNewReleases(){
     const merged=[];
     // Aumentamos el loop para asegurar 16 ítems en total
     for(let i=0;i<12;i++){if(movies[i])merged.push(movies[i]);if(tvs[i])merged.push(tvs[i]);}
-    document.getElementById('releases-count').textContent=`${merged.slice(0,18).length} estrenos`;
-    grid.innerHTML=merged.slice(0,18).map(item=>makeCard(item,false)).join('');
+    const relCount = window.innerWidth <= 640 ? 18 : 16;
+    document.getElementById('releases-count').textContent=`${merged.slice(0,relCount).length} estrenos`;
+    grid.innerHTML=merged.slice(0,relCount).map(item=>makeCard(item,false)).join('');
   }catch(e){ grid.innerHTML=`<div style="color:var(--accent);font-size:0.83rem;padding:16px">Error al cargar estrenos.</div>`; }
 }
 
@@ -2231,15 +2344,14 @@ function renderSaved(){
     const year=(item.release_date||'').slice(0,4);
     const inQueue=upNext.map(String).includes(String(item.id));
     return `<div class="list-item">
-      ${poster?`<img src="${poster}" class="list-item-poster">`:`<div class="list-item-poster"></div>`}
+      ${poster?`<img src="${poster}" class="list-item-poster" onclick="openDetail(${item.id},'${item.type}')">`:`<div class="list-item-poster" onclick="openDetail(${item.id},'${item.type}')"></div>`}
       <div class="list-item-info">
-        <div class="list-item-title">${esc((item.title||'').length>25?(item.title||'').slice(0,25)+'…':item.title||'')}</div>
-        <div class="list-item-sub">${item.type==='movie'?'🎬':'📺'} ${year}</div>
+        <div class="list-item-title">${esc(item.title||'')}</div>
+        <div class="list-item-sub">${item.type==='movie'?'🎬︎':'📺︎'} ${year}</div>
       </div>
       <div class="list-item-actions">
-        <button class="icon-btn" onclick="openDetail(${item.id},'${item.type}')">🔍</button>
-        ${!inQueue?`<button class="icon-btn" title="Agregar a Up Next" onclick="addToUpNext(${item.id})">⏭</button>`:`<button class="icon-btn" style="color:var(--blue);border-color:rgba(74,158,255,0.4)" disabled>▶</button>`}
-        <button class="icon-btn danger" onclick="removeFromSaved(${item.id})">✕</button>
+        ${!inQueue?`<button class="icon-btn" title="Agregar a Up Next" onclick="addToUpNext(${item.id})">⏭︎</button>`:`<button class="icon-btn" style="color:var(--blue);border-color:rgba(74,158,255,0.4)" disabled>▶︎</button>`}
+        <button class="icon-btn danger" onclick="removeFromSaved(${item.id})">✕︎</button>
       </div>
     </div>`;
   }).join('');
@@ -2258,14 +2370,13 @@ function renderUpNext(){
     return `<div class="list-item" draggable="true" data-id="${id}" data-idx="${idx}"
       ondragstart="dragStart(event)" ondragover="dragOver(event)" ondrop="dragDrop(event)" ondragleave="dragLeave(event)">
       <div class="drag-handle">⠿</div>
-      ${poster?`<img src="${poster}" class="list-item-poster">`:`<div class="list-item-poster"></div>`}
+      ${poster?`<img src="${poster}" class="list-item-poster" onclick="openDetail(${id},'${item.type}')">`:`<div class="list-item-poster" onclick="openDetail(${id},'${item.type}')"></div>`}
       <div class="list-item-info">
-        <div class="list-item-title">${idx+1}. ${esc((item.title||'').length>29?(item.title||'').slice(0,29)+'…':item.title||'')}</div>
-        <div class="list-item-sub">${item.type==='movie'?'🎬':'📺'} ${year}</div>
+        <div class="list-item-title">${idx+1}. ${esc(item.title||'')}</div>
+        <div class="list-item-sub">${item.type==='movie'?'🎬︎':'📺︎'} ${year}</div>
       </div>
       <div class="list-item-actions">
-        <button class="icon-btn" onclick="openDetail(${id},'${item.type}')">🔍</button>
-        <button class="icon-btn danger" onclick="removeFromUpNext(${id})">✕</button>
+        <button class="icon-btn danger" onclick="removeFromUpNext(${id})">✕︎</button>
       </div>
     </div>`;
   }).filter(Boolean).join('');
@@ -2323,7 +2434,8 @@ function makeCard(item,showMatch){
 
 function renderRecent(){
   // Ahora cortamos en 16 en lugar de 12
-  const items = Object.values(rated).sort((a,b) => (b.ratedAt || 0) - (a.ratedAt || 0)).slice(0, 18);
+  const recentCount = window.innerWidth <= 640 ? 18 : 16;
+  const items = Object.values(rated).sort((a,b) => (b.ratedAt || 0) - (a.ratedAt || 0)).slice(0, recentCount);
   
   document.getElementById('recent-count').textContent=`${Object.keys(rated).length} en total`;
   const grid=document.getElementById('recent-grid');
@@ -2411,7 +2523,8 @@ async function loadTrending(){
     const r=await fetch(`${API_BASE}/trending/all/day?api_key=${API_KEY}&language=en-US`);
     const data=await r.json();
     // Ahora cortamos en 16 en lugar de 12
-    const items=(data.results||[]).filter(i=>i.media_type==='movie'||i.media_type==='tv').slice(0,18);
+    const trendCount = window.innerWidth <= 640 ? 18 : 16;
+  const items=(data.results||[]).filter(i=>i.media_type==='movie'||i.media_type==='tv').slice(0,trendCount);
     grid.innerHTML=items.map(item=>makeCard(item,false)).join('');
   }catch(e){grid.innerHTML=`<div style="color:var(--accent);font-size:0.83rem;padding:18px">Error. Verificá tu API Key.</div>`;}
 }
@@ -2421,11 +2534,14 @@ function calcMatch(c, p) {
   if (!p?.genreAvg) return 0;
   const genres = c.genre_ids || [];
   if (!genres.length) return 50;
+  // Use type-specific profile so TV isn't penalized by a movie-heavy history
+  const isTV = !!(c.name || c.first_air_date);
+  const ga = isTV ? (p.genreAvgTV || p.genreAvg) : (p.genreAvgMovie || p.genreAvg);
   
   let score = 0, weight = 0;
   genres.forEach(g => {
-    if (p.genreAvg[g]) {
-      score += p.genreAvg[g] * 10;
+    if (ga[g]) {
+      score += ga[g] * 10;
       weight += 1;
     }
   });
@@ -2454,15 +2570,90 @@ function calcMatch(c, p) {
 }
 
 function matchReasons(c, p) {
-  // Solo se activa si comparten exactamente el mismo Collection ID oficial
-  if (c.isSaga && c.sourceItem) return '🎯 Colección de ' + esc(c.sourceItem.title || c.sourceItem.name);
-  
-  // Si es una recomendación general basada en una semilla
-  if (c.sourceItem) return '🎯 Porque te gustó ' + esc(c.sourceItem.title || c.sourceItem.name);
-  
-  // Si es por afinidad de género
+  if (c.isSaga && c.sourceItem) return '🔗 Colección de ' + esc(c.sourceItem.title || c.sourceItem.name);
+  if (c.sourceItem) return '💡 Porque te gustó ' + esc(c.sourceItem.title || c.sourceItem.name);
   const top = (c.genre_ids || []).filter(g => p.genreAvg[g] && p.genreAvg[g] >= 7).map(g => GENRE_NAMES[g] || g).slice(0, 3);
-  return top.length ? '🎯 ' + top.join(' · ') : '';
+  return top.length ? '✦ Basado en tus preferencias · ' + top.join(' · ') : '✦ Basado en tus preferencias';
+}
+
+function recCardHtml(item,type,providers=[]){
+  const poster=item.poster_path?`${IMG_BASE}w185${item.poster_path}`:'';
+  const title=type==='movie'?item.title:item.name;
+  const year=(type==='movie'?item.release_date:item.first_air_date||'').slice(0,4);
+  const color=item.match>=80?'#4caf78':item.match>=60?'#f59e0b':'#a09888';
+  const provLogos=(providers||[]).map(p=>`<img src="${IMG_BASE}original${p.logo_path}" class="rec-provider-logo ${userProviders.has(p.provider_id)?'mine':''}" title="${p.provider_name}" onerror="this.remove()">`).join('');
+  if(window.innerWidth <= 640){
+    return `<div class="rec-card-poster" onclick="openDetail(${item.id},'${type}')">
+      <div class="rec-card-poster-img-wrap">
+        ${poster?`<img src="${poster}" loading="lazy">`:`<div class="no-poster"></div>`}
+      </div>
+      <div class="rec-card-poster-info">
+        <div class="rec-card-poster-text">
+          <div class="rec-card-poster-title">${esc(title||'')}</div>
+          <div class="rec-card-poster-sub">${year}${item.vote_average?` · ⭐${item.vote_average.toFixed(1)}`:''}</div>
+        </div>
+        <span class="rec-match-badge" style="color:${color}">${item.match}%</span>
+      </div>
+    </div>`;
+  }
+  return `<div class="rec-card" onclick="openDetail(${item.id},'${type}')">
+    ${poster?`<img src="${poster}" class="rec-poster">`:`<div class="rec-poster"></div>`}
+    <div class="rec-info">
+      <div class="rec-title">${esc(title||'')}</div>
+      <div class="rec-sub">${year} · ⭐ ${item.vote_average?.toFixed(1)||'—'} TMDB${(item.genre_ids||[]).slice(0,3).map(g=>GENRE_NAMES[g]).filter(Boolean).map(g=>' · '+g).join('')}</div>
+      <div class="match-bar"><div class="match-pct" style="color:${color}">${item.match}%</div><div class="match-bar-track"><div class="match-bar-fill" style="width:${item.match}%;background:${color}"></div></div></div>
+      ${item.matchReasons?`<div class="match-reasons">${esc(item.matchReasons)}</div>`:''}
+      ${provLogos?`<div class="rec-providers">${provLogos}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function buildHscroll(items, type, hasMore) {
+  const cards = items.map(i=>recCardHtml(i,type)).join('');
+  const pullCard = hasMore
+    ? `<div class="recs-pull-card" id="${type}-pull-card" onclick="loadMoreRecs('${type}')" >
+        <div class="recs-pull-arrow">›</div>
+        <span>más</span>
+       </div>`
+    : '';
+  return `<div class="recs-hscroll" id="${type}-hscroll">${cards}${pullCard}</div>`;
+}
+
+function attachHscrollListener(type) {
+  const hscroll = document.getElementById(type+'-hscroll');
+  const pullCard = document.getElementById(type+'-pull-card');
+  if(!hscroll || !pullCard) return;
+  hscroll.addEventListener('scroll', function() {
+    const cardRect = pullCard.getBoundingClientRect();
+    const containerRight = hscroll.getBoundingClientRect().right;
+    const fullyVisible = cardRect.right <= containerRight + 4;
+    const halfVisible = cardRect.left < containerRight - 20;
+    if(halfVisible) {
+      pullCard.classList.add('ready');
+    } else {
+      pullCard.classList.remove('ready');
+    }
+    if(fullyVisible) {
+      loadMoreRecs(type);
+    }
+  }, {passive:true});
+}
+
+function loadMoreRecs(type) {
+  const all = type === 'movie' ? window._movieRecsAll : window._tvRecsAll;
+  if (!all) return;
+  const shownKey = type === 'movie' ? '_movieRecsShown' : '_tvRecsShown';
+  window[shownKey] = (window[shownKey] || 10) + 10;
+  const shown = all.slice(0, window[shownKey]);
+  const listId = type === 'movie' ? 'movie-recs-list' : 'tv-recs-list';
+  const moreId = type === 'movie' ? 'movie-recs-more' : 'tv-recs-more';
+  const isMobile = window.innerWidth <= 640;
+  const hasMore = shown.length < all.length;
+  document.getElementById(listId).innerHTML = isMobile
+    ? buildHscroll(shown, type, hasMore)
+    : shown.map(i=>recCardHtml(i,type)).join('');
+  document.getElementById(moreId).style.display = hasMore ? 'flex' : 'none';
+  if(isMobile) setTimeout(()=>attachHscrollListener(type), 50);
 }
 
 async function loadRecs(){
@@ -2475,6 +2666,9 @@ async function loadRecs(){
   document.getElementById('movie-recs-list').innerHTML='';
   document.getElementById('tv-recs-list').innerHTML='';
   const topGenreIds=profile.sortedGenres.slice(0,3).map(([id])=>id);
+  // Type-specific top genres for first-10 recommendations
+  const topMovieGenreIds = Object.entries(profile.genreAvgMovie||{}).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([id])=>id);
+  const topTVGenreIds = Object.entries(profile.genreAvgTV||{}).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([id])=>id);
   // --- NUEVO: SISTEMA DE SEMILLAS DINÁMICAS ---
   // Agarramos todas tus películas favoritas (nota >= 8)
   let favs = profile.items.filter(i => i.rating >= 8);
@@ -2499,23 +2693,38 @@ async function loadRecs(){
       }catch(e){}
     }
     
-    // 2. Descubrimiento general por géneros
-    if(topGenreIds.length){
-      try{const r=await fetch(`${API_BASE}/discover/${type}?api_key=${API_KEY}&language=en-US&with_genres=${topGenreIds[0]}&sort_by=vote_average.desc&vote_count.gte=500${providerParam}`);const d=await r.json();results.push(...(d.results||[]).slice(0,10));}catch(e){}
+    // 2. Descubrimiento por géneros del mismo tipo (primeras 10 recs no contaminadas)
+    const typeGenreIds = type==='movie' ? (topMovieGenreIds.length ? topMovieGenreIds : topGenreIds) : (topTVGenreIds.length ? topTVGenreIds : topGenreIds);
+    for(const gid of typeGenreIds.slice(0,3)){
+      try{const r=await fetch(`${API_BASE}/discover/${type}?api_key=${API_KEY}&language=en-US&with_genres=${gid}&sort_by=vote_average.desc&vote_count.gte=300${providerParam}`);const d=await r.json();results.push(...(d.results||[]).slice(0,10));}catch(e){}
     }
-    if(userProviders.size>0&&topGenreIds.length>1){
-      try{const r=await fetch(`${API_BASE}/discover/${type}?api_key=${API_KEY}&language=en-US&with_genres=${topGenreIds[1]}&sort_by=vote_average.desc&vote_count.gte=200${providerParam}`);const d=await r.json();results.push(...(d.results||[]).slice(0,8));}catch(e){}
+    // 2b. Después del top 10, también buscar por géneros mixtos (cross-type)
+    for(const gid of topGenreIds.filter(id=>!typeGenreIds.includes(id)).slice(0,2)){
+      try{const r=await fetch(`${API_BASE}/discover/${type}?api_key=${API_KEY}&language=en-US&with_genres=${gid}&sort_by=vote_average.desc&vote_count.gte=300${providerParam}`);const d=await r.json();results.push(...(d.results||[]).slice(0,8));}catch(e){}
     }
-    
+
+    // 3. Fallback: top rated del tipo si aún hay pocos resultados únicos
+    const provisional = results.filter(item => !seenIds.has(item.id));
+    if(provisional.length < 20){
+      try{const r=await fetch(`${API_BASE}/${type}/top_rated?api_key=${API_KEY}&language=en-US&page=1`);const d=await r.json();results.push(...(d.results||[]).slice(0,20));}catch(e){}
+      try{const r=await fetch(`${API_BASE}/${type}/top_rated?api_key=${API_KEY}&language=en-US&page=2`);const d=await r.json();results.push(...(d.results||[]).slice(0,20));}catch(e){}
+    }
+
     const seen=new Set();
     return results.filter(item=>{if(seen.has(item.id)||seenIds.has(item.id))return false;seen.add(item.id);return true;})
       .map(item=>({...item,match:calcMatch(item,profile),matchReasons:matchReasons(item,profile)}))
-      .sort((a,b)=>b.match-a.match).slice(0,18);
+      .sort((a,b)=>b.match-a.match).slice(0,30);
   }
 
-  const[movieRecs,tvRecs]=await Promise.all([fetchRecs('movie'),fetchRecs('tv')]);
+  const[movieRecsAll,tvRecsAll]=await Promise.all([fetchRecs('movie'),fetchRecs('tv')]);
+  window._movieRecsAll = movieRecsAll;
+  window._tvRecsAll = tvRecsAll;
+  window._movieRecsShown = 10;
+  window._tvRecsShown = 10;
   document.getElementById('movie-recs-loading').style.display='none';
   document.getElementById('tv-recs-loading').style.display='none';
+  const movieRecs = movieRecsAll.slice(0,10);
+  const tvRecs = tvRecsAll.slice(0,10);
 
   // Fetch providers for rec items in bulk (best-effort, non-blocking)
   const providerCache={};
@@ -2530,49 +2739,16 @@ async function loadRecs(){
     return providerCache[id];
   }
 
-  function recCardHtml(item,type,providers=[]){
-    const poster=item.poster_path?`${IMG_BASE}w185${item.poster_path}`:'';
-    const title=type==='movie'?item.title:item.name;
-    const year=(type==='movie'?item.release_date:item.first_air_date||'').slice(0,4);
-    const color=item.match>=80?'#4caf78':item.match>=60?'#f59e0b':'#a09888';
-    const provLogos=providers.map(p=>`<img src="${IMG_BASE}original${p.logo_path}" class="rec-provider-logo ${userProviders.has(p.provider_id)?'mine':''}" title="${p.provider_name}" onerror="this.remove()">`).join('');
-
-    // Mobile: compact poster card with % badge overlaid on image
-    if(window.innerWidth <= 640){
-      return `<div class="rec-card-poster" onclick="openDetail(${item.id},'${type}')">
-        <div class="rec-card-poster-img-wrap">
-          ${poster ? `<img src="${poster}" loading="lazy">` : `<div class="no-poster"></div>`}
-        </div>
-        <div class="rec-card-poster-info">
-          <div class="rec-card-poster-text">
-            <div class="rec-card-poster-title">${esc(title||'')}</div>
-            <div class="rec-card-poster-sub">${year}${item.vote_average?` · ⭐${item.vote_average.toFixed(1)}`:''}</div>
-          </div>
-          <span class="rec-match-badge" style="color:${color}">${item.match}%</span>
-        </div>
-      </div>`;
-    }
-
-    // Desktop: horizontal card with bar
-    return `<div class="rec-card" onclick="openDetail(${item.id},'${type}')">
-      ${poster?`<img src="${poster}" class="rec-poster">`:`<div class="rec-poster"></div>`}
-      <div class="rec-info">
-        <div class="rec-title">${esc(title||'')}</div>
-        <div class="rec-sub">${year} · ⭐ ${item.vote_average?.toFixed(1)||'—'} TMDB</div>
-        <div class="match-bar"><div class="match-bar-track"><div class="match-bar-fill" style="width:${item.match}%;background:${color}"></div></div><div class="match-pct" style="color:${color}">${item.match}%</div></div>
-        ${item.matchReasons?`<div class="match-reasons">${esc(item.matchReasons)}</div>`:''}
-        ${provLogos?`<div class="rec-providers">${provLogos}</div>`:''}
-      </div>
-    </div>`;
-  }
-
   // Fetch providers for top recs and update cards
   const isMobile = window.innerWidth <= 640;
-  const wrapRecs = (cards, emptyMsg) => cards.length
-    ? (isMobile ? `<div class="recs-hscroll">${cards}</div>` : cards)
+  const wrapRecs = (items, type, emptyMsg) => items.length
+    ? (isMobile ? buildHscroll(items, type, window['_'+type+'RecsAll'].length >= 9) : items.map(i=>recCardHtml(i,type)).join(''))
     : `<div style="color:var(--text3);font-size:0.83rem;padding:14px">${emptyMsg}</div>`;
-  document.getElementById('movie-recs-list').innerHTML=wrapRecs(movieRecs.map(i=>recCardHtml(i,'movie')).join(''),'Calificá más películas para obtener recomendaciones.');
-  document.getElementById('tv-recs-list').innerHTML=wrapRecs(tvRecs.map(i=>recCardHtml(i,'tv')).join(''),'Calificá más series para obtener recomendaciones.');
+  document.getElementById('movie-recs-list').innerHTML=wrapRecs(movieRecs,'movie','Calificá más películas para obtener recomendaciones.');
+  document.getElementById('tv-recs-list').innerHTML=wrapRecs(tvRecs,'tv','Calificá más series para obtener recomendaciones.');
+  document.getElementById('movie-recs-more').style.display = movieRecsAll.length >= 9 ? 'flex' : 'none';
+  document.getElementById('tv-recs-more').style.display = tvRecsAll.length >= 9 ? 'flex' : 'none';
+  if(isMobile) { setTimeout(()=>{ attachHscrollListener('movie'); attachHscrollListener('tv'); }, 50); }
   // Async: enrich top 8 rec cards with provider logos
   (async()=>{
     const enrichItems=async(items,type,listId)=>{
@@ -3183,9 +3359,9 @@ async function loadDice(target = 'both') {
         const recs = (d.results || []).filter(i => !seenIds.has(i.id));
         if (!recs.length) throw new Error('No hay recs');
         const pick = recs[Math.floor(Math.random() * Math.min(10, recs.length))];
-        renderDiceCard('safe', pick, '🧨 Apuesta Segura', `Porque te gustó "${seed.title || seed.name}"`, 'movie');
+        renderDiceCard('safe', pick, '🎯 Apuesta Segura', `Porque te gustó "${seed.title || seed.name}"`, 'movie');
       } catch (e) {
-        renderDiceCard('safe', null, '🧨 Apuesta Segura', 'Tirá el dado otra vez', '');
+        renderDiceCard('safe', null, '🎯 Apuesta Segura', 'Tirá el dado otra vez', '');
       }
     }
 
@@ -3270,7 +3446,7 @@ function renderRadars() {
     // Labels fijos para el estado vacío
     const emptyGenreLabels = ['Acción','Drama','Comedia','Terror','Sci-Fi','Aventura','Thriller','Animación'];
     const emptyDecadeLabels = ['Clásicos (<60s)','1960s','1970s','1980s','1990s','2000s','2010s','2020s+'];
-    const emptyRatingLabels = ['Obra Maestra (10)','Aplazos (1-3)','Nota 4','Nota 5','Nota 6','Nota 7','Nota 8','Nota 9'];
+    const emptyRatingLabels = ['Obra Maestra (10)','De lo peor (1-3)','Floja (4)','Regular (5)','Aceptable (6)','Buena (7)','Muy buena (8)','Excelente (9)'];
     const zeros8 = [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3];
 
     if (isEmpty) {
@@ -3303,16 +3479,16 @@ function renderRadars() {
       else decCounts['2020s+']++;
     });
 
-    const ratCounts = {'Obra Maestra (10)':0, 'Aplazos (1-3)':0, 'Nota 4':0, 'Nota 5':0, 'Nota 6':0, 'Nota 7':0, 'Nota 8':0, 'Nota 9':0};
+    const ratCounts = {'Obra Maestra (10)':0, 'De lo peor (1-3)':0, 'Floja (4)':0, 'Regular (5)':0, 'Aceptable (6)':0, 'Buena (7)':0, 'Muy buena (8)':0, 'Excelente (9)':0};
     items.forEach(i => {
       const r = Math.round(i.rating);
-      if (r <= 3) ratCounts['Aplazos (1-3)']++;
-      else if (r === 4) ratCounts['Nota 4']++;
-      else if (r === 5) ratCounts['Nota 5']++;
-      else if (r === 6) ratCounts['Nota 6']++;
-      else if (r === 7) ratCounts['Nota 7']++;
-      else if (r === 8) ratCounts['Nota 8']++;
-      else if (r === 9) ratCounts['Nota 9']++;
+      if (r <= 3) ratCounts['De lo peor (1-3)']++;
+      else if (r === 4) ratCounts['Floja (4)']++;
+      else if (r === 5) ratCounts['Regular (5)']++;
+      else if (r === 6) ratCounts['Aceptable (6)']++;
+      else if (r === 7) ratCounts['Buena (7)']++;
+      else if (r === 8) ratCounts['Muy buena (8)']++;
+      else if (r === 9) ratCounts['Excelente (9)']++;
       else if (r === 10) ratCounts['Obra Maestra (10)']++;
     });
 
