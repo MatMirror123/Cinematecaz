@@ -319,7 +319,8 @@
   .modal-meta{font-size:0.76rem;color:var(--text2);display:flex;gap:10px;flex-wrap:wrap;}
   .modal-overview{font-size:0.83rem;color:var(--text2);line-height:1.7;margin-bottom:18px;}
   .modal-genres{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;}
-  .modal-genre-tag{background:var(--bg4);border:1px solid var(--border);border-radius:12px;padding:3px 9px;font-size:0.71rem;color:var(--text2);}
+  .modal-genre-tag{background:var(--bg4);border:1px solid var(--border);border-radius:12px;padding:3px 9px;font-size:0.71rem;color:var(--text2);cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+  .modal-genre-tag:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.08);}
 
   /* ── Progress tracker ── */
   .progress-widget{background:var(--bg4);border-radius:11px;border:1px solid rgba(74,158,255,0.2);margin-bottom:11px;overflow:hidden;}
@@ -575,7 +576,7 @@
   .provider-pill-none{font-size:0.78rem;color:var(--text3);}
 
   /* PROVIDER BADGE on rec cards */
-  .rec-providers{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;}
+  .rec-providers{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;padding-left:4px;}
   .rec-provider-logo{width:16px;height:16px;border-radius:3px;object-fit:cover;opacity:0.85;}
   .rec-provider-logo.mine{opacity:1;outline:1.5px solid var(--green);border-radius:3px;}
   ::-webkit-scrollbar{width:5px;height:5px;}
@@ -1310,12 +1311,16 @@
   <div class="page" id="tab-recomendaciones">
     <div class="section-header">
       <div class="section-title">Para vos</div>
-      <button class="filter-btn" onclick="loadRecs()" style="display:flex; align-items:center; gap:6px;">🔄 Refrescar</button>
+      <button class="filter-btn" onclick="loadRecs()" style="display:flex;align-items:center;gap:6px;">🔄 Refrescar</button>
     </div>
     
     <div id="recs-empty" class="empty-state" style="display:none">
       <div class="empty-icon">🔮</div>
       <div class="empty-text">Calificá al menos 3 títulos para que<br>armemos tu perfil peliculero.</div>
+    </div>
+    <div id="recs-empty-providers" class="empty-state" style="display:none">
+      <div class="empty-icon">📡</div>
+      <div class="empty-text">Seleccioná al menos un servicio de streaming<br>en ⚙ Ajustes para ver recomendaciones.</div>
     </div>
     
     <div class="recs-grid" id="recs-container">
@@ -1493,19 +1498,22 @@ let userCountry = 'AR';
 
 // All major providers with their TMDB IDs
 const ALL_PROVIDERS = [
-  {id:8, name:'Netflix', logo:'https://image.tmdb.org/t/p/original/t2yyOv40HZeVlLjYsCsPHnWLk4W.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iI0U1MDkxNCIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5OPC90ZXh0Pjwvc3ZnPg=='},
-  {id:119, name:'Prime Video', logo:'https://image.tmdb.org/t/p/original/68MNrwlkpF7WnmNPXLah69CR5xh.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwQThFMSIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QPC90ZXh0Pjwvc3ZnPg=='},
-  {id:337, name:'Disney+', logo:'https://image.tmdb.org/t/p/original/7rwgEs15tFwyR9NPQ5vpzxTj19d.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzBDMEUzRiIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5EKzwvdGV4dD48L3N2Zz4='},
-  {id:1899, name:'Max', logo:'https://image.tmdb.org/t/p/original/Ajqyt5aNxNx6bc9dYeOz7ywbbMD.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwMkJFNyIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NPC90ZXh0Pjwvc3ZnPg=='},
+  {id:8, name:'Netflix', logo:'https://image.tmdb.org/t/p/original/t2yyOv40HZeVlLjYsCsPHnWLk4W.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwMDAwMCIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNFNTA5MTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk48L3RleHQ+PC9zdmc+'},
+  {id:119, name:'Prime Video', logo:'https://image.tmdb.org/t/p/original/68MNrwlkpF7WnmNPXLah69CR5xh.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAxN2FmZiIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QPC90ZXh0Pjwvc3ZnPg=='},
+  {id:337, name:'Disney+', logo:'https://image.tmdb.org/t/p/original/7rwgEs15tFwyR9NPQ5vpzxTj19d.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzQwOTlhNiIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5EKzwvdGV4dD48L3N2Zz4='},
+  {id:1899, name:'HBO Max', logo:'https://image.tmdb.org/t/p/original/Ajqyt5aNxNx6bc9dYeOz7ywbbMD.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwMDAwMCIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5IQk88L3RleHQ+PC9zdmc+'},
   {id:350, name:'Apple TV+', logo:'https://image.tmdb.org/t/p/original/6uhKBfmtzFqOcLousHwZuzcrScK.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwMDAwMCIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BVFY8L3RleHQ+PC9zdmc+'},
   {id:531, name:'Paramount+', logo:'https://image.tmdb.org/t/p/original/xbhHHa1YgtpwhC8lb1NQ3ACVcLd.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwNjRGRiIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QKzwvdGV4dD48L3N2Zz4='},
   {id:283, name:'Crunchyroll', logo:'https://image.tmdb.org/t/p/original/8Gt1iClBlzTeQs8WQm8UrCoIxnQ.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iI0Y0NzUyMSIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DUjwvdGV4dD48L3N2Zz4='},
-  {id:11, name:'MUBI', logo:'https://image.tmdb.org/t/p/original/fq3DCO54VMpBBBZRFqb7LQxm8vj.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzEyMTIxMiIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NPC90ZXh0Pjwvc3ZnPg=='},
-  {id:149, name:'Curiosity Stream', logo:'https://image.tmdb.org/t/p/original/3GtAZ1QObOUGOEFOQC9K9ajXsaR.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzNEMkI4RSIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DUzwvdGV4dD48L3N2Zz4='},
-  {id:444, name:'Pluto TV', logo:'https://image.tmdb.org/t/p/original/dFWcECB7arp5F0JEVasdUEWKrse.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzE2QjNGNyIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5QVDwvdGV4dD48L3N2Zz4='},
+  {id:11, name:'MUBI', logo:'https://image.tmdb.org/t/p/original/fq3DCO54VMpBBBZRFqb7LQxm8vj.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwMkJFNyIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NPC90ZXh0Pjwvc3ZnPg=='},
+  {id:149, name:'Curiosity Stream', logo:'https://image.tmdb.org/t/p/original/3GtAZ1QObOUGOEFOQC9K9ajXsaR.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iI2ViOTY0NyIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ZPC90ZXh0Pjwvc3ZnPg=='},
+  {id:444, name:'Pluto TV', logo:'https://image.tmdb.org/t/p/original/dFWcECB7arp5F0JEVasdUEWKrse.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwMDAwMCIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNmZmYyMDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPnBUVjwvdGV4dD48L3N2Zz4='},
   {id:188, name:'YouTube Premium', logo:'https://image.tmdb.org/t/p/original/6c84bNFuPpRVQePKZEkDAikz8GO.jpg', fallback:'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0MCA0MCI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iI0ZGMDAwMCIvPjx0ZXh0IHg9IjIwIiB5PSIyNyIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5ZVDwvdGV4dD48L3N2Zz4='}
 ];
 
+
+// Prime Video: TMDB uses id:9 in some regions, id:119 in others — normalize to 9
+function normProvider(id){ return id === 9 ? 119 : id; }
 
 let rated={};    // {id:{id,type,title,rating,genre_ids,poster_path,backdrop_path,release_date,overview}}
 let saved={};    // {id:{...item,savedAt}}
@@ -1820,7 +1828,7 @@ async function openDetail(id, type) {
           </div>
         </div>
 
-        ${genres.length ? `<div class="modal-genres">${genres.map(g => `<span class="modal-genre-tag">${g.name}</span>`).join('')}</div>` : ''}
+        ${genres.length ? `<div class="modal-genres">${genres.map(g => `<button class="modal-genre-tag" onclick="searchByGenreFromModal(${g.id})">${GENRE_NAMES[g.id]||g.name}</button>`).join('')}</div>` : ''}
 
         ${progressHtml} <div class="progress-widget ${ratingActive ? 'expanded' : ''}" id="rating-widget" style="margin: 15px 0; border-color: var(--gold);">
           <div class="pw-header" onclick="toggleRatingExpand()">
@@ -2176,6 +2184,7 @@ function buildProfile(){
   if(!items.length) return null;
   const gs={},gc={},gsM={},gcM={},gsT={},gcT={};
   let total=0,top=0;
+  const ds={},dc={};
   items.forEach(item=>{
     total+=item.rating;
     if(item.rating>top)top=item.rating;
@@ -2185,13 +2194,16 @@ function buildProfile(){
       if(isM){gsM[g]=(gsM[g]||0)+item.rating;gcM[g]=(gcM[g]||0)+1;}
       else{gsT[g]=(gsT[g]||0)+item.rating;gcT[g]=(gcT[g]||0)+1;}
     });
+    const yr=parseInt((item.release_date||'').slice(0,4));
+    if(yr>=1900){ const dec=Math.floor(yr/10)*10; ds[dec]=(ds[dec]||0)+item.rating; dc[dec]=(dc[dec]||0)+1; }
   });
-  const ga={},gaM={},gaT={};
+  const ga={},gaM={},gaT={},da={};
   Object.keys(gs).forEach(g=>ga[g]=gs[g]/gc[g]);
   Object.keys(gsM).forEach(g=>gaM[g]=gsM[g]/gcM[g]);
   Object.keys(gsT).forEach(g=>gaT[g]=gsT[g]/gcT[g]);
+  Object.keys(ds).forEach(d=>da[d]=ds[d]/dc[d]);
   const sg=Object.entries(ga).sort((a,b)=>b[1]-a[1]).slice(0,8);
-  return{items,count:items.length,avgRating:(total/items.length).toFixed(1),topRating:top,genreAvg:ga,genreAvgMovie:gaM,genreAvgTV:gaT,genreCounts:gc,sortedGenres:sg,topGenre:sg[0]?(GENRE_NAMES[sg[0][0]]||'Variado'):'—'};
+  return{items,count:items.length,avgRating:(total/items.length).toFixed(1),topRating:top,genreAvg:ga,genreAvgMovie:gaM,genreAvgTV:gaT,genreCounts:gc,sortedGenres:sg,topGenre:sg[0]?(GENRE_NAMES[sg[0][0]]||'Variado'):'—',decadeAvg:da};
 }
 
 function updateProfile(){
@@ -2539,15 +2551,50 @@ function calcMatch(c, p) {
   const isTV = !!(c.name || c.first_air_date);
   const ga = isTV ? (p.genreAvgTV || p.genreAvg) : (p.genreAvgMovie || p.genreAvg);
   
+  // Genres the user has ever rated (any type)
+  const everRated = new Set(Object.keys(p.genreAvg).map(Number));
+
   let score = 0, weight = 0;
+  let unknownGenres = 0;
   genres.forEach(g => {
     if (ga[g]) {
       score += ga[g] * 10;
       weight += 1;
+    } else if (!everRated.has(g)) {
+      unknownGenres += 1;
     }
   });
 
-  let base = weight ? Math.round(score / weight) : 45;
+  let base;
+  if (weight) {
+    base = Math.round(score / weight);
+    // If most genres are ones you've never rated, scale down
+    const unknownRatio = unknownGenres / genres.length;
+    if (unknownRatio > 0.5) base = Math.round(base * (1 - unknownRatio * 0.4));
+  } else if (genres.every(g => !everRated.has(g))) {
+    // Every genre is one you've never rated at all → strong penalty
+    base = 28;
+  } else {
+    // Some genres in mixed profile → partial credit
+    let mixedScore = 0, mixedWeight = 0;
+    genres.forEach(g => { if (p.genreAvg[g]) { mixedScore += p.genreAvg[g] * 10; mixedWeight += 1; } });
+    base = mixedWeight ? Math.round((mixedScore / mixedWeight) * 0.7) : 30;
+  }
+
+  // Decade bonus: up to +8 points if the item's decade matches your preferences
+  if (p.decadeAvg && Object.keys(p.decadeAvg).length) {
+    const yr = parseInt((c.release_date || c.first_air_date || '0').slice(0, 4));
+    if (yr >= 1900) {
+      const dec = Math.floor(yr / 10) * 10;
+      const avgRating = parseFloat(p.avgRating) || 7;
+      const decRating = p.decadeAvg[dec];
+      if (decRating !== undefined) {
+        // Scale: if you rate that decade above your average → bonus, below → small penalty
+        const decBonus = Math.round((decRating - avgRating) * 1.2);
+        base = Math.max(30, base + Math.min(8, Math.max(-5, decBonus)));
+      }
+    }
+  }
 
   if (c.sourceItem) {
     // Bono por calificación de tu película favorita (máximo +6%)
@@ -2577,12 +2624,20 @@ function matchReasons(c, p) {
   return top.length ? '✦ Basado en tus preferencias · ' + top.join(' · ') : '✦ Basado en tus preferencias';
 }
 
+function providerLogoImg(p) {
+  const known = ALL_PROVIDERS.find(x => x.id === normProvider(p.provider_id));
+  const src = `${IMG_BASE}original${p.logo_path}`;
+  const fallback = known ? known.fallback : '';
+  const onerror = fallback ? `this.src='${fallback}'` : 'this.remove()';
+  return `<img src="${src}" class="rec-provider-logo mine" title="${p.provider_name}" onerror="${onerror}">`;
+}
+
 function recCardHtml(item,type,providers=[]){
   const poster=item.poster_path?`${IMG_BASE}w185${item.poster_path}`:'';
   const title=type==='movie'?item.title:item.name;
   const year=(type==='movie'?item.release_date:item.first_air_date||'').slice(0,4);
   const color=item.match>=80?'#4caf78':item.match>=60?'#f59e0b':'#a09888';
-  const provLogos=(providers||[]).map(p=>`<img src="${IMG_BASE}original${p.logo_path}" class="rec-provider-logo ${userProviders.has(p.provider_id)?'mine':''}" title="${p.provider_name}" onerror="this.remove()">`).join('');
+  const provLogos=(providers||[]).filter(p=>userProviders.has(normProvider(p.provider_id))).map(providerLogoImg).join('');
   if(window.innerWidth <= 640){
     return `<div class="rec-card-poster" onclick="openDetail(${item.id},'${type}')">
       <div class="rec-card-poster-img-wrap">
@@ -2640,11 +2695,26 @@ function attachHscrollListener(type) {
   }, {passive:true});
 }
 
+function renderRecsList(type) {
+  const all = type === 'movie' ? window._movieRecsAll : window._tvRecsAll;
+  if (!all) return;
+  const shown = (type === 'movie' ? window._movieRecsShown : window._tvRecsShown) || 10;
+  const listItems = all.slice(0, shown);
+  const listId = type === 'movie' ? 'movie-recs-list' : 'tv-recs-list';
+  const moreId = type === 'movie' ? 'movie-recs-more' : 'tv-recs-more';
+  const isMobile = window.innerWidth <= 640;
+  const hasMore = shown < all.length;
+  document.getElementById(listId).innerHTML = isMobile ? buildHscroll(listItems, type, hasMore) : listItems.map(i => recCardHtml(i, type)).join('');
+  document.getElementById(moreId).style.display = hasMore ? 'flex' : 'none';
+  if (isMobile) setTimeout(() => attachHscrollListener(type), 50);
+}
+
 function loadMoreRecs(type) {
   const all = type === 'movie' ? window._movieRecsAll : window._tvRecsAll;
   if (!all) return;
   const shownKey = type === 'movie' ? '_movieRecsShown' : '_tvRecsShown';
-  window[shownKey] = (window[shownKey] || 10) + 10;
+  const prevShown = window[shownKey] || 10;
+  window[shownKey] = prevShown + 10;
   const shown = all.slice(0, window[shownKey]);
   const listId = type === 'movie' ? 'movie-recs-list' : 'tv-recs-list';
   const moreId = type === 'movie' ? 'movie-recs-more' : 'tv-recs-more';
@@ -2655,13 +2725,35 @@ function loadMoreRecs(type) {
     : shown.map(i=>recCardHtml(i,type)).join('');
   document.getElementById(moreId).style.display = hasMore ? 'flex' : 'none';
   if(isMobile) setTimeout(()=>attachHscrollListener(type), 50);
+  // Enrich newly shown items with provider data
+  if (userProviders.size && window._recsProviderCache !== undefined) {
+    const newItems = shown.slice(prevShown);
+    (async () => {
+      for (const item of newItems) {
+        const pc = window._recsProviderCache;
+        if (!pc[item.id]) {
+          try {
+            const r = await fetch(`${API_BASE}/${type}/${item.id}/watch/providers?api_key=${API_KEY}`);
+            const d = await r.json();
+            const wd = (d.results||{})[userCountry]||{};
+            const flat2=[...(wd.flatrate||[]),...(wd.rent||[]).filter(r=>!(wd.flatrate||[]).find(f=>f.provider_id===r.provider_id))].slice(0,5);
+            pc[item.id]=flat2.map(p=>({...p,provider_id:normProvider(p.provider_id)}));
+            pc[item.id+'_ids']=flat2.map(p=>normProvider(p.provider_id));
+          } catch(e) { pc[item.id]=[]; }
+        }
+      }
+      if (userProviders.size) renderRecsList(type);
+    })();
+  }
 }
 
 async function loadRecs(){
   const profile=buildProfile();
   const empty=document.getElementById('recs-empty');
-  if(!profile||profile.count<3){empty.style.display='block';document.getElementById('recs-container').style.display='none';return;}
-  empty.style.display='none';document.getElementById('recs-container').style.display='grid';
+  const emptyProviders=document.getElementById('recs-empty-providers');
+  if(!profile||profile.count<3){empty.style.display='block';emptyProviders.style.display='none';document.getElementById('recs-container').style.display='none';return;}
+  if(!userProviders.size){empty.style.display='none';emptyProviders.style.display='flex';document.getElementById('recs-container').style.display='none';return;}
+  empty.style.display='none';emptyProviders.style.display='none';document.getElementById('recs-container').style.display='grid';
   document.getElementById('movie-recs-loading').style.display='flex';
   document.getElementById('tv-recs-loading').style.display='flex';
   document.getElementById('movie-recs-list').innerHTML='';
@@ -2684,13 +2776,14 @@ async function loadRecs(){
     const results=[];
     const providerParam=userProviders.size>0?`&with_watch_providers=${[...userProviders].join('|')}&watch_region=${userCountry}`:'';
     
-    // 1. Recomendaciones directas (AHORA GUARDAMOS QUIÉN LA RECOMENDÓ)
-    for(const item of topItems.filter(i=>i.type===type).slice(0,3)){
+    // 1. Discover por géneros de tus títulos favoritos + provider filter
+    for(const item of topItems.filter(i=>i.type===type).slice(0,4)){
+      const seedGenres=(item.genre_ids||[]).slice(0,2).join(',');
+      if(!seedGenres) continue;
       try{
-        const r=await fetch(`${API_BASE}/${type}/${item.id}/recommendations?api_key=${API_KEY}&language=en-US`);
+        const r=await fetch(`${API_BASE}/discover/${type}?api_key=${API_KEY}&language=en-US&with_genres=${seedGenres}&sort_by=vote_average.desc&vote_count.gte=100${providerParam}`);
         const d=await r.json();
-        const recs = (d.results||[]).slice(0,15).map(x => ({...x, sourceItem: item}));
-        results.push(...recs);
+        results.push(...(d.results||[]).slice(0,10).map(x=>({...x,sourceItem:item})));
       }catch(e){}
     }
     
@@ -2707,8 +2800,8 @@ async function loadRecs(){
     // 3. Fallback: top rated del tipo si aún hay pocos resultados únicos
     const provisional = results.filter(item => !seenIds.has(item.id));
     if(provisional.length < 20){
-      try{const r=await fetch(`${API_BASE}/${type}/top_rated?api_key=${API_KEY}&language=en-US&page=1`);const d=await r.json();results.push(...(d.results||[]).slice(0,20));}catch(e){}
-      try{const r=await fetch(`${API_BASE}/${type}/top_rated?api_key=${API_KEY}&language=en-US&page=2`);const d=await r.json();results.push(...(d.results||[]).slice(0,20));}catch(e){}
+      try{const r=await fetch(`${API_BASE}/discover/${type}?api_key=${API_KEY}&language=en-US&sort_by=vote_average.desc&vote_count.gte=100${providerParam}`);const d=await r.json();results.push(...(d.results||[]).slice(0,20));}catch(e){}
+      try{const r=await fetch(`${API_BASE}/discover/${type}?api_key=${API_KEY}&language=en-US&sort_by=vote_average.desc&vote_count.gte=100${providerParam}&page=2`);const d=await r.json();results.push(...(d.results||[]).slice(0,20));}catch(e){}
     }
 
     const seen=new Set();
@@ -2729,13 +2822,16 @@ async function loadRecs(){
 
   // Fetch providers for rec items in bulk (best-effort, non-blocking)
   const providerCache={};
+  window._recsProviderCache = providerCache;
   async function getProviders(id,type){
     if(providerCache[id]) return providerCache[id];
     try{
       const r=await fetch(`${API_BASE}/${type}/${id}/watch/providers?api_key=${API_KEY}`);
       const d=await r.json();
       const wd=(d.results||{})[userCountry]||{};
-      providerCache[id]=[...(wd.flatrate||[]),...(wd.rent||[]).filter(r=>!(wd.flatrate||[]).find(f=>f.provider_id===r.provider_id))].slice(0,5);
+      const flat=[...(wd.flatrate||[]),...(wd.rent||[]).filter(r=>!(wd.flatrate||[]).find(f=>f.provider_id===r.provider_id))].slice(0,5);
+      providerCache[id]=flat.map(p=>({...p,provider_id:normProvider(p.provider_id)}));
+      providerCache[id+'_ids']=flat.map(p=>normProvider(p.provider_id));
     }catch(e){ providerCache[id]=[]; }
     return providerCache[id];
   }
@@ -2753,12 +2849,12 @@ async function loadRecs(){
   // Async: enrich top 8 rec cards with provider logos
   (async()=>{
     const enrichItems=async(items,type,listId)=>{
-      for(const item of items.slice(0,8)){
+      for(const item of items){
         const prs=await getProviders(item.id,type);
         if(!prs.length) continue;
         const card=document.querySelector(`#${listId} [onclick*="${item.id}"]`);
         if(!card) continue;
-        const logos=prs.map(p=>`<img src="${IMG_BASE}original${p.logo_path}" class="rec-provider-logo ${userProviders.has(p.provider_id)?'mine':''}" title="${p.provider_name}" onerror="this.remove()">`).join('');
+        const logos=prs.filter(p=>userProviders.has(normProvider(p.provider_id))).map(providerLogoImg).join('');
         // Desktop card has .rec-info; mobile poster card skips provider logos (no space)
         const infoEl=card.querySelector('.rec-info');
         if(!infoEl) continue;
@@ -2833,7 +2929,7 @@ async function fetchProvidersBatch(items) {
       const r = await fetch(`${API_BASE}/${item.media_type}/${item.id}/watch/providers?api_key=${API_KEY}`);
       const d = await r.json();
       const wd = (d.results || {})[userCountry] || {};
-      fsProviderCache[item.id] = [...(wd.flatrate || []), ...(wd.rent || [])].map(p => p.provider_id);
+      fsProviderCache[item.id] = [...(wd.flatrate || []), ...(wd.rent || [])].map(p => normProvider(p.provider_id));
     } catch(e) {
       fsProviderCache[item.id] = [];
     }
@@ -2842,10 +2938,21 @@ async function fetchProvidersBatch(items) {
 const SF_GENRES=[
   {id:28,name:'Acción'},{id:18,name:'Drama'},{id:35,name:'Comedia'},{id:27,name:'Terror'},
   {id:878,name:'Sci-Fi'},{id:12,name:'Aventura'},{id:16,name:'Animación'},{id:80,name:'Crimen'},
-  {id:99,name:'Documental'},{id:14,name:'Fantasía'},{id:53,name:'Thriller'},{id:10749,name:'Romance'},
-  {id:9648,name:'Misterio'},{id:10752,name:'Bélico'},{id:37,name:'Western'},
-  {id:10765,name:'Sci-Fi & Fantasía'},{id:10759,name:'Acción & Aventura'},
+  {id:99,name:'Documental'},{id:14,name:'Fantasía'},{id:36,name:'Historia'},{id:53,name:'Thriller'},
+  {id:10749,name:'Romance'},{id:9648,name:'Misterio'},{id:10752,name:'Bélico'},{id:37,name:'Western'},
+  {id:10751,name:'Familiar'},{id:10402,name:'Música'},{id:10765,name:'Sci-Fi & Fantasía'},
+  {id:10759,name:'Acción & Aventura'},{id:10768,name:'Guerra & Política'},{id:10764,name:'Reality'},
 ];
+
+function searchByGenreFromModal(genreId) {
+  closeModal();
+  openFullSearch('');
+  // Wait for fullscreen to open and genre checkboxes to render, then check the genre
+  setTimeout(() => {
+    const cb = document.querySelector(`.sf-genre-cb[value="${genreId}"]`);
+    if (cb) { cb.checked = true; applyFilters(); }
+  }, 200);
+}
 
 function openFullSearch(q){ 
   const overlay = document.getElementById('search-fullscreen');
@@ -3007,14 +3114,18 @@ function applyFilters(){
   const checkedGenres = [...document.querySelectorAll('.sf-genre-cb:checked')].map(c => parseInt(c.value));
   const checkedProviders = [...document.querySelectorAll('.sf-provider-cb:checked')].map(c => parseInt(c.value));
 
-  // --- MODO BROWSE: sin query pero con proveedor seleccionado ---
+  // --- MODO BROWSE: sin query ----
   const q = document.getElementById('sf-input').value.trim();
   if(!q){
     if(checkedProviders.length > 0){
       browseByProvider(checkedProviders, typeMovie, typeTV);
       return;
     }
-    // Sin query y sin proveedor: mostrar estado vacío
+    if(checkedGenres.length > 0){
+      browseByGenres(checkedGenres, typeMovie, typeTV);
+      return;
+    }
+    // Sin query, sin proveedor, sin género: mostrar estado vacío
     const grid = document.getElementById('sf-grid');
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--text3)"><div style="font-size:2.5rem;margin-bottom:12px">🔍</div><div style="font-size:0.95rem">Escribí algo para buscar<br>o seleccioná un servicio para explorar su catálogo</div></div>';
     document.getElementById('sf-results-title').textContent = 'Buscar';
@@ -3072,6 +3183,31 @@ function applyFilters(){
 }
 
 // Browse catalog of a provider via TMDB discover (no query needed)
+async function browseByGenres(genreIds, typeMovie, typeTV) {
+  const grid = document.getElementById('sf-grid');
+  document.getElementById('sf-results-title').textContent = 'Explorar por género';
+  document.getElementById('sf-results-count').textContent = '';
+  grid.innerHTML = '<div class="loading-row"><div class="spinner"></div></div>';
+  const genreParam = genreIds.join('|');
+  const types = (!typeMovie && !typeTV) ? ['movie','tv'] : [...(typeMovie?['movie']:[]), ...(typeTV?['tv']:[])];
+  const results = [];
+  for (const t of types) {
+    try {
+      const r = await fetch(`${API_BASE}/discover/${t}?api_key=${API_KEY}&language=es-419&with_genres=${genreParam}&sort_by=vote_average.desc&vote_count.gte=200`);
+      const d = await r.json();
+      results.push(...(d.results||[]).map(x=>({...x,media_type:t})));
+    } catch(e) {}
+  }
+  const seen = new Set();
+  const deduped = results.filter(i=>{ if(seen.has(i.id)) return false; seen.add(i.id); return true; })
+    .sort((a,b)=>(b.vote_average||0)-(a.vote_average||0));
+  fsAllResults = deduped;
+  fsFiltered = deduped;
+  fsShowing = FS_PAGE_SIZE;
+  document.getElementById('sf-results-count').textContent = `${deduped.length} resultados`;
+  renderFullResults(false);
+}
+
 async function browseByProvider(providerIds, typeMovie, typeTV){
   const grid = document.getElementById('sf-grid');
   grid.innerHTML = '<div style="grid-column:1/-1;display:flex;justify-content:center;padding:40px"><div class="spinner"></div></div>';
